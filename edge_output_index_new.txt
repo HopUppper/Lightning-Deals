@@ -1,0 +1,1244 @@
+﻿<!DOCTYPE html>
+<html lang="en"><head>
+<script>
+window.errorsLog = [];
+window.onerror = function(message, source, lineno, colno, error) {
+    window.errorsLog.push({
+        message: message,
+        source: source,
+        lineno: lineno,
+        colno: colno,
+        stack: error ? error.stack : ''
+    });
+    return false;
+};
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightning Deals | Premium Digital Subscriptions up to 90% Off</title>
+    <meta name="description" content="Get instant premium access to Canva Pro, Adobe Creative Cloud, LinkedIn Premium, TradingView, and more at heavily discounted prices in Rupees. Fast delivery, 24/7 WhatsApp support.">
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <!-- Background Glow Blobs -->
+    <div class="glow-blob glow-1"></div>
+    <div class="glow-blob glow-2"></div>
+    <div class="glow-blob glow-3"></div>
+
+    <!-- Header / Navigation -->
+    <header id="main-header">
+        <div class="container header-container">
+            <a href="#" class="logo" id="header-logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#lightning-grad)" stroke="url(#lightning-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <defs>
+                        <linearGradient id="lightning-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00F2FE"></stop>
+                            <stop offset="100%" stop-color="#4FACFE"></stop>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="logo-text">Lightning<span class="logo-highlight">Deals</span></span>
+            </a>
+            
+            <nav class="desktop-nav" id="desktop-navigation">
+                <a href="#" class="nav-link active">Home</a>
+                <a href="#products" class="nav-link">Products</a>
+                <a href="#why-choose-us" class="nav-link">Why Us</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#testimonials" class="nav-link">Reviews</a>
+                <a href="#faq" class="nav-link">FAQ</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </nav>
+
+            <div class="header-actions">
+                <button class="cart-trigger-btn" id="header-cart-btn" aria-label="View Shopping Cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" style="width: 16px; height: 16px;" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+                    <span class="cart-label">Cart</span>
+                    <span class="badge-cart-count" id="cart-count-badge">0</span>
+                </button>
+                <a href="#products" class="btn btn-primary btn-sm btn-glow" id="nav-cta-btn">
+                    <span>Get Premium Access</span>
+                </a>
+                <button class="mobile-nav-toggle" id="mobile-menu-toggle" aria-label="Toggle Navigation Menu">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="menu" aria-hidden="true" class="lucide lucide-menu"><path d="M4 5h16"></path><path d="M4 12h16"></path><path d="M4 19h16"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-nav" id="mobile-navigation">
+            <a href="#" class="mobile-nav-link">Home</a>
+            <a href="#products" class="mobile-nav-link">Products</a>
+            <a href="#why-choose-us" class="mobile-nav-link">Why Us</a>
+            <a href="#how-it-works" class="mobile-nav-link">How It Works</a>
+            <a href="#testimonials" class="mobile-nav-link">Reviews</a>
+            <a href="#faq" class="mobile-nav-link">FAQ</a>
+            <a href="#contact" class="mobile-nav-link">Contact</a>
+            <a href="#products" class="mobile-nav-link btn btn-primary text-center margin-top-sm">Get Premium Access</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section id="hero" class="hero-section">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <div class="hero-badge fade-in">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="sparkles" aria-hidden="true" class="lucide lucide-sparkles icon-sparkle"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"></path><path d="M20 2v4"></path><path d="M22 4h-4"></path><circle cx="4" cy="20" r="2"></circle></svg>
+                        <span>Save up to 90% on Premium Subscriptions</span>
+                    </div>
+                    <h1 class="hero-title fade-in delay-1">
+                        Unlock Premium <br>
+                        <span class="gradient-text">Digital Tools</span> at Massive Discounts
+                    </h1>
+                    <p class="hero-subtitle fade-in delay-2">
+                        Get instant access to Canva Pro, Adobe Creative Cloud, LinkedIn Premium, TradingView and more. Trusted by thousands, delivered in minutes via WhatsApp.
+                    </p>
+                    <div class="hero-actions fade-in delay-3">
+                        <a href="#products" class="btn btn-primary btn-lg btn-glow" id="hero-cta-primary">
+                            <span>View All Deals</span>
+                        </a>
+                        <a href="#how-it-works" class="btn btn-secondary btn-lg" id="hero-cta-secondary">
+                            <span>How it Works</span>
+                        </a>
+                    </div>
+                    <div class="hero-trust-metrics fade-in delay-4">
+                        <div class="trust-metric">
+                            <span class="metric-val">10k+</span>
+                            <span class="metric-lbl">Active Users</span>
+                        </div>
+                        <div class="trust-divider"></div>
+                        <div class="trust-metric">
+                            <span class="metric-val">4.9/5</span>
+                            <span class="metric-lbl">Rating</span>
+                        </div>
+                        <div class="trust-divider"></div>
+                        <div class="trust-metric">
+                            <span class="metric-val">5 Min</span>
+                            <span class="metric-lbl">Average Delivery</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual fade-in delay-2">
+                    <div class="visual-wrapper">
+                        <!-- Floating Glass Card 1 -->
+                        <div class="floating-card card-1 glass-card">
+                            <div class="fc-header">
+                                <div class="fc-icon-wrapper-canva">C</div>
+                                <div>
+                                    <h4 class="fc-title">Canva Pro</h4>
+                                    <span class="fc-status">Active License</span>
+                                </div>
+                            </div>
+                            <div class="fc-body">
+                                <span class="fc-badge-success">Success</span>
+                                <span class="fc-time">Just now</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Glass Card 2 -->
+                        <div class="floating-card card-2 glass-card">
+                            <div class="fc-header">
+                                <div class="fc-icon-wrapper-adobe">A</div>
+                                <div>
+                                    <h4 class="fc-title">Adobe CC</h4>
+                                    <span class="fc-status">All Apps Unlocked</span>
+                                </div>
+                            </div>
+                            <div class="fc-body">
+                                <span class="fc-price-discount">-92% Saved</span>
+                            </div>
+                        </div>
+
+                        <!-- Floating Glass Card 3 -->
+                        <div class="floating-card card-3 glass-card">
+                            <div class="fc-header">
+                                <div class="fc-icon-wrapper-linkedin">in</div>
+                                <div>
+                                    <h4 class="fc-title">LinkedIn Premium</h4>
+                                    <span class="fc-status">Business Account</span>
+                                </div>
+                            </div>
+                            <div class="fc-body">
+                                <span class="fc-time">Instant Delivery</span>
+                            </div>
+                        </div>
+
+                        <!-- Main Animated Mockup Screen -->
+                        <div class="main-mockup glass-card">
+                            <div class="mockup-header">
+                                <div class="dots">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                                <div class="mockup-search">lightning-deals.com/dashboard</div>
+                            </div>
+                            <div class="mockup-body">
+                                <div class="mockup-sidebar">
+                                    <div class="sidebar-item active"></div>
+                                    <div class="sidebar-item"></div>
+                                    <div class="sidebar-item"></div>
+                                </div>
+                                <div class="mockup-content">
+                                    <div class="mockup-title-bar">
+                                        <div class="title-shimmer"></div>
+                                        <div class="desc-shimmer"></div>
+                                    </div>
+                                    <div class="mockup-grid">
+                                        <div class="mockup-grid-card">
+                                            <div class="grid-card-img"></div>
+                                            <div class="grid-card-text"></div>
+                                        </div>
+                                        <div class="mockup-grid-card">
+                                            <div class="grid-card-img"></div>
+                                            <div class="grid-card-text"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trust Features Section -->
+        <section id="trust" class="trust-section">
+            <div class="container">
+                <div class="grid grid-3-cols" id="trust-cards-container">
+                    <!-- Trust Card 1 -->
+                    <div class="glass-card trust-card">
+                        <div class="trust-card-icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="zap" aria-hidden="true" class="lucide lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg>
+                        </div>
+                        <h3 class="trust-card-title">Instant Activation</h3>
+                        <p class="trust-card-description">Your digital subscription credentials will be sent to you via WhatsApp or Email within 5-15 minutes of purchase.</p>
+                    </div>
+                    <!-- Trust Card 2 -->
+                    <div class="glass-card trust-card">
+                        <div class="trust-card-icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield-check" aria-hidden="true" class="lucide lucide-shield-check"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
+                        </div>
+                        <h3 class="trust-card-title">100% Safe &amp; Secure</h3>
+                        <p class="trust-card-description">Official private accounts or shared team invites. No credentials theft, completely legal and risk-free licenses.</p>
+                    </div>
+                    <!-- Trust Card 3 -->
+                    <div class="glass-card trust-card">
+                        <div class="trust-card-icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="headset" aria-hidden="true" class="lucide lucide-headset"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"></path><path d="M21 16v2a4 4 0 0 1-4 4h-5"></path></svg>
+                        </div>
+                        <h3 class="trust-card-title">24/7 Priority Support</h3>
+                        <p class="trust-card-description">Got a logout issue or need renewal help? Our friendly chat support team is always available to assist you instantly on WhatsApp.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section id="products" class="products-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Trending <span class="gradient-text">Subscription Deals</span></h2>
+                    <p class="section-subtitle">Get full access to standard commercial tools. Choose your subscription and grab your discount instantly.</p>
+                </div>
+                
+                <!-- Search & Filters Wrapper -->
+                <div class="search-filter-wrapper">
+                    <div class="search-input-group">
+                        <input type="text" id="store-search-input" placeholder="Search premium subscriptions...">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" aria-hidden="true" class="lucide lucide-search"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                    </div>
+                    
+                    <!-- Desktop Category Filter Buttons -->
+                    <div class="category-filters" id="category-filters-container">
+                        <button class="filter-btn active" data-category="all">All Subscriptions</button>
+                        <button class="filter-btn" data-category="design">Design &amp; Creative</button>
+                        <button class="filter-btn" data-category="ai">AI Tools</button>
+                        <button class="filter-btn" data-category="productivity">Productivity</button>
+                        <button class="filter-btn" data-category="streaming">Streaming</button>
+                        <button class="filter-btn" data-category="business">Business &amp; Professional</button>
+                        <button class="filter-btn" data-category="finance">Finance &amp; Trading</button>
+                        <button class="filter-btn" data-category="education">Education &amp; Others</button>
+                    </div>
+
+                    <!-- Mobile Category Dropdown Selector -->
+                    <div class="mobile-filter-select-wrapper">
+                        <select class="mobile-filter-select" id="store-category-select">
+                            <option value="all">All Subscriptions</option>
+                            <option value="design">Design &amp; Creative</option>
+                            <option value="ai">AI Tools</option>
+                            <option value="productivity">Productivity</option>
+                            <option value="streaming">Streaming</option>
+                            <option value="business">Business &amp; Professional</option>
+                            <option value="finance">Finance &amp; Trading</option>
+                            <option value="education">Education &amp; Others</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="products-grid" id="store-products-grid"><div class="glass-card product-card" id="prod-card-canva-pro">
+            <div class="prod-header">
+                <div class="prod-badge-logo grad-purple">C</div>
+                <span class="prod-badge-tag badge-bestseller">Bestseller</span>
+            </div>
+            <h3 class="prod-title">Canva Pro</h3>
+            
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot available"></span>
+                    <span class="stock-label">Available</span>
+                </div>
+            
+            <p class="prod-desc">Access Canva's full library of 100M+ stock assets, branding kit tools, premium templates, and the one-click background remover.</p>
+            
+            <div class="prod-price-area">
+                <span class="prod-retail">Starting from</span>
+                <div class="prod-offer">
+                    <span class="prod-price-new">Ôé╣499</span>
+                    <span class="prod-price-suffix">/ plan</span>
+                </div>
+            </div>
+
+            <ul class="prod-benefits">
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Join official admin organization</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>100M+ premium stock photos &amp; videos</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>One-click Background Remover Tool</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Brand Kits, Logo assets &amp; Custom Fonts</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Full warranty replacement cover</span></li>
+            </ul>
+
+            <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="canva-pro">
+                <span>Get Access</span>
+            </button>
+        </div><div class="glass-card product-card" id="prod-card-adobe-cc">
+            <div class="prod-header">
+                <div class="prod-badge-logo grad-red">Cc</div>
+                <span class="prod-badge-tag badge-bestseller">90% Off</span>
+            </div>
+            <h3 class="prod-title">Adobe Creative Cloud</h3>
+            
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot available"></span>
+                    <span class="stock-label">Available</span>
+                </div>
+            
+            <p class="prod-desc">Get full access to all 20+ creative desktop/mobile apps including Photoshop, Illustrator, Premiere Pro, and Acrobat Pro.</p>
+            
+            <div class="prod-price-area">
+                <span class="prod-retail">Starting from</span>
+                <div class="prod-offer">
+                    <span class="prod-price-new">Ôé╣999</span>
+                    <span class="prod-price-suffix">/ plan</span>
+                </div>
+            </div>
+
+            <ul class="prod-benefits">
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Full All-Apps bundle activated</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Generative Fill &amp; Firefly AI support</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Works on Windows, Mac, iPad, Mobile</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>100GB cloud storage enabled</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Reseller renewal warranty protection</span></li>
+            </ul>
+
+            <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="adobe-cc">
+                <span>Get Access</span>
+            </button>
+        </div><div class="glass-card product-card" id="prod-card-notion-pro">
+            <div class="prod-header">
+                <div class="prod-badge-logo grad-blue">N</div>
+                <span class="prod-badge-tag badge-bestseller">Workspaces</span>
+            </div>
+            <h3 class="prod-title">Notion Pro</h3>
+            
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot available"></span>
+                    <span class="stock-label">Available</span>
+                </div>
+            
+            <p class="prod-desc">Enhance your team workspaces, wikis, and project databases. Get unlimited block uploads, file attachments, and version history logs.</p>
+            
+            <div class="prod-price-area">
+                <span class="prod-retail">Starting from</span>
+                <div class="prod-offer">
+                    <span class="prod-price-new">Ôé╣299</span>
+                    <span class="prod-price-suffix">/ plan</span>
+                </div>
+            </div>
+
+            <ul class="prod-benefits">
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Unlimited file uploads &amp; document blocks</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Full page version history (30 days)</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Notion AI writing assistant add-on</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Custom workspace page links</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Private teams collaborative spaces</span></li>
+            </ul>
+
+            <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="notion-pro">
+                <span>Get Access</span>
+            </button>
+        </div><div class="glass-card product-card" id="prod-card-ms-office">
+            <div class="prod-header">
+                <div class="prod-badge-logo grad-red">O</div>
+                <span class="prod-badge-tag badge-bestseller">Essential</span>
+            </div>
+            <h3 class="prod-title">Microsoft 365 Family</h3>
+            
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot available"></span>
+                    <span class="stock-label">Available</span>
+                </div>
+            
+            <p class="prod-desc">Access premium Office applications: Word, Excel, PowerPoint, Outlook. Works across 5 devices concurrently with OneDrive cloud storage.</p>
+            
+            <div class="prod-price-area">
+                <span class="prod-retail">Starting from</span>
+                <div class="prod-offer">
+                    <span class="prod-price-new">Ôé╣349</span>
+                    <span class="prod-price-suffix">/ plan</span>
+                </div>
+            </div>
+
+            <ul class="prod-benefits">
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Premium Office suite install (5 devices)</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>1 TB OneDrive secure cloud storage</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Access Skype minutes and Outlook premium</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Windows, Mac, iOS, Android compatibility</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Full reseller replacement support</span></li>
+            </ul>
+
+            <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="ms-office">
+                <span>Get Access</span>
+            </button>
+        </div><div class="glass-card product-card" id="prod-card-netflix-premium">
+            <div class="prod-header">
+                <div class="prod-badge-logo grad-red">Nx</div>
+                <span class="prod-badge-tag badge-bestseller">Ultra HD</span>
+            </div>
+            <h3 class="prod-title">Netflix Premium</h3>
+            
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot available"></span>
+                    <span class="stock-label">Available</span>
+                </div>
+            
+            <p class="prod-desc">Watch in 4K HDR video quality. Add custom user profile with PIN locks. Ad-free streaming with support for offline downloads.</p>
+            
+            <div class="prod-price-area">
+                <span class="prod-retail">Starting from</span>
+                <div class="prod-offer">
+                    <span class="prod-price-new">Ôé╣199</span>
+                    <span class="prod-price-suffix">/ plan</span>
+                </div>
+            </div>
+
+            <ul class="prod-benefits">
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Shared premium account slot</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Ultra HD 4K video resolution</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Offline downloads supported</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Custom PIN-locked profile screen</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Full warranty term replacement cover</span></li>
+            </ul>
+
+            <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="netflix-premium">
+                <span>Get Access</span>
+            </button>
+        </div><div class="glass-card product-card" id="prod-card-spotify-premium">
+            <div class="prod-header">
+                <div class="prod-badge-logo grad-green">Sp</div>
+                <span class="prod-badge-tag badge-bestseller">No Ads</span>
+            </div>
+            <h3 class="prod-title">Spotify Premium</h3>
+            
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot available"></span>
+                    <span class="stock-label">Available</span>
+                </div>
+            
+            <p class="prod-desc">Listen to high fidelity music without audio ads. Download tracks offline for playback, with unlimited skips and playback control.</p>
+            
+            <div class="prod-price-area">
+                <span class="prod-retail">Starting from</span>
+                <div class="prod-offer">
+                    <span class="prod-price-new">Ôé╣149</span>
+                    <span class="prod-price-suffix">/ plan</span>
+                </div>
+            </div>
+
+            <ul class="prod-benefits">
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Official Family plan slot invite link</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Ad-free offline high quality music</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Individual private account upgrade</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Millions of songs &amp; podcast titles</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Zero account access sharing needed</span></li>
+            </ul>
+
+            <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="spotify-premium">
+                <span>Get Access</span>
+            </button>
+        </div><div class="glass-card product-card" id="prod-card-linkedin-premium">
+            <div class="prod-header">
+                <div class="prod-badge-logo grad-blue">In</div>
+                <span class="prod-badge-tag badge-popular">Hot Deal</span>
+            </div>
+            <h3 class="prod-title">LinkedIn Premium</h3>
+            
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot available"></span>
+                    <span class="stock-label">Available</span>
+                </div>
+            
+            <p class="prod-desc">Accelerate your career search or client acquisition with LinkedIn Business. Stand out to recruiters and contact anyone.</p>
+            
+            <div class="prod-price-area">
+                <span class="prod-retail">Starting from</span>
+                <div class="prod-offer">
+                    <span class="prod-price-new">Ôé╣799</span>
+                    <span class="prod-price-suffix">/ plan</span>
+                </div>
+            </div>
+
+            <ul class="prod-benefits">
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Official Business Premium license</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>15 InMail credits per month</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Full list of who viewed your profile</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Unlimited search &amp; profile views</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>16,000+ LinkedIn Learning courses</span></li>
+            </ul>
+
+            <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="linkedin-premium">
+                <span>Get Access</span>
+            </button>
+        </div><div class="glass-card product-card" id="prod-card-tradingview-premium">
+            <div class="prod-header">
+                <div class="prod-badge-logo grad-yellow">Tv</div>
+                <span class="prod-badge-tag badge-recommended">Pro Traders</span>
+            </div>
+            <h3 class="prod-title">TradingView Premium</h3>
+            
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot available"></span>
+                    <span class="stock-label">Available</span>
+                </div>
+            
+            <p class="prod-desc">Unlock institutional trading tools, second-based charts, volume profiles, and unlimited custom technical indicators.</p>
+            
+            <div class="prod-price-area">
+                <span class="prod-retail">Starting from</span>
+                <div class="prod-offer">
+                    <span class="prod-price-new">Ôé╣899</span>
+                    <span class="prod-price-suffix">/ plan</span>
+                </div>
+            </div>
+
+            <ul class="prod-benefits">
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Premium features tier activated</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Second-based intervals charts</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Up to 8 charts per window layout</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>400 active alerts &amp; volume profiles</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Ad-free interface workspace</span></li>
+            </ul>
+
+            <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="tradingview-premium">
+                <span>Get Access</span>
+            </button>
+        </div><div class="glass-card product-card" id="prod-card-chatgpt-plus">
+            <div class="prod-header">
+                <div class="prod-badge-logo grad-green">Gp</div>
+                <span class="prod-badge-tag badge-bestseller">AI Power</span>
+            </div>
+            <h3 class="prod-title">ChatGPT Plus</h3>
+            
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot available"></span>
+                    <span class="stock-label">Available</span>
+                </div>
+            
+            <p class="prod-desc">Get access to GPT-4o, advanced data analysis, web browsing, custom GPTs, and higher message limits with priority access.</p>
+            
+            <div class="prod-price-area">
+                <span class="prod-retail">Starting from</span>
+                <div class="prod-offer">
+                    <span class="prod-price-new">Ôé╣599</span>
+                    <span class="prod-price-suffix">/ plan</span>
+                </div>
+            </div>
+
+            <ul class="prod-benefits">
+                <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Official Plus subscription access</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Unlimited access to GPT-4o &amp; DALL-E 3</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Advanced Data Analysis &amp; File Uploads</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Browse Custom GPT Store &amp; plugins</span></li><li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle-2" aria-hidden="true" class="lucide lucide-check-circle-2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg> <span>Full renewal warranty replacement cover</span></li>
+            </ul>
+
+            <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="chatgpt-plus">
+                <span>Get Access</span>
+            </button>
+        </div></div>
+            </div>
+        </section>
+
+        <!-- Why Choose Us Section -->
+        <section id="why-choose-us" class="why-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Why Buy From <span class="gradient-text">Lightning Deals?</span></h2>
+                    <p class="section-subtitle">We bridge the gap between premium subscriptions and budget. Here is how we differ from direct providers.</p>
+                </div>
+
+                <div class="comparison-grid">
+                    <!-- Comparison Card 1 (Direct Subscriptions) -->
+                    <div class="glass-card comp-card comp-direct">
+                        <h3 class="comp-title">Direct Subscriptions</h3>
+                        <ul class="comp-list">
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x text-red"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Extremely expensive (Ôé╣1,200 - Ôé╣8,000+/mo)</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x text-red"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Rigid cancellation and hidden fees</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x text-red"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Slow email-only customer service</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x text-red"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Requires recurring credit card holds</li>
+                        </ul>
+                    </div>
+
+                    <!-- Comparison Card 2 (Lightning Deals) -->
+                    <div class="glass-card comp-card comp-lightning">
+                        <div class="comp-badge">Recommended</div>
+                        <h3 class="comp-title">Lightning Deals</h3>
+                        <ul class="comp-list">
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" class="lucide lucide-check text-cyan"><path d="M20 6 9 17l-5-5"></path></svg> Unbelievable pricing (Save up to 90% off)</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" class="lucide lucide-check text-cyan"><path d="M20 6 9 17l-5-5"></path></svg> No contracts, pay-as-you-go flexible options</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" class="lucide lucide-check text-cyan"><path d="M20 6 9 17l-5-5"></path></svg> Direct WhatsApp chat assistance</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" class="lucide lucide-check text-cyan"><path d="M20 6 9 17l-5-5"></path></svg> UPI payments (GPay, PhonePe, Paytm)</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" class="lucide lucide-check text-cyan"><path d="M20 6 9 17l-5-5"></path></svg> Full replacement warranty during subscription term</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section id="how-it-works" class="timeline-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">How To <span class="gradient-text">Get Started</span></h2>
+                    <p class="section-subtitle">Get up and running with your premium account in four simple steps.</p>
+                </div>
+
+                <div class="step-timeline-container">
+                    <!-- Line connectors -->
+                    <div class="step-timeline-line"></div>
+                    <div class="step-timeline-fill" style="height: 100%;"></div>
+                    
+                    <!-- Step 1 -->
+                    <div class="step-timeline-item active">
+                        <div class="step-timeline-node">1</div>
+                        <div class="step-timeline-content-wrapper">
+                            <div class="step-timeline-card">
+                                <div class="step-timeline-card-header">
+                                    <div class="step-timeline-icon-box">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+                                    </div>
+                                    <h3 class="step-timeline-card-title">Browse &amp; Add to Cart</h3>
+                                </div>
+                                <p class="step-timeline-card-desc">Browse our collection of premium tools. Select your subscription, choose your validity plan, and add them to your cart.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="step-timeline-item active">
+                        <div class="step-timeline-node">2</div>
+                        <div class="step-timeline-content-wrapper">
+                            <div class="step-timeline-card">
+                                <div class="step-timeline-card-header">
+                                    <div class="step-timeline-icon-box">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="user" aria-hidden="true" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                    </div>
+                                    <h3 class="step-timeline-card-title">Enter Contact Details</h3>
+                                </div>
+                                <p class="step-timeline-card-desc">Enter your name, email, and WhatsApp mobile number. We will use these details to contact you and activate your premium access.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="step-timeline-item active">
+                        <div class="step-timeline-node">3</div>
+                        <div class="step-timeline-content-wrapper">
+                            <div class="step-timeline-card">
+                                <div class="step-timeline-card-header">
+                                    <div class="step-timeline-icon-box">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="qr-code" aria-hidden="true" class="lucide lucide-qr-code"><rect width="5" height="5" x="3" y="3" rx="1"></rect><rect width="5" height="5" x="16" y="3" rx="1"></rect><rect width="5" height="5" x="3" y="16" rx="1"></rect><path d="M21 16h-3a2 2 0 0 0-2 2v3"></path><path d="M21 21v.01"></path><path d="M12 7v3a2 2 0 0 1-2 2H7"></path><path d="M3 12h.01"></path><path d="M12 3h.01"></path><path d="M12 16v.01"></path><path d="M16 12h1"></path><path d="M21 12v.01"></path><path d="M12 21v-1"></path></svg>
+                                    </div>
+                                    <h3 class="step-timeline-card-title">Pay &amp; Upload Receipt</h3>
+                                </div>
+                                <p class="step-timeline-card-desc">Scan the UPI QR code to make payment, input your 12-digit UTR/Ref number, and drag/drop or upload your payment screenshot.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="step-timeline-item active">
+                        <div class="step-timeline-node">4</div>
+                        <div class="step-timeline-content-wrapper">
+                            <div class="step-timeline-card">
+                                <div class="step-timeline-card-header">
+                                    <div class="step-timeline-icon-box">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle2" aria-hidden="true" class="lucide lucide-check-circle2"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+                                    </div>
+                                    <h3 class="step-timeline-card-title">Get Instant Activation</h3>
+                                </div>
+                                <p class="step-timeline-card-desc">Once submitted, our admin verifies your transaction. Your login credentials or activation links are sent to your WhatsApp within 5-15 minutes.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section id="testimonials" class="testimonials-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Loved by <span class="gradient-text">Thousands of Users</span></h2>
+                    <p class="section-subtitle">Read feedback from designers, developers, students, and traders who save thousands every month.</p>
+                </div>
+
+                <div class="carousel-container">
+                    <div class="carousel-track" id="testimonial-track">
+                        <!-- Testimonial 1 -->
+                        <div class="glass-card testimonial-card">
+                            <div class="t-rating">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                            </div>
+                            <p class="t-comment">"As a freelance UI/UX designer, paying full price for Adobe CC and Canva Pro was eating my profits. Lightning Deals saved me! Got the account setup within 10 minutes. Will renew again."</p>
+                            <div class="t-user">
+                                <div class="t-avatar bg-avatar-1">RM</div>
+                                <div>
+                                    <h4 class="t-name">Rahul Mehta</h4>
+                                    <span class="t-role">Freelance Designer</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Testimonial 2 -->
+                        <div class="glass-card testimonial-card">
+                            <div class="t-rating">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                            </div>
+                            <p class="t-comment">"I was skeptical about TradingView premium subscriptions at first, but their support team explained the setup. It works flawlessly, indicators loading fine, and cost is literally 10% of retail."</p>
+                            <div class="t-user">
+                                <div class="t-avatar bg-avatar-2">SK</div>
+                                <div>
+                                    <h4 class="t-name">Siddharth Jain</h4>
+                                    <span class="t-role">Crypto Trader</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Testimonial 3 -->
+                        <div class="glass-card testimonial-card">
+                            <div class="t-rating">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                            </div>
+                            <p class="t-comment">"Using LinkedIn Premium for my recruitment campaigns has been amazing. No issues, account is completely private, and response time from their WhatsApp admin is under 2 minutes."</p>
+                            <div class="t-user">
+                                <div class="t-avatar bg-avatar-3">SL</div>
+                                <div>
+                                    <h4 class="t-name">Sarah Lim</h4>
+                                    <span class="t-role">HR Lead</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Testimonial 4 -->
+                        <div class="glass-card testimonial-card">
+                            <div class="t-rating">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
+                            </div>
+                            <p class="t-comment">"Been buying Coursera Plus and Adobe licenses from Lightning Deals for over a year now. Every time a license expires, they renew or replace it instantly. Trustworthy service."</p>
+                            <div class="t-user">
+                                <div class="t-avatar bg-avatar-4">AA</div>
+                                <div>
+                                    <h4 class="t-name">Amir Al-Harbi</h4>
+                                    <span class="t-role">Computer Science Student</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Carousel Dots Indicators -->
+                    <div class="carousel-indicators" id="carousel-dots"><button class="indicator-dot active" aria-label="Go to testimonial slide 1"></button><button class="indicator-dot " aria-label="Go to testimonial slide 2"></button><button class="indicator-dot " aria-label="Go to testimonial slide 3"></button><button class="indicator-dot " aria-label="Go to testimonial slide 4"></button></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="faq-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Frequently Asked <span class="gradient-text">Questions</span></h2>
+                    <p class="section-subtitle">Everything you need to know about our subscriptions, safety, and delivery guarantees.</p>
+                </div>
+
+                <!-- FAQ Search Box -->
+                <div class="faq-search-wrapper">
+                    <div class="search-input-group">
+                        <input type="text" id="faq-search-input" placeholder="Search frequently asked questions...">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="search" aria-hidden="true" class="lucide lucide-search"><path d="m21 21-4.34-4.34"></path><circle cx="11" cy="11" r="8"></circle></svg>
+                    </div>
+                </div>
+
+                <div class="faq-accordion-list">
+                    <!-- FAQ 1 -->
+                    <div class="faq-item glass-card">
+                        <button class="faq-toggle" id="faq-q1">
+                            <span>How does this work? How can it be so discounted?</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down faq-icon"><path d="m6 9 6 6 6-6"></path></svg>
+                        </button>
+                        <div class="faq-content">
+                            <div class="faq-content-inner">
+                                <p>We acquire official licenses in bulk (enterprise subscriptions, developer packages, and region-specific volume licenses) which lets us distribute premium slots at huge discounts. We pass these savings directly to our customers.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 2 -->
+                    <div class="faq-item glass-card">
+                        <button class="faq-toggle" id="faq-q2">
+                            <span>Is it safe and legal to use?</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down faq-icon"><path d="m6 9 6 6 6-6"></path></svg>
+                        </button>
+                        <div class="faq-content">
+                            <div class="faq-content-inner">
+                                <p>Yes, all accounts and access links are created officially. Depending on the service, you will either receive an invitation link to join an organization (e.g., Canva Pro) or a dedicated premium account login. Your personal projects and data remain completely private.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 3 -->
+                    <div class="faq-item glass-card">
+                        <button class="faq-toggle" id="faq-q3">
+                            <span>How fast is delivery?</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down faq-icon"><path d="m6 9 6 6 6-6"></path></svg>
+                        </button>
+                        <div class="faq-content">
+                            <div class="faq-content-inner">
+                                <p>Our average delivery time is between 5 to 15 minutes after payment is confirmed. During high-traffic periods, it might take up to 1-2 hours. If there's any delay, our chat support will keep you updated.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 4 -->
+                    <div class="faq-item glass-card">
+                        <button class="faq-toggle" id="faq-q4">
+                            <span>What happens if the subscription stops working?</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down faq-icon"><path d="m6 9 6 6 6-6"></path></svg>
+                        </button>
+                        <div class="faq-content">
+                            <div class="faq-content-inner">
+                                <p>All of our premium subscription plans are fully covered by a replacement warranty during the entire duration of the purchased term. If any issue arises, just contact us on WhatsApp, and we will reactivate or replace it for you immediately.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 5 -->
+                    <div class="faq-item glass-card">
+                        <button class="faq-toggle" id="faq-q5">
+                            <span>What payment methods do you accept?</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down faq-icon"><path d="m6 9 6 6 6-6"></path></svg>
+                        </button>
+                        <div class="faq-content">
+                            <div class="faq-content-inner">
+                                <p>We accept UPI payments (PhonePe, GPay, Paytm) instantly through our secure scan-to-pay checkout interface. We also accept bank transfers on manual WhatsApp request.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <div class="contact-grid">
+                    <div class="contact-info">
+                        <h2 class="contact-title">Ready to Elevate Your <br><span class="gradient-text">Digital Experience?</span></h2>
+                        <p class="contact-subtitle">Get in touch with us directly on WhatsApp for fast support, customized team accounts, or volume purchases.</p>
+                        
+                        <div class="contact-methods">
+                            <a href="https://wa.me/917695956938?text=Hello%20Lightning%20Deals%20I%20want%20to%20buy%20a%20subscription" target="_blank" class="contact-btn wa-btn btn-glow" id="contact-wa-direct">
+                                <svg class="social-svg-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path>
+                                </svg>
+                                <span>Connect on WhatsApp</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="contact-form-wrapper glass-card">
+                        <h3 class="form-title">Send a Quick Message</h3>
+                        <form id="store-contact-form">
+                            <div class="form-group">
+                                <label for="form-name">Full Name</label>
+                                <input type="text" id="form-name" placeholder="John Doe" required="">
+                            </div>
+                            <div class="form-group">
+                                <label for="form-email">Email Address</label>
+                                <input type="email" id="form-email" placeholder="john@example.com" required="">
+                            </div>
+                            <div class="form-group">
+                                <label for="form-msg">Which subscription do you need?</label>
+                                <textarea id="form-msg" rows="4" placeholder="I'm interested in Adobe CC and Canva Pro for my team..." required=""></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 btn-glow" id="contact-form-submit-btn">
+                                <span>Send Inquiry</span>
+                            </button>
+                            <div class="form-success-msg" id="form-success-alert">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" aria-hidden="true" class="lucide lucide-check-circle"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                                <span>Thank you! Redirecting to WhatsApp to complete your inquiry...</span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer id="main-footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#lightning-grad-f)" stroke="url(#lightning-grad-f)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <defs>
+                            <linearGradient id="lightning-grad-f" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00F2FE"></stop>
+                                <stop offset="100%" stop-color="#4FACFE"></stop>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="logo-text">Lightning<span class="logo-highlight">Deals</span></span>
+                </a>
+                <p class="footer-desc">Premium digital license distribution platform. Get massive savings on commercial software utilities today.</p>
+                <div class="footer-socials">
+                    <a href="#" aria-label="Twitter"><i data-lucide="twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i data-lucide="instagram"></i></a>
+                    <a href="https://wa.me/917695956938" target="_blank" aria-label="WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="message-circle" aria-hidden="true" class="lucide lucide-message-circle"><path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"></path></svg></a>
+                </div>
+            </div>
+            
+            <div class="footer-links-group">
+                <h4 class="footer-links-title">Quick Navigation</h4>
+                <a href="#" class="footer-link">Home</a>
+                <a href="#products" class="footer-link">Products</a>
+                <a href="#why-choose-us" class="footer-link">Why Us</a>
+                <a href="#faq" class="footer-link">FAQ</a>
+            </div>
+
+            <div class="footer-links-group">
+                <h4 class="footer-links-title">Legals</h4>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Refund Policy</a>
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="admin.html" class="footer-link admin-lock-link"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="lock" aria-hidden="true" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Staff Dashboard</a>
+            </div>
+        </div>
+        <div class="footer-bottom text-center">
+            <p>┬® 2026 Lightning Deals. All rights reserved. We are an independent software reseller platform.</p>
+        </div>
+    </footer>
+
+    <!-- Product Plan Selection & Quantity Configuration Modal -->
+    <div class="modal-overlay" id="product-configure-modal" role="dialog" aria-modal="true" aria-labelledby="config-product-title">
+        <div class="modal-card glass-card">
+            <!-- Close Button -->
+            <button class="modal-close-btn" id="close-config-modal-btn" aria-label="Close dialog">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </button>
+            
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-logo-wrapper" id="config-product-badge">P</div>
+                <div>
+                    <h3 class="modal-title" id="config-product-title">Product Name</h3>
+                    <span class="modal-subtitle" id="config-product-desc">Product Description</span>
+                </div>
+            </div>
+
+            <div class="form-group margin-top-md">
+                <label>Select Plan Validity</label>
+                <div class="plan-selector" id="config-plans-group">
+                    <!-- Filled dynamically -->
+                </div>
+            </div>
+
+            <div class="modal-qty-container">
+                <label for="config-qty-input" style="font-weight: 600; margin-bottom: 0;">Quantity</label>
+                <div class="qty-selector">
+                    <button type="button" class="qty-btn" id="btn-qty-minus" aria-label="Decrease quantity">ÔêÆ</button>
+                    <input type="number" id="config-qty-input" class="qty-input" value="1" min="1" max="99" readonly="">
+                    <button type="button" class="qty-btn" id="btn-qty-plus" aria-label="Increase quantity">+</button>
+                </div>
+            </div>
+
+            <div class="price-summary-box">
+                <div class="ps-row">
+                    <span class="ps-lbl">Retail Price:</span>
+                    <span class="ps-val-old" id="config-old-price">Ôé╣0</span>
+                </div>
+                <div class="ps-row">
+                    <span class="ps-lbl highlight">Discounted Price:</span>
+                    <span class="ps-val-new" id="config-new-price">Ôé╣0</span>
+                </div>
+                <div class="savings-tag" id="config-savings-tag">You Save 0%</div>
+            </div>
+
+            <div class="activation-info-box margin-top-md">
+                <div class="activation-info-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="info" aria-hidden="true" class="lucide lucide-info text-cyan" style="width: 16px; height: 16px; min-width: 16px;"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                    <span>Activation Details (Important)</span>
+                </div>
+                <div class="activation-info-body">
+                    <div class="info-section">
+                        <strong class="info-label">Requirements from Customer:</strong>
+                        <p class="info-content" id="config-activation-reqs"></p>
+                    </div>
+                    <div class="info-section margin-top-xs">
+                        <strong class="info-label">Activation Process:</strong>
+                        <p class="info-content" id="config-activation-process"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-primary w-100 btn-glow" id="btn-add-to-cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" style="width: 16px; height: 16px; margin-right: 6px;" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+                    <span>Add to Cart</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Purchase Inquiry & Payment Modal -->
+    <div class="modal-overlay" id="purchase-modal" role="dialog" aria-modal="true" aria-labelledby="modal-product-title">
+        <div class="modal-card glass-card">
+            <!-- Close Button -->
+            <button class="modal-close-btn" id="close-modal-btn" aria-label="Close dialog">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </button>
+            
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-logo-wrapper grad-blue" id="modal-product-badge"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-cart" aria-hidden="true" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg></div>
+                <div>
+                    <h3 class="modal-title" id="modal-product-title">Secure Checkout</h3>
+                    <span class="modal-subtitle" id="modal-product-desc">Review your items and complete your UPI payment.</span>
+                </div>
+            </div>
+
+            <!-- Checkout Step indicators -->
+            <div class="modal-steps-indicator" style="justify-content: center; max-width: 240px; margin: 0 auto 1.5rem;">
+                <div class="checkout-step-dot active" id="dot-step-1" data-label="Cart">1</div>
+                <div class="checkout-step-line" id="line-step-1"></div>
+                <div class="checkout-step-dot" id="dot-step-2" data-label="Details">2</div>
+                <div class="checkout-step-line" id="line-step-2"></div>
+                <div class="checkout-step-dot" id="dot-step-3" data-label="Payment">3</div>
+            </div>
+
+            <!-- ================= STEP 1: REVIEW CART ================= -->
+            <div class="checkout-panel active" id="panel-step-1">
+                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Items in Cart</label>
+                <div class="cart-items-wrapper" id="cart-items-list">
+                    <!-- Filled dynamically -->
+                </div>
+
+                <!-- Coupon Section -->
+                <div class="form-group margin-top-sm">
+                    <label for="coupon-code-input">Apply Discount Coupon</label>
+                    <div class="coupon-input-group">
+                        <input type="text" id="coupon-code-input" placeholder="e.g. SAVE10" style="text-transform: uppercase;">
+                        <button type="button" class="btn btn-secondary btn-sm" id="btn-apply-coupon">Apply</button>
+                    </div>
+                    <div id="coupon-status-msg" class="coupon-status-text">Invalid coupon code</div>
+                </div>
+
+                <div class="price-summary-box">
+                    <div class="ps-row">
+                        <span class="ps-lbl">Subtotal:</span>
+                        <span class="ps-val-subtotal" id="modal-subtotal-price">Ôé╣0</span>
+                    </div>
+                    <div class="ps-row" id="modal-discount-row" style="display: none;">
+                        <span class="ps-lbl highlight">Coupon Discount:</span>
+                        <span class="ps-val-discount" id="modal-discount-amount" style="color: var(--clr-red);">-Ôé╣0</span>
+                    </div>
+                    <div class="ps-row">
+                        <span class="ps-lbl highlight" style="font-size: 1.1rem;">Total Amount:</span>
+                        <span class="ps-val-new" id="modal-new-price" style="font-size: 1.3rem;">Ôé╣0</span>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-primary w-100 btn-glow" id="btn-next-to-details">
+                        <span>Proceed to Details</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" style="width: 16px; height: 16px; margin-left: 6px;" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 2: USER DETAILS FORM ================= -->
+            <div class="checkout-panel" id="panel-step-2">
+                <p class="panel-instruction">Please enter your delivery contact information. Credentials and access guides are sent via WhatsApp after successful UPI payment.</p>
+                
+                <form id="checkout-user-details-form">
+                    <div class="form-group">
+                        <label for="checkout-name">Your Full Name *</label>
+                        <input type="text" id="checkout-name" placeholder="e.g. Amit Sharma" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout-email">Your Email Address *</label>
+                        <input type="email" id="checkout-email" placeholder="e.g. amit@example.com" required="">
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout-phone">WhatsApp Mobile Number (With +91) *</label>
+                        <input type="tel" id="checkout-phone" placeholder="e.g. +91 9876543210" required="">
+                        <small class="form-tip">Must contain country code (e.g. +91) so we can activate on your WhatsApp.</small>
+                    </div>
+                </form>
+
+                <div class="modal-footer-dual">
+                    <button class="btn btn-secondary" id="btn-back-to-plans">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-left" aria-hidden="true" style="width: 16px; height: 16px; margin-right: 6px;" class="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> <span>Back</span>
+                    </button>
+                    <button class="btn btn-primary btn-glow" id="btn-next-to-payment">
+                        <span>Proceed to Payment</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-right" aria-hidden="true" style="width: 16px; height: 16px; margin-left: 6px;" class="lucide lucide-arrow-right"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 3: MANUAL UPI PAYMENT ================= -->
+            <div class="checkout-panel" id="panel-step-3">
+                <div class="upi-payment-instructions">
+                    <p class="panel-instruction text-center" style="margin-bottom: 0.5rem;">
+                        Scan the QR code below using GPay, PhonePe, or Paytm to pay.
+                    </p>
+                    
+                    <div class="price-to-pay-box">
+                        <span class="pay-lbl">Amount to Pay:</span>
+                        <span class="pay-amount" id="modal-pay-amount-label">Ôé╣0</span>
+                    </div>
+
+                    <div class="upi-qr-wrapper">
+                        <div class="upi-qr-spinner" id="qr-loading-spinner"></div>
+                        <img class="upi-qr-image loading" id="modal-upi-qr" src="" alt="UPI Payment QR Code" onload="document.getElementById('qr-loading-spinner').style.display='none'; this.classList.remove('loading');">
+                    </div>
+
+                    <div class="upi-id-copy-box">
+                        <span class="upi-id-lbl" id="modal-upi-id-display">sidhjain9002-1@okhdfcbank</span>
+                        <button class="btn-copy-upi" id="btn-copy-upi-id" title="Copy UPI ID" type="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="copy" aria-hidden="true" style="width: 14px; height: 14px; margin-right: 4px;" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg> <span style="font-size: 0.75rem;">Copy</span>
+                        </button>
+                    </div>
+
+                    <p class="panel-instruction text-center" style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 1rem;">
+                        After payment, please enter your 12-digit UPI UTR / Transaction ID below to confirm.
+                    </p>
+                </div>
+
+                <form id="checkout-payment-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="checkout-utr">UPI Ref No. / Transaction ID (UTR) *</label>
+                        <input type="text" id="checkout-utr" placeholder="e.g. 612345678901" maxlength="12" minlength="12" required="" style="letter-spacing: 0.1em; text-align: center;">
+                        <small class="form-tip text-center">Must be a 12-digit number from your payment receipt.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Payment Screenshot *</label>
+                        <input type="file" id="checkout-screenshot" accept="image/*" style="display: none;">
+                        <div class="screenshot-upload-container" id="screenshot-dropzone">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="upload-cloud" aria-hidden="true" class="lucide lucide-upload-cloud screenshot-upload-icon"><path d="M12 13v8"></path><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"></path><path d="m8 17 4-4 4 4"></path></svg>
+                            <div class="screenshot-upload-text">Drag &amp; drop or click to upload receipt</div>
+                            <div class="screenshot-upload-hint">Supported formats: JPG, PNG, WEBP (Max 5MB)</div>
+                        </div>
+                        
+                        <div class="screenshot-preview-wrapper" id="screenshot-preview-container">
+                            <img src="" alt="Preview" class="screenshot-preview-img" id="screenshot-preview-img">
+                            <div class="screenshot-preview-info">
+                                <div class="screenshot-preview-name" id="screenshot-preview-name">receipt.jpg</div>
+                                <div class="screenshot-preview-size" id="screenshot-preview-size">0 KB</div>
+                            </div>
+                            <button type="button" class="screenshot-preview-remove" id="btn-remove-screenshot" aria-label="Remove screenshot">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="trash-2" aria-hidden="true" class="lucide lucide-trash-2"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="modal-footer-dual">
+                    <button class="btn btn-secondary" id="btn-back-to-details">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-left" aria-hidden="true" style="width: 16px; height: 16px; margin-right: 6px;" class="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> <span>Back</span>
+                    </button>
+                    <button class="btn btn-primary btn-glow" id="btn-submit-order">
+                        <span>Submit &amp; Confirm</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check-circle" aria-hidden="true" style="width: 16px; height: 16px; margin-left: 6px;" class="lucide lucide-check-circle"><path d="M21.801 10A10 10 0 1 1 17 3.335"></path><path d="m9 11 3 3L22 4"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ================= STEP 4: SUCCESS CONFIRMATION ================= -->
+            <div class="checkout-panel" id="panel-step-4">
+                <div class="success-screen-wrapper">
+                    <div class="success-icon-glow">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="check" aria-hidden="true" class="lucide lucide-check success-check-icon"><path d="M20 6 9 17l-5-5"></path></svg>
+                    </div>
+                    <h3 class="success-title">Order Submitted!</h3>
+                    <p class="success-subtitle">Your transaction has been recorded. We will verify your payment and activate your subscription shortly.</p>
+                    
+                    <div class="success-details-card">
+                        <div class="success-detail-row">
+                            <span class="detail-label">Order ID</span>
+                            <span class="detail-value" id="success-order-id">LD-XXXXXXXX</span>
+                        </div>
+                        <div class="success-detail-row">
+                            <span class="detail-label">Total Paid</span>
+                            <span class="detail-value" id="success-order-total">Ôé╣0</span>
+                        </div>
+                        <div class="success-detail-row">
+                            <span class="detail-label">Payment UTR</span>
+                            <span class="detail-value" id="success-order-utr" style="font-family: monospace;">123456789012</span>
+                        </div>
+                        <div class="success-detail-row">
+                            <span class="detail-label">Status</span>
+                            <span class="detail-value status-pending"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="clock" aria-hidden="true" class="lucide lucide-clock icon-inline"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg> Pending Activation</span>
+                        </div>
+                    </div>
+                    
+                    <div class="success-info-alert">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="info" aria-hidden="true" class="lucide lucide-info info-alert-icon"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+                        <div class="info-alert-text">
+                            <strong>What's Next?</strong> We will process your order and send your account credentials or activation link via WhatsApp/Email. You can also contact us if you need help.
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary w-100 btn-glow" id="btn-success-continue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shopping-bag" aria-hidden="true" style="width: 16px; height: 16px; margin-right: 6px;" class="lucide lucide-shopping-bag"><path d="M16 10a4 4 0 0 1-8 0"></path><path d="M3.103 6.034h17.794"></path><path d="M3.4 5.467a2 2 0 0 0-.4 1.2V20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.667a2 2 0 0 0-.4-1.2l-2-2.667A2 2 0 0 0 17 2H7a2 2 0 0 0-1.6.8z"></path></svg>
+                        <span>Continue Shopping</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp Contact Button -->
+    <a href="https://wa.me/917695956938?text=Hi,%20I'm%20interested%20in%20a%20subscription!" class="wa-floating-btn" target="_blank" aria-label="Chat on WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"></path>
+        </svg>
+    </a>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- Store logic script -->
+    <script src="js/app.js"></script>
+<div id="error-log-output">[]</div>
+<script>
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('error-log-output').innerText = JSON.stringify(window.errorsLog);
+    }, 1500);
+});
+</script>
+
+
+
+</body></html>

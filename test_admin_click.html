@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+window.errorsLog = [];
+window.onerror = function(message, source, lineno, colno, error) {
+    window.errorsLog.push({
+        message: message,
+        source: source,
+        lineno: lineno,
+        colno: colno,
+        stack: error ? error.stack : ''
+    });
+    return false;
+};
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightning Deals | Admin Dashboard</title>
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom Styles (shares layout & variables, adds admin styles) -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="admin-body">
+    <!-- Glow Background Blobs -->
+    <div class="glow-blob glow-admin-1"></div>
+    <div class="glow-blob glow-admin-2"></div>
+
+    <!-- Passcode Gate Section -->
+    <div id="admin-gate" class="admin-login-overlay">
+        <div class="glass-card login-card text-center">
+            <div class="login-logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 48px; height: 48px; margin: 0 auto 1rem;">
+                    <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#lightning-grad-login)" stroke="url(#lightning-grad-login)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <defs>
+                        <linearGradient id="lightning-grad-login" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#00F2FE" />
+                            <stop offset="100%" stop-color="#4FACFE" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <h2 class="login-brand">Lightning<span class="logo-highlight">Deals</span></h2>
+                <p class="login-desc">Staff Admin Console</p>
+            </div>
+            
+            <form id="admin-login-form">
+                <div class="form-group margin-top-md">
+                    <label for="admin-pin">Enter Access PIN</label>
+                    <input type="password" id="admin-pin" placeholder="••••••••" required autofocus style="text-align: center; letter-spacing: 0.2em;">
+                    <span class="error-text" id="login-error-msg">Incorrect PIN. Please try again.</span>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 btn-glow margin-top-sm" id="login-submit-btn">
+                    <span>Unlock Dashboard</span>
+                </button>
+            </form>
+            <a href="index.html" class="back-link margin-top-md inline-block"><i data-lucide="arrow-left" style="width: 14px; height: 14px; vertical-align: middle;"></i> Back to Storefront</a>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Application Page (hidden by default) -->
+    <div id="admin-app" class="admin-dashboard-layout" style="display: none;">
+        <!-- Top bar -->
+        <header class="admin-topbar">
+            <div class="container topbar-container">
+                <div class="topbar-left">
+                    <a href="index.html" class="logo">
+                        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#lightning-grad-dash)" stroke="url(#lightning-grad-dash)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <defs>
+                                <linearGradient id="lightning-grad-dash" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#00F2FE" />
+                                    <stop offset="100%" stop-color="#4FACFE" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <span class="logo-text">Lightning<span class="logo-highlight">Deals</span> <span class="badge-admin">Admin</span></span>
+                    </a>
+                </div>
+                <div class="topbar-right">
+                    <a href="index.html" class="btn btn-secondary btn-sm" target="_blank"><i data-lucide="external-link"></i> Live Store</a>
+                    <button class="btn btn-danger btn-sm" id="logout-btn"><i data-lucide="log-out"></i> Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container admin-main">
+            <!-- Navigation Tabs Bar -->
+            <div class="admin-tabs-bar margin-bottom-sm">
+                <button class="admin-tab-btn active" id="tab-btn-catalog" data-target="panel-catalog">
+                    <i data-lucide="package"></i> <span>Manage Catalog</span>
+                </button>
+                <button class="admin-tab-btn" id="tab-btn-orders" data-target="panel-orders">
+                    <i data-lucide="shopping-bag"></i> <span>Customer Orders</span>
+                    <span class="badge-tab-count" id="badge-pending-count">0</span>
+                </button>
+                <button class="admin-tab-btn" id="tab-btn-analytics" data-target="panel-analytics">
+                    <i data-lucide="bar-chart-2"></i> <span>Analytics Dashboard</span>
+                </button>
+                <button class="admin-tab-btn" id="tab-btn-templates" data-target="panel-templates">
+                    <i data-lucide="copy"></i> <span>Copy Reseller Templates</span>
+                </button>
+                <button class="admin-tab-btn" id="tab-btn-coupons" data-target="panel-coupons">
+                    <i data-lucide="ticket"></i> <span>Manage Coupons</span>
+                </button>
+                <button class="admin-tab-btn" id="tab-btn-settings" data-target="panel-settings">
+                    <i data-lucide="settings"></i> <span>Store Settings</span>
+                </button>
+            </div>
+
+            <!-- ================= PANEL 1: CATALOG MANAGEMENT ================= -->
+            <div class="admin-panel active" id="panel-catalog">
+                <!-- Summary Stats -->
+                <section class="admin-stats-grid margin-bottom-lg">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper blue-glow"><i data-lucide="package"></i></div>
+                        <div>
+                            <h4 class="stat-label">Total Products</h4>
+                            <p class="stat-value" id="stat-total-products">0</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper purple-glow"><i data-lucide="tags"></i></div>
+                        <div>
+                            <h4 class="stat-label">Categories</h4>
+                            <p class="stat-value" id="stat-total-categories">4</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper cyan-glow"><i data-lucide="shield-check"></i></div>
+                        <div>
+                            <h4 class="stat-label">Reseller Service</h4>
+                            <p class="stat-value">Active</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Grid Layout: Sidebar Form & Main Table -->
+                <div class="admin-content-grid">
+                    <!-- Left Column: Add / Edit Product Form -->
+                    <div class="admin-form-col">
+                        <div class="glass-card admin-form-card" id="form-container">
+                            <div class="form-card-header">
+                                <h3 class="form-card-title" id="form-action-title"><i data-lucide="plus-circle" style="vertical-align: middle; margin-right: 4px;"></i> Add New Product</h3>
+                                <button class="btn btn-secondary btn-xs" id="cancel-edit-btn" style="display: none;">Cancel Edit</button>
+                            </div>
+                            
+                            <form id="product-form">
+                                <!-- Hidden input to track edited product index -->
+                                <input type="hidden" id="edit-index" value="-1">
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="prod-name">Product Name *</label>
+                                        <input type="text" id="prod-name" placeholder="e.g. Canva Pro" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="prod-category">Category *</label>
+                                        <select id="prod-category" required>
+                                            <option value="design">Design & Creative</option>
+                                            <option value="ai">AI Tools</option>
+                                            <option value="business">Business & Professional</option>
+                                            <option value="finance">Finance & Trading</option>
+                                            <option value="productivity">Productivity & Office</option>
+                                            <option value="streaming">Streaming Services</option>
+                                            <option value="education">Education & Others</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="prod-desc">Short Description *</label>
+                                    <input type="text" id="prod-desc" placeholder="e.g. All templates, branding features and premium graphics unlocked." required>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="prod-icon">Icon Letter *</label>
+                                        <input type="text" id="prod-icon" placeholder="e.g. C or Ps" maxlength="4" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="prod-icon-color">Color Theme</label>
+                                        <select id="prod-icon-color">
+                                            <option value="grad-blue">Blue Ocean Glow</option>
+                                            <option value="grad-red">Sunset Creative Red</option>
+                                            <option value="grad-green">LinkedIn Business Blue</option>
+                                            <option value="grad-yellow">TradingView Orange</option>
+                                            <option value="grad-purple">Royal Purple Velvet</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="prod-stock">Stock Status</label>
+                                        <select id="prod-stock">
+                                            <option value="available">Available</option>
+                                            <option value="limited">Limited Slots</option>
+                                            <option value="outofstock">Out of Stock</option>
+                                            <option value="instant">Instant Activation</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="prod-badge">Badge Tag</label>
+                                        <select id="prod-badge">
+                                            <option value="">No Badge</option>
+                                            <option value="Bestseller">Bestseller</option>
+                                            <option value="Popular">Popular</option>
+                                            <option value="Instant">Instant</option>
+                                            <option value="Limited">Limited</option>
+                                            <option value="Recommended">Recommended</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-bottom: 1.5rem;">
+                                    <input type="checkbox" id="prod-visible" checked style="width: auto; margin-bottom: 0;">
+                                    <label for="prod-visible" style="font-weight: 600; cursor: pointer; margin-bottom: 0;">Visible on Storefront</label>
+                                </div>
+
+                                <div class="form-group">
+                                    <label style="margin-bottom: 0.5rem; display: block; font-weight: 600; color: var(--text-primary);">Pricing Plans</label>
+                                    <div class="admin-pricing-grid">
+                                         <!-- 1 Month Tier -->
+                                         <div class="pricing-tier-row">
+                                             <div class="tier-checkbox-col">
+                                                 <input type="checkbox" id="plan-enable-1mo" checked>
+                                                 <label for="plan-enable-1mo" style="font-weight: 600;">1 Month</label>
+                                             </div>
+                                             <div class="tier-inputs-col">
+                                                 <input type="number" id="plan-price-1mo" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-1mo" placeholder="Retail ₹" min="0">
+                                             </div>
+                                         </div>
+
+                                         <!-- 2 Months Tier -->
+                                         <div class="pricing-tier-row">
+                                             <div class="tier-checkbox-col">
+                                                 <input type="checkbox" id="plan-enable-2mo">
+                                                 <label for="plan-enable-2mo" style="font-weight: 600;">2 Months</label>
+                                             </div>
+                                             <div class="tier-inputs-col">
+                                                 <input type="number" id="plan-price-2mo" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-2mo" placeholder="Retail ₹" min="0">
+                                             </div>
+                                         </div>
+
+                                         <!-- 3 Months Tier -->
+                                         <div class="pricing-tier-row">
+                                             <div class="tier-checkbox-col">
+                                                 <input type="checkbox" id="plan-enable-3mo">
+                                                 <label for="plan-enable-3mo" style="font-weight: 600;">3 Months</label>
+                                             </div>
+                                             <div class="tier-inputs-col">
+                                                 <input type="number" id="plan-price-3mo" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-3mo" placeholder="Retail ₹" min="0">
+                                             </div>
+                                         </div>
+                                         
+                                         <!-- 6 Months Tier -->
+                                         <div class="pricing-tier-row">
+                                             <div class="tier-checkbox-col">
+                                                 <input type="checkbox" id="plan-enable-6mo" checked>
+                                                 <label for="plan-enable-6mo" style="font-weight: 600;">6 Months</label>
+                                             </div>
+                                             <div class="tier-inputs-col">
+                                                 <input type="number" id="plan-price-6mo" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-6mo" placeholder="Retail ₹" min="0">
+                                             </div>
+                                         </div>
+                                         
+                                         <!-- 12 Months (1 Year) Tier -->
+                                         <div class="pricing-tier-row">
+                                             <div class="tier-checkbox-col">
+                                                 <input type="checkbox" id="plan-enable-1yr" checked>
+                                                 <label for="plan-enable-1yr" style="font-weight: 600;">12 Months (1 Year)</label>
+                                             </div>
+                                             <div class="tier-inputs-col">
+                                                 <input type="number" id="plan-price-1yr" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-1yr" placeholder="Retail ₹" min="0">
+                                             </div>
+                                         </div>
+                                         
+                                         <!-- Lifetime Tier -->
+                                         <div class="pricing-tier-row">
+                                             <div class="tier-checkbox-col">
+                                                 <input type="checkbox" id="plan-enable-lt">
+                                                 <label for="plan-enable-lt" style="font-weight: 600;">Lifetime</label>
+                                             </div>
+                                             <div class="tier-inputs-col">
+                                                 <input type="number" id="plan-price-lt" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-lt" placeholder="Retail ₹" min="0">
+                                             </div>
+                                         </div>
+                                    </div>
+                                    <small class="form-tip">Enable the tiers you want to sell. Enter the sale price and original retail price.</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="prod-features">Included Features (Comma separated list) *</label>
+                                    <textarea id="prod-features" rows="3" required placeholder="Shared Admin Team Access, Brand Kit & Custom Fonts, Background Remover Tool, 100M+ Premium Stock Assets, Full Duration Reseller Warranty"></textarea>
+                                    <small class="form-tip">Separate each feature with a comma.</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="prod-activation-reqs">Customer Requirements for Activation *</label>
+                                    <textarea id="prod-activation-reqs" rows="2" required placeholder="e.g. Registered Canva account email address."></textarea>
+                                    <small class="form-tip">What customer information is required to activate the service?</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="prod-activation-process">Activation Process Instructions *</label>
+                                    <textarea id="prod-activation-process" rows="3" required placeholder="e.g. We will send an organization team invite link to your email. Click it to join our team."></textarea>
+                                    <small class="form-tip">Step by step process to activate this subscription.</small>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 btn-glow" id="form-submit-btn">
+                                    <span>Save Product</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Products Table & Database Admin Operations -->
+                    <div class="admin-table-col">
+                        <!-- Bulk Actions Toolbar -->
+                        <div class="bulk-toolbar-card" id="bulk-actions-toolbar">
+                            <div class="bulk-toolbar-info">
+                                <span id="bulk-selected-count">0</span> items selected
+                            </div>
+                            <div class="bulk-actions-controls">
+                                <select class="bulk-select-action" id="bulk-action-select">
+                                    <option value="">Choose Bulk Action...</option>
+                                    <option value="category">Change Category</option>
+                                    <option value="discount">Apply % Discount</option>
+                                    <option value="visibility">Set Visibility</option>
+                                    <option value="stock">Set Stock Status</option>
+                                    <option value="delete">Delete Selected</option>
+                                </select>
+                                
+                                <select class="bulk-select-action" id="bulk-input-category" style="display: none;">
+                                    <option value="design">Design & Creative</option>
+                                    <option value="ai">AI Tools</option>
+                                    <option value="business">Business & Professional</option>
+                                    <option value="finance">Finance & Trading</option>
+                                    <option value="productivity">Productivity & Office</option>
+                                    <option value="streaming">Streaming Services</option>
+                                    <option value="education">Education & Others</option>
+                                </select>
+                                
+                                <input type="number" class="bulk-action-input" id="bulk-input-discount" placeholder="Discount %" min="1" max="99" style="display: none;">
+                                
+                                <select class="bulk-select-action" id="bulk-input-visibility" style="display: none;">
+                                    <option value="true">Visible</option>
+                                    <option value="false">Hidden</option>
+                                </select>
+                                
+                                <select class="bulk-select-action" id="bulk-input-stock" style="display: none;">
+                                    <option value="available">Available</option>
+                                    <option value="limited">Limited Slots</option>
+                                    <option value="outofstock">Out of Stock</option>
+                                    <option value="instant">Instant Activation</option>
+                                </select>
+                                
+                                <button class="btn btn-primary btn-xs" id="bulk-apply-btn">Apply</button>
+                                <button class="btn btn-secondary btn-xs" id="bulk-cancel-btn">Cancel</button>
+                            </div>
+                        </div>
+
+                        <!-- Products list -->
+                        <div class="glass-card table-card">
+                            <div class="table-card-header">
+                                <h3>Product Catalog Directory</h3>
+                                <span class="sub-label">Stored in local browser cache. Changes synchronize immediately.</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="checkbox-cell"><input type="checkbox" id="bulk-select-all"></th>
+                                            <th>Product</th>
+                                            <th>Category</th>
+                                            <th>Starting Price</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-products-tbody">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Database backup and configurations -->
+                        <div class="glass-card db-card margin-top-md">
+                            <h3>Catalog Backup Utilities</h3>
+                            <p class="db-desc">Import/export the product directory catalog as a text file to backup configurations or replicate.</p>
+                            
+                            <div class="db-actions-row">
+                                <button class="btn btn-secondary btn-sm" id="export-db-btn"><i data-lucide="download"></i> Export Catalog (JSON)</button>
+                                <label for="import-db-input" class="btn btn-secondary btn-sm custom-file-upload">
+                                    <i data-lucide="upload"></i> Import Catalog (JSON)
+                                </label>
+                                <input type="file" id="import-db-input" accept=".json" style="display: none;">
+                                <button class="btn btn-danger btn-sm" id="reset-db-btn"><i data-lucide="rotate-ccw"></i> Reset Defaults</button>
+                            </div>
+                            <div class="margin-top-xs" id="db-feedback-msg" style="font-size: 0.85rem; display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PANEL 2: ORDERS MANAGEMENT ================= -->
+            <div class="admin-panel" id="panel-orders">
+                <!-- Summary Stats -->
+                <section class="admin-stats-grid margin-bottom-lg">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper blue-glow"><i data-lucide="shopping-cart"></i></div>
+                        <div>
+                            <h4 class="stat-label">Total Placed Orders</h4>
+                            <p class="stat-value" id="stat-total-orders">0</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper purple-glow"><i data-lucide="clock"></i></div>
+                        <div>
+                            <h4 class="stat-label">Pending Orders</h4>
+                            <p class="stat-value" id="stat-pending-orders">0</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper cyan-glow"><i data-lucide="indian-rupee"></i></div>
+                        <div>
+                            <h4 class="stat-label">Completed Sales</h4>
+                            <p class="stat-value" id="stat-total-revenue">₹0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Customer Purchase Orders Table Card -->
+                <div class="glass-card table-card">
+                    <div class="table-card-header flex-header-between">
+                        <div>
+                            <h3>Customer Purchase Orders</h3>
+                            <span class="sub-label">Orders placed by customers via storefront UPI checkout.</span>
+                        </div>
+                        <button class="btn btn-danger btn-xs" id="btn-clear-orders"><i data-lucide="trash"></i> Clear Order History</button>
+                    </div>
+
+                    <!-- Search & Filter Controls -->
+                    <div class="table-filters-row" style="display: flex; gap: 1rem; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); flex-wrap: wrap;">
+                        <div class="search-input-wrapper" style="flex-grow: 1; max-width: 400px; position: relative;">
+                            <input type="text" id="order-search-input" placeholder="Search orders by Name, Email, Phone, UTR, ID..." style="width: 100%; padding: 0.5rem 0.75rem 0.5rem 2.25rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; color: #fff; font-size: 0.85rem;">
+                            <i data-lucide="search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted);"></i>
+                        </div>
+                        <div class="status-filters" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button class="btn btn-secondary btn-xs order-filter-btn active" data-status="all">All</button>
+                            <button class="btn btn-secondary btn-xs order-filter-btn" data-status="Pending">Pending</button>
+                            <button class="btn btn-secondary btn-xs order-filter-btn" data-status="Active">Active</button>
+                            <button class="btn btn-secondary btn-xs order-filter-btn" data-status="Expired">Expired</button>
+                            <button class="btn btn-secondary btn-xs order-filter-btn" data-status="Cancelled">Cancelled</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Order Details</th>
+                                    <th>Customer Information</th>
+                                    <th>Reference ID (UTR)</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-orders-tbody">
+                                <!-- Rendered dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PANEL: ANALYTICS DASHBOARD ================= -->
+            <div class="admin-panel" id="panel-analytics">
+                <div class="analytics-dashboard-wrapper">
+                    <!-- Summary Stats -->
+                    <section class="analytics-grid-4">
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon-wrapper blue-glow"><i data-lucide="eye"></i></div>
+                            <div>
+                                <h4 class="stat-label">Total Store Visits</h4>
+                                <p class="stat-value" id="stat-analytics-visits">0</p>
+                            </div>
+                        </div>
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon-wrapper purple-glow"><i data-lucide="shopping-cart"></i></div>
+                            <div>
+                                <h4 class="stat-label">Total Placed Orders</h4>
+                                <p class="stat-value" id="stat-analytics-orders">0</p>
+                            </div>
+                        </div>
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon-wrapper cyan-glow"><i data-lucide="percent"></i></div>
+                            <div>
+                                <h4 class="stat-label">Conversion Rate</h4>
+                                <p class="stat-value" id="stat-analytics-conversion">0.0%</p>
+                            </div>
+                        </div>
+                        <div class="glass-card stat-card">
+                            <div class="stat-icon-wrapper green-glow"><i data-lucide="indian-rupee"></i></div>
+                            <div>
+                                <h4 class="stat-label">Gross Revenue</h4>
+                                <p class="stat-value" id="stat-analytics-revenue">₹0</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Charts row -->
+                    <div class="charts-row-grid">
+                        <div class="glass-card chart-card">
+                            <h3 class="chart-card-title"><i data-lucide="trending-up"></i> Sales Revenue Trend (Last 7 Days)</h3>
+                            <div class="svg-chart-container" id="revenue-chart-container">
+                                <!-- Rendered dynamically via SVG in JS -->
+                            </div>
+                        </div>
+                        <div class="glass-card chart-card">
+                            <h3 class="chart-card-title"><i data-lucide="bar-chart-3"></i> Top Performing Products</h3>
+                            <div class="svg-chart-container" id="products-chart-container">
+                                <!-- Rendered dynamically via SVG in JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PANEL: RESELLER MESSAGE TEMPLATES ================= -->
+            <div class="admin-panel" id="panel-templates">
+                <div class="table-card-header flex-header-between margin-bottom-md">
+                    <div>
+                        <h3>Reseller Message Templates</h3>
+                        <span class="sub-label">Manage and copy preformatted templates for sending activation details to customers.</span>
+                    </div>
+                    <button class="btn btn-primary btn-sm" id="btn-add-template"><i data-lucide="plus-circle"></i> Add New Template</button>
+                </div>
+                
+                <div class="templates-list-wrapper" id="templates-list-container">
+                    <!-- Rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- ================= PANEL 3: COUPONS MANAGEMENT ================= -->
+            <div class="admin-panel" id="panel-coupons">
+                <!-- Summary Stats -->
+                <section class="admin-stats-grid margin-bottom-lg">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper blue-glow"><i data-lucide="ticket"></i></div>
+                        <div>
+                            <h4 class="stat-label">Active Coupons</h4>
+                            <p class="stat-value" id="stat-active-coupons">0</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper purple-glow"><i data-lucide="percent"></i></div>
+                        <div>
+                            <h4 class="stat-label">Total Coupons</h4>
+                            <p class="stat-value" id="stat-total-coupons">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="admin-content-grid">
+                    <!-- Left Column: Add / Edit Coupon Form -->
+                    <div class="admin-form-col">
+                        <div class="glass-card admin-form-card">
+                            <div class="form-card-header">
+                                <h3 class="form-card-title" id="coupon-form-action-title"><i data-lucide="plus-circle" style="vertical-align: middle; margin-right: 4px;"></i> Add Coupon</h3>
+                                <button class="btn btn-secondary btn-xs" id="cancel-coupon-edit-btn" style="display: none;">Cancel Edit</button>
+                            </div>
+                            
+                            <form id="coupon-form">
+                                <!-- Hidden input to track edited coupon index -->
+                                <input type="hidden" id="edit-coupon-index" value="-1">
+
+                                <div class="form-group">
+                                    <label for="coupon-code">Coupon Code *</label>
+                                    <input type="text" id="coupon-code" placeholder="e.g. SAVE20" required style="text-transform: uppercase;">
+                                    <small class="form-tip">Must be unique (alphanumeric, no spaces).</small>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="coupon-type">Discount Type *</label>
+                                        <select id="coupon-type" required>
+                                            <option value="percentage">Percentage (%)</option>
+                                            <option value="flat">Flat Amount (₹)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="coupon-value">Discount Value *</label>
+                                        <input type="number" id="coupon-value" placeholder="e.g. 10 or 200" min="1" required>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="coupon-min-order">Minimum Order Value (₹) *</label>
+                                    <input type="number" id="coupon-min-order" placeholder="e.g. 999" min="0" value="0" required>
+                                    <small class="form-tip">Set to 0 if there is no minimum threshold.</small>
+                                </div>
+
+                                <div class="form-group active-status-checkbox">
+                                    <input type="checkbox" id="coupon-active" checked>
+                                    <label for="coupon-active" style="font-weight: 600;">Active & Redeemable</label>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 btn-glow" id="coupon-submit-btn">
+                                    <span>Save Coupon</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Coupons Table -->
+                    <div class="admin-table-col">
+                        <div class="glass-card table-card">
+                            <div class="table-card-header">
+                                <h3>Discount Coupons List</h3>
+                                <span class="sub-label">Stored in local browser cache. Changes synchronize immediately.</span>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="admin-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Code</th>
+                                            <th>Discount</th>
+                                            <th>Min Order</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="admin-coupons-tbody">
+                                        <!-- Rendered dynamically -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PANEL 4: STORE SETTINGS ================= -->
+            <div class="admin-panel" id="panel-settings">
+                <!-- Summary Stats -->
+                <section class="admin-stats-grid margin-bottom-lg">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper green-glow"><i data-lucide="phone"></i></div>
+                        <div>
+                            <h4 class="stat-label">Store Number</h4>
+                            <p class="stat-value" id="stat-settings-phone" style="font-size: 1.15rem; line-height: 1.6;">+91 7695956938</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper purple-glow"><i data-lucide="credit-card"></i></div>
+                        <div>
+                            <h4 class="stat-label">Active UPI ID</h4>
+                            <p class="stat-value" id="stat-settings-upi" style="font-size: 0.95rem; line-height: 1.8;">sidhjain9002-1@okhdfcbank</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper blue-glow"><i data-lucide="bell"></i></div>
+                        <div>
+                            <h4 class="stat-label">Notification Status</h4>
+                            <p class="stat-value" id="stat-settings-notify" style="font-size: 1.15rem; line-height: 1.6;">Disabled</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="admin-content-grid" style="display: block; max-width: 850px; margin: 0 auto;">
+                    <div class="glass-card admin-form-card" style="padding: 2rem;">
+                        <div class="form-card-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                            <h3 class="form-card-title"><i data-lucide="sliders" style="vertical-align: middle; margin-right: 6px;"></i> Store Configuration</h3>
+                            <span class="sub-label" style="display: block; margin-top: 0.25rem;">Configure reseller payment accounts, WhatsApp number, and push notifications.</span>
+                        </div>
+                        
+                        <form id="settings-form" onsubmit="return false;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="settings-phone">Reseller WhatsApp Number (with country code, no +) *</label>
+                                    <input type="text" id="settings-phone" placeholder="e.g. 917695956938" required>
+                                    <small class="form-tip">This is the number customers see/contact, and where you'll receive notifications.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="settings-upi">Reseller UPI ID *</label>
+                                    <input type="text" id="settings-upi" placeholder="e.g. yourname@upi" required>
+                                    <small class="form-tip">Customers will scan the QR code pointing to this UPI address.</small>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="settings-notify-method">Order Notification Method</label>
+                                <select id="settings-notify-method">
+                                    <option value="disabled">Disabled (Default)</option>
+                                    <option value="callmebot">CallMeBot WhatsApp (Free WhatsApp Alerts)</option>
+                                    <option value="discord">Discord Webhook (Free Instant Push Alerts)</option>
+                                    <option value="telegram">Telegram Bot (Custom bot notifications)</option>
+                                </select>
+                                <small class="form-tip">Choose how you want to be notified instantly on your phone when a customer completes an order.</small>
+                            </div>
+
+                            <!-- CallMeBot Specific Fields -->
+                            <div class="settings-notify-fields" id="fields-callmebot" style="display: none;">
+                                <div class="form-group">
+                                    <label for="settings-callmebot-apikey">CallMeBot API Key *</label>
+                                    <input type="text" id="settings-callmebot-apikey" placeholder="Paste your CallMeBot WhatsApp API Key">
+                                    <div class="form-tip" style="line-height: 1.4; margin-top: 0.5rem;">
+                                        <strong>How to get it:</strong>
+                                        <ol style="margin-left: 1.25rem; margin-top: 0.25rem; font-size: 0.75rem;">
+                                            <li>Save the contact <strong>+34 644 66 32 62</strong> in your phone as "CallMeBot".</li>
+                                            <li>Send a WhatsApp message: <code>I allow callmebot to send me messages</code> to this contact.</li>
+                                            <li>Wait for the reply containing your API Key and paste it here.</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Discord Specific Fields -->
+                            <div class="settings-notify-fields" id="fields-discord" style="display: none;">
+                                <div class="form-group">
+                                    <label for="settings-discord-webhook">Discord Webhook URL *</label>
+                                    <input type="url" id="settings-discord-webhook" placeholder="https://discord.com/api/webhooks/...">
+                                    <small class="form-tip">Create a Webhook in Discord (Integration -> Webhooks in channel settings) and paste the URL here. The Discord App on your phone will notify you immediately.</small>
+                                </div>
+                            </div>
+
+                            <!-- Telegram Specific Fields -->
+                            <div class="settings-notify-fields" id="fields-telegram" style="display: none;">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="settings-telegram-token">Telegram Bot Token *</label>
+                                        <input type="text" id="settings-telegram-token" placeholder="e.g. 123456789:ABCdefGhI...">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="settings-telegram-chatid">Telegram Chat ID *</label>
+                                        <input type="text" id="settings-telegram-chatid" placeholder="e.g. 987654321">
+                                    </div>
+                                </div>
+                                <small class="form-tip">Create a Telegram bot via @BotFather, retrieve the token, then start a chat with the bot (or add it to a group) and get your Chat ID (using e.g. @userinfobot).</small>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                                <button type="button" class="btn btn-secondary w-50" id="btn-test-notification">
+                                    <i data-lucide="bell-ring" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;"></i>
+                                    <span>Send Test Alert</span>
+                                </button>
+                                <button type="button" class="btn btn-primary w-50 btn-glow" id="btn-save-settings">
+                                    <i data-lucide="save" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;"></i>
+                                    <span>Save Settings</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Details Drawer / Modal overlay -->
+    <div id="order-detail-drawer" class="admin-drawer-overlay">
+        <div class="admin-drawer-card">
+            <div class="admin-drawer-header">
+                <h3 class="admin-drawer-title">Order Details</h3>
+                <button class="admin-drawer-close" id="close-drawer-btn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="admin-drawer-body" id="drawer-body-content">
+                <!-- Content will be rendered dynamically by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox Modal for fullscreen screenshot viewing -->
+    <div id="admin-lightbox" class="admin-lightbox">
+        <button class="admin-lightbox-close" id="close-lightbox-btn">
+            <i data-lucide="x"></i>
+        </button>
+        <img class="admin-lightbox-img" id="lightbox-image-view" src="" alt="Payment Receipt Screenshot">
+    </div>
+
+    <!-- Admin dashboard logic script -->
+    <script src="js/admin.js"></script>
+<div id="test-results" style="padding: 20px; background: rgba(0,0,0,0.8); color: white; font-family: monospace; font-size: 14px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 999999;"></div>
+<script>
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        try {
+            const pinInput = document.getElementById('admin-pin');
+            const submitBtn = document.getElementById('login-submit-btn');
+            if (!pinInput) { window.errorsLog.push({ message: 'pinInput not found' }); }
+            if (!submitBtn) { window.errorsLog.push({ message: 'submitBtn not found' }); }
+            
+            pinInput.value = 'love9002';
+            
+            // Trigger input/change event
+            pinInput.dispatchEvent(new Event('input', { bubbles: true }));
+            pinInput.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            // Click the submit button
+            submitBtn.click();
+            
+            setTimeout(() => {
+                const gate = document.getElementById('admin-gate');
+                const app = document.getElementById('admin-app');
+                
+                // Now let's try to click the Store Settings tab!
+                const tabSettings = document.getElementById('tab-btn-settings');
+                const panelSettings = document.getElementById('panel-settings');
+                
+                if (!tabSettings) { window.errorsLog.push({ message: 'tab-btn-settings not found' }); }
+                if (!panelSettings) { window.errorsLog.push({ message: 'panel-settings not found' }); }
+                
+                if (tabSettings) tabSettings.click();
+                
+                setTimeout(() => {
+                    const results = {
+                        gateDisplay: gate ? gate.style.display : 'missing',
+                        appDisplay: app ? app.style.display : 'missing',
+                        settingsTabActive: tabSettings ? tabSettings.classList.contains('active') : false,
+                        settingsPanelActive: panelSettings ? panelSettings.classList.contains('active') : false,
+                        errors: window.errorsLog
+                    };
+                    const resDiv = document.getElementById('test-results');
+                    resDiv.innerText = "TEST_RESULTS:" + JSON.stringify(results);
+                }, 500);
+            }, 500);
+        } catch(e) {
+            window.errorsLog.push({ message: e.message, stack: e.stack });
+            document.getElementById('test-results').innerText = "TEST_RESULTS:" + JSON.stringify({ errors: window.errorsLog });
+        }
+    }, 500);
+});
+</script>
+</body>
+</html>
+

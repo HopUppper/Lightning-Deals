@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lightning Deals | Admin Dashboard Test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        window.errorsLog = [];
+        window.onerror = function(message, source, lineno, colno, error) {
+            window.errorsLog.push({
+                message: message,
+                source: source,
+                lineno: lineno,
+                colno: colno,
+                stack: error ? error.stack : ''
+            });
+            return false;
+        };
+        // Pretend we are logged in so checkActiveSession() unlocks the dashboard
+        sessionStorage.setItem('lightning_deals_logged_in', 'true');
+    </script>
+</head>
+<body class="admin-body">
+    <!-- Passcode Gate Section -->
+    <div id="admin-gate" class="admin-login-overlay" style="display: none;">
+        <div class="glass-card login-card text-center">
+            <form id="admin-login-form">
+                <input type="password" id="admin-pin" placeholder="••••••••" required="">
+                <span class="error-text" id="login-error-msg">Incorrect PIN.</span>
+                <button type="submit" id="login-submit-btn">Unlock Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Application Page -->
+    <div id="admin-app" class="admin-dashboard-layout" style="display: flex;">
+        <button id="logout-btn">Logout</button>
+        <button id="tab-btn-catalog" class="admin-tab-btn active" data-target="panel-catalog">Catalog</button>
+        <button id="tab-btn-orders" class="admin-tab-btn" data-target="panel-orders">Orders <span id="badge-pending-count" style="display: none;">0</span></button>
+        <button id="tab-btn-coupons" class="admin-tab-btn" data-target="panel-coupons">Coupons</button>
+
+        <div id="panel-catalog" class="admin-panel active">
+            <span id="stat-total-products">4</span>
+            <span id="stat-total-categories">3</span>
+            <form id="product-form">
+                <input type="hidden" id="edit-index" value="-1">
+                <input type="text" id="prod-name" required="">
+                <select id="prod-category" required=""><option value="design">Design</option></select>
+                <input type="text" id="prod-desc" required="">
+                <input type="text" id="prod-icon" required="">
+                <select id="prod-icon-color"><option value="grad-blue">Blue</option></select>
+                <input type="checkbox" id="plan-enable-1mo"><input type="number" id="plan-price-1mo"><input type="number" id="plan-retail-1mo">
+                <input type="checkbox" id="plan-enable-2mo"><input type="number" id="plan-price-2mo"><input type="number" id="plan-retail-2mo">
+                <input type="checkbox" id="plan-enable-3mo"><input type="number" id="plan-price-3mo"><input type="number" id="plan-retail-3mo">
+                <input type="checkbox" id="plan-enable-6mo"><input type="number" id="plan-price-6mo"><input type="number" id="plan-retail-6mo">
+                <input type="checkbox" id="plan-enable-1yr"><input type="number" id="plan-price-1yr"><input type="number" id="plan-retail-1yr">
+                <input type="checkbox" id="plan-enable-lt"><input type="number" id="plan-price-lt"><input type="number" id="plan-retail-lt">
+                <textarea id="prod-features" required=""></textarea>
+                <button type="submit" id="form-submit-btn">Save Product</button>
+                <button id="cancel-edit-btn">Cancel</button>
+            </form>
+            
+            <button id="export-db-btn">Export</button>
+            <input type="file" id="import-db-input">
+            <button id="reset-db-btn">Reset</button>
+            <div id="db-feedback-msg"></div>
+        </div>
+
+        <div id="panel-orders" class="admin-panel">
+            <span id="stat-total-orders">0</span>
+            <span id="stat-pending-orders">0</span>
+            <span id="stat-total-revenue">₹0</span>
+            
+            <button id="btn-clear-orders">Clear</button>
+        </div>
+
+        <div id="panel-coupons" class="admin-panel">
+            <span id="stat-total-coupons">3</span>
+            <span id="stat-active-coupons">3</span>
+            <form id="coupon-form">
+                <input type="hidden" id="edit-coupon-index" value="-1">
+                <input type="text" id="coupon-code" required="">
+                <select id="coupon-type" required=""><option value="percentage">Percentage</option></select>
+                <input type="number" id="coupon-value" required="">
+                <input type="number" id="coupon-min-order" required="">
+                <input type="checkbox" id="coupon-active">
+                <button type="submit" id="coupon-submit-btn">Save Coupon</button>
+                <button id="cancel-coupon-edit-btn">Cancel</button>
+            </form>
+            
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const errDiv = document.createElement('div');
+                errDiv.id = 'error-log-output';
+                errDiv.innerText = JSON.stringify(window.errorsLog);
+                document.body.appendChild(errDiv);
+            }, 500);
+        });
+    </script>
+
+
+<div id="error-log-output">[]</div></body></html>

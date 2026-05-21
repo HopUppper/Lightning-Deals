@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html><head>
+    <title>JS Syntax Test Runner - app.js</title>
+    <script>
+        window.errorsLog = [];
+        window.onerror = function(message, source, lineno, colno, error) {
+            var errDiv = document.getElementById('error-log-output');
+            if (!errDiv) {
+                errDiv = document.createElement('div');
+                errDiv.id = 'error-log-output';
+                document.body.appendChild(errDiv);
+            }
+            window.errorsLog.push({
+                message: message,
+                source: source,
+                lineno: lineno,
+                colno: colno
+            });
+            errDiv.innerText = "SYNTAX_ERRORS:" + JSON.stringify(window.errorsLog);
+            return false;
+        };
+    </script>
+</head>
+<body>
+    <script src="js/app.js"></script>
+    <div id="test-complete">READY</div>
+
+
+</body></html>
