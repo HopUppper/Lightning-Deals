@@ -389,6 +389,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCartBadge();
     setupContactForm();
     startLivePurchaseNotifications();
+    setupScrollReveal();
+    setupMobileBottomNav();
 });
 
 // --- Setup Sticky Header ---
@@ -1610,6 +1612,13 @@ function updateCartBadge() {
     } else {
         badge.classList.remove('pulse');
     }
+
+    // Sync mobile bottom nav cart badge
+    const mobBadge = document.getElementById('mob-cart-badge');
+    if (mobBadge) {
+        mobBadge.innerText = count;
+        mobBadge.style.display = count > 0 ? 'flex' : 'none';
+    }
 }
 
 // --- FAQ Accordion live search filtering ---
@@ -1817,4 +1826,83 @@ function startLivePurchaseNotifications() {
         showRandomNotification();
         triggerNext();
     }, 5000);
+}
+
+// --- Scroll Reveal Animation Observer ---
+function setupScrollReveal() {
+    const revealSections = document.querySelectorAll('section, .section-header, .glass-card, .trust-card, .comp-card, .testimonial-card, .faq-item, .timeline-item');
+    
+    if (!('IntersectionObserver' in window)) {
+        // Fallback: show all elements immediately
+        revealSections.forEach(el => el.classList.add('revealed'));
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('reveal', 'revealed');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.08,
+        rootMargin: '0px 0px -40px 0px'
+    });
+
+    revealSections.forEach(el => {
+        el.classList.add('reveal');
+        observer.observe(el);
+    });
+}
+
+// --- Mobile Bottom Navigation ---
+function setupMobileBottomNav() {
+    const bottomNav = document.getElementById('mobile-bottom-nav');
+    if (!bottomNav) return;
+
+    const navItems = bottomNav.querySelectorAll('.mob-nav-item[data-section]');
+    const cartBtn = document.getElementById('mob-nav-cart-btn');
+
+    // Cart button opens purchase modal
+    if (cartBtn) {
+        cartBtn.addEventListener('click', () => {
+            const headerCartBtn = document.getElementById('header-cart-btn');
+            if (headerCartBtn) headerCartBtn.click();
+        });
+    }
+
+    // Update active state on scroll
+    const sectionIds = ['hero', 'products', 'contact'];
+    
+    window.addEventListener('scroll', () => {
+        const scrollPos = window.scrollY + window.innerHeight / 3;
+        let activeId = 'hero';
+
+        sectionIds.forEach(id => {
+            const section = document.getElementById(id);
+            if (section && scrollPos >= section.offsetTop) {
+                activeId = id;
+            }
+        });
+
+        navItems.forEach(item => {
+            item.classList.toggle('active', item.getAttribute('data-section') === activeId);
+        });
+    });
+
+    // Smooth scroll for nav links
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const sectionId = item.getAttribute('data-section');
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Initialize icons
+    if (window.lucide) window.lucide.createIcons();
 }

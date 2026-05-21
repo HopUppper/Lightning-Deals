@@ -4007,6 +4007,505 @@ h1, h2, h3, h4, h5, h6 {
 .stock-tag-outofstock { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 .stock-tag-instant { background: rgba(0, 242, 254, 0.1); color: var(--clr-cyan); }
 
+/* ==========================================================================
+   PHASE 1: MOBILE FIX + GLOBAL UI POLISH
+   ========================================================================== */
 
+/* --- Scroll Reveal Animations --- */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
 
+/* --- Enhanced Micro-Animations --- */
+.product-card {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.product-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    border-color: rgba(0, 242, 254, 0.3);
+    box-shadow: 0 16px 48px rgba(0, 242, 254, 0.1);
+}
+
+.trust-card {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.trust-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0, 242, 254, 0.2);
+    box-shadow: 0 12px 36px rgba(0, 242, 254, 0.06);
+}
+
+.comp-card {
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease;
+}
+.comp-card:hover {
+    transform: translateY(-3px);
+}
+
+.filter-btn {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.filter-btn:hover {
+    transform: translateY(-2px);
+}
+
+.testimonial-card {
+    transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+}
+.testimonial-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(0, 242, 254, 0.2);
+    box-shadow: 0 12px 36px rgba(0, 242, 254, 0.06);
+}
+
+.faq-item {
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.faq-item:hover {
+    border-color: rgba(0, 242, 254, 0.15);
+}
+
+/* --- Enhanced Glassmorphism --- */
+.glass-card {
+    background: rgba(255, 255, 255, 0.025);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* --- Mobile Bottom Navigation Bar --- */
+.mobile-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999;
+    background: rgba(7, 8, 11, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.5);
+}
+
+.mobile-bottom-nav-inner {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.mob-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 10px;
+    transition: color 0.2s ease, background 0.2s ease;
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.mob-nav-item i, .mob-nav-item svg {
+    width: 20px;
+    height: 20px;
+}
+.mob-nav-item.active {
+    color: var(--clr-cyan);
+}
+.mob-nav-item.active::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: var(--clr-cyan);
+    border-radius: 0 0 4px 4px;
+}
+
+.mob-nav-badge {
+    position: absolute;
+    top: 0;
+    right: 4px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 99px;
+    background: var(--clr-red);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+/* --- WhatsApp Floating Button Responsive Fix --- */
+.wa-floating-btn {
+    z-index: 9998;
+}
+
+/* ==========================================================================
+   SMALL PHONE BREAKPOINT (480px)
+   ========================================================================== */
+@media (max-width: 480px) {
+    section {
+        padding: 3.5rem 0;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    /* Hero Fixes */
+    .hero-section {
+        padding-top: 7rem;
+        padding-bottom: 3rem;
+    }
+    .hero-title {
+        font-size: 1.85rem !important;
+        line-height: 1.2;
+        word-break: break-word;
+    }
+    .hero-title br {
+        display: none;
+    }
+    .hero-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    .hero-badge {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.8rem;
+        margin-bottom: 1rem;
+    }
+    .hero-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+    .hero-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    .hero-trust-metrics {
+        flex-direction: row;
+        gap: 1rem;
+        justify-content: center;
+    }
+    .metric-val {
+        font-size: 1.2rem !important;
+    }
+    .metric-lbl {
+        font-size: 0.65rem;
+    }
+    .trust-divider {
+        height: 25px;
+    }
+
+    /* Hide floating hero cards on small phones */
+    .visual-wrapper {
+        max-width: 100%;
+        height: auto;
+        min-height: 200px;
+    }
+    .floating-card {
+        display: none;
+    }
+    .main-mockup {
+        position: relative;
+        height: 200px;
+    }
+
+    /* Section Headers */
+    .section-header {
+        margin-bottom: 2.5rem;
+    }
+    .section-title {
+        font-size: 1.6rem !important;
+        line-height: 1.25;
+    }
+    .section-subtitle {
+        font-size: 0.9rem;
+    }
+
+    /* Product Cards */
+    .product-card {
+        padding: 1.4rem;
+    }
+    .prod-title {
+        font-size: 1.15rem;
+    }
+    .prod-desc {
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .prod-price-new {
+        font-size: 1.6rem;
+    }
+    .prod-benefits {
+        margin-bottom: 1.2rem;
+    }
+    .prod-benefits li {
+        font-size: 0.78rem;
+    }
+
+    /* Trust Cards */
+    .trust-card {
+        padding: 1.5rem;
+    }
+    .trust-card-title {
+        font-size: 1.1rem;
+    }
+    .trust-card-description {
+        font-size: 0.83rem;
+    }
+
+    /* Comparison Cards */
+    .comp-card {
+        padding: 1.5rem;
+    }
+    .comp-title {
+        font-size: 1.2rem;
+        margin-bottom: 1.2rem;
+    }
+    .comp-list li {
+        font-size: 0.85rem;
+    }
+
+    /* Timeline */
+    .timeline-item {
+        padding-left: 48px;
+    }
+    .timeline-content h3 {
+        font-size: 1rem;
+    }
+    .timeline-content p {
+        font-size: 0.82rem;
+    }
+
+    /* Testimonials */
+    .testimonial-card {
+        padding: 1.5rem;
+    }
+
+    /* FAQ */
+    .faq-toggle span {
+        font-size: 0.9rem;
+    }
+
+    /* Contact Form */
+    .contact-form-wrapper {
+        padding: 1.5rem;
+    }
+
+    /* Footer */
+    .footer-bottom-text {
+        font-size: 0.75rem;
+    }
+
+    /* Add bottom padding for mobile nav */
+    body {
+        padding-bottom: 70px;
+    }
+
+    /* Configure Modal Fix */
+    .modal-overlay .modal-box {
+        max-height: 90vh;
+        margin: 1rem;
+        border-radius: 16px;
+    }
+
+    /* Category filters */
+    .category-filters {
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+    .filter-btn {
+        padding: 0.4rem 0.9rem;
+        font-size: 0.78rem;
+    }
+
+    /* WhatsApp button positioning */
+    .wa-floating-btn {
+        bottom: 80px !important;
+    }
+
+    /* Buttons */
+    .btn-lg {
+        padding: 0.85rem 1.5rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* ==========================================================================
+   MEDIUM MOBILE BREAKPOINT (768px) - ENHANCEMENTS
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* Show mobile bottom nav */
+    .mobile-bottom-nav {
+        display: block;
+    }
+
+    /* Add body padding for bottom nav */
+    body {
+        padding-bottom: 68px;
+    }
+
+    /* Hero visual fixes */
+    .visual-wrapper {
+        max-width: 320px;
+        height: 300px;
+    }
+    .floating-card {
+        transform: scale(0.8);
+    }
+    .card-1 {
+        left: -5%;
+        top: 0;
+    }
+    .card-2 {
+        right: -5%;
+    }
+    .card-3 {
+        left: 0;
+    }
+
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+
+    /* Move WhatsApp button up above bottom nav */
+    .wa-floating-btn {
+        bottom: 80px !important;
+    }
+
+    /* Cart button hide label on mobile */
+    .cart-label {
+        display: none;
+    }
+
+    /* Hide desktop CTA in header */
+    #nav-cta-btn {
+        display: none;
+    }
+
+    /* Section spacing */
+    .section-header {
+        margin-bottom: 2.5rem;
+    }
+    .section-title {
+        font-size: 1.8rem;
+    }
+    .section-subtitle {
+        font-size: 0.95rem;
+    }
+
+    /* Product card overflow fix */
+    .prod-desc {
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+    .prod-benefits li span {
+        word-break: break-word;
+    }
+
+    /* Modals */
+    .modal-box {
+        margin: 0.5rem;
+        max-height: 95vh;
+    }
+
+    /* Testimonial carousel touch improvements */
+    .carousel-container {
+        overflow: hidden;
+        touch-action: pan-y pinch-zoom;
+    }
+    .testimonial-track {
+        cursor: grab;
+    }
+    .testimonial-track:active {
+        cursor: grabbing;
+    }
+
+    /* FAQ section */
+    .faq-toggle {
+        padding: 1rem;
+    }
+    .faq-content-inner {
+        padding: 0 1rem 1rem;
+    }
+
+    /* Footer improvements */
+    .footer-container {
+        text-align: center;
+    }
+}
+
+/* ==========================================================================
+   CLAMP TYPOGRAPHY FOR SMOOTH SCALING
+   ========================================================================== */
+.hero-title {
+    font-size: clamp(1.85rem, 5vw, 3.5rem);
+}
+.section-title {
+    font-size: clamp(1.6rem, 4vw, 2.5rem);
+}
+.comp-title {
+    font-size: clamp(1.2rem, 3vw, 1.5rem);
+}
+.metric-val {
+    font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+}
+
+/* --- Product Card Consistent Heights Fix --- */
+.products-grid {
+    align-items: stretch;
+}
+.product-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+.product-card .prod-desc {
+    flex-grow: 1;
+    min-height: 0;
+}
+.product-card .btn {
+    margin-top: auto;
+    flex-shrink: 0;
+}
+
+/* --- Prevent horizontal overflow --- */
+html, body {
+    overflow-x: hidden;
+}
 
