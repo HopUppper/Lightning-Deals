@@ -702,9 +702,28 @@
                     <span>My Stack Workspace</span>
                 </div>
                 <h2 class="section-title" style="margin-bottom: 0.75rem;">Your Stack <span class="gradient-text">Workspace</span></h2>
-                <p class="section-subtitle" style="margin-bottom: 2.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <p class="section-subtitle" style="margin-bottom: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
                     Easily access your active subscription licenses, view activation credentials, track renewals, earn referral payouts, and download invoices.
                 </p>
+
+                <!-- Order Sync / Retrieve Form -->
+                <div class="order-sync-search-container" style="max-width: 500px; margin: 0 auto 2.5rem; padding: 1.25rem; border-radius: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+                    <h4 style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i data-lucide="refresh-cw" style="width: 12px; height: 12px; color: var(--clr-cyan);"></i>
+                        Retrieve / Sync Purchases Across Devices
+                    </h4>
+                    <form id="order-sync-search-form" style="display: flex; gap: 0.5rem; width: 100%;">
+                        <div style="position: relative; flex-grow: 1;">
+                            <i data-lucide="search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-muted);"></i>
+                            <input type="text" id="order-sync-search-input" placeholder="Enter Email, WhatsApp, or Order ID (LD-...)" 
+                                   style="width: 100%; padding: 0.65rem 1rem 0.65rem 2.25rem; border-radius: 8px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-primary); font-size: 0.85rem; transition: all 0.3s; font-family: inherit;" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btn-order-sync-submit" style="padding: 0.65rem 1.25rem; border-radius: 8px; font-size: 0.85rem; white-space: nowrap;">
+                            <span>Sync Stacks</span>
+                        </button>
+                    </form>
+                    <div id="order-sync-status-msg" style="margin-top: 0.75rem; font-size: 0.8rem; border-radius: 6px; padding: 0.5rem; display: none;"></div>
+                </div>
             </div>
 
             <div class="dashboard-preview-card">
@@ -1380,6 +1399,13 @@
 
     <!-- Toast Notification Container -->
     <div id="toast-container"></div>
+
+    <!-- Firebase SDK (Compat versions for traditional script-tag usage) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Database Configuration -->
+    <script src="js/config.js"></script>
 
     <!-- Store logic script -->
     <script src="js/app.js"></script>

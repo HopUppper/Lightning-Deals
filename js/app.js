@@ -280,6 +280,23 @@ const DEFAULT_SETTINGS = {
 
 let CONTACT_SETTINGS = { ...DEFAULT_SETTINGS };
 
+// --- Firebase / Database Initialization ---
+let database = null;
+if (isFirebaseConfigured()) {
+    try {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        database = firebase.database();
+        console.log("Firebase Realtime Database initialized successfully.");
+    } catch (err) {
+        console.error("Firebase initialization failed, running in offline mode:", err);
+    }
+}
+
+// Helper to check if Firebase is connected
+function isDbConnected() {
+    return database !== null;
+}
+
 function loadSettings() {
     const saved = localStorage.getItem('lightning_deals_settings');
     if (saved) {
@@ -293,7 +310,32 @@ function loadSettings() {
         }
     }
 }
-loadSettings();
+
+// Synced Settings Loader
+function syncSettings(callback) {
+    if (database) {
+        database.ref('settings').on('value', (snapshot) => {
+            const val = snapshot.val();
+            if (val) {
+                CONTACT_SETTINGS = { ...DEFAULT_SETTINGS, ...val };
+                localStorage.setItem('lightning_deals_settings', JSON.stringify(CONTACT_SETTINGS));
+            } else {
+                database.ref('settings').set(DEFAULT_SETTINGS);
+                CONTACT_SETTINGS = { ...DEFAULT_SETTINGS };
+                localStorage.setItem('lightning_deals_settings', JSON.stringify(CONTACT_SETTINGS));
+            }
+            if (callback) callback();
+        }, (error) => {
+            console.error("Firebase settings sync error, falling back to local storage:", error);
+            loadSettings();
+            if (callback) callback();
+        });
+    } else {
+        loadSettings();
+        if (callback) callback();
+    }
+}
+syncSettings();
 
 function sendOrderNotification(order) {
     loadSettings();
@@ -382,16 +424,13 @@ function safeGetLocalStorage(key, defaultValue) {
 function initCatalog() {
     const val = localStorage.getItem('lightning_deals_products');
     if (!val || val === 'undefined' || val === 'null') {
-        // No catalog exists at all — seed with defaults
         localStorage.setItem('lightning_deals_products', JSON.stringify(DEFAULT_PRODUCTS));
     } else {
         try {
             const parsed = JSON.parse(val);
             if (!parsed || !Array.isArray(parsed)) {
-                // Corrupted data — reset to defaults
                 localStorage.setItem('lightning_deals_products', JSON.stringify(DEFAULT_PRODUCTS));
             } else {
-                // Ensure all default products are present
                 let updated = false;
                 DEFAULT_PRODUCTS.forEach(dp => {
                     if (!parsed.some(p => p.id === dp.id)) {
@@ -404,12 +443,10 @@ function initCatalog() {
                 }
             }
         } catch (e) {
-            // JSON parse error — reset to defaults
             localStorage.setItem('lightning_deals_products', JSON.stringify(DEFAULT_PRODUCTS));
         }
     }
 }
-initCatalog();
 
 const DEFAULT_COUPONS = [
     { code: "SAVE10", type: "percentage", value: 10, minOrder: 0, active: true },
@@ -428,13 +465,84 @@ function initCoupons() {
         }
     }
 }
-initCoupons();
+
+// Synced Coupons Loader
+function syncCoupons(callback) {
+    if (database) {
+        database.ref('coupons').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                let loadedCoupons = [];
+                if (Array.isArray(data)) {
+                    loadedCoupons = data.filter(c => c !== null && c !== undefined);
+                } else if (typeof data === 'object') {
+                    loadedCoupons = Object.values(data);
+                }
+                localStorage.setItem('lightning_deals_coupons', JSON.stringify(loadedCoupons));
+            } else {
+                database.ref('coupons').set(DEFAULT_COUPONS);
+                localStorage.setItem('lightning_deals_coupons', JSON.stringify(DEFAULT_COUPONS));
+            }
+            if (callback) callback();
+        }, (error) => {
+            console.error("Firebase coupons sync error, falling back to local storage:", error);
+            initCoupons();
+            if (callback) callback();
+        });
+    } else {
+        initCoupons();
+        if (callback) callback();
+    }
+}
+syncCoupons();
 
 // --- Globals ---
 let products = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
 let cart = safeGetLocalStorage('lightning_deals_cart', []);
 let appliedCoupon = null;
 let currentStep = 1;
+
+// Synced Products Loader
+function syncProducts(callback) {
+    if (database) {
+        database.ref('products').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                let loadedProducts = [];
+                if (Array.isArray(data)) {
+                    loadedProducts = data.filter(p => p !== null && p !== undefined);
+                } else if (typeof data === 'object') {
+                    loadedProducts = Object.keys(data).map(key => {
+                        const p = data[key];
+                        if (p && !p.id) p.id = key;
+                        return p;
+                    }).filter(p => p !== null && p !== undefined);
+                }
+                products = loadedProducts;
+                localStorage.setItem('lightning_deals_products', JSON.stringify(products));
+            } else {
+                database.ref('products').set(DEFAULT_PRODUCTS);
+                products = DEFAULT_PRODUCTS;
+                localStorage.setItem('lightning_deals_products', JSON.stringify(products));
+            }
+            if (typeof applyStoreFilters === 'function') applyStoreFilters();
+            if (typeof renderRecentlyViewed === 'function') renderRecentlyViewed();
+            if (typeof updateWishlistUI === 'function') updateWishlistUI();
+            if (callback) callback();
+        }, (error) => {
+            console.error("Firebase products sync error, falling back to local storage:", error);
+            initCatalog();
+            products = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+            if (typeof applyStoreFilters === 'function') applyStoreFilters();
+            if (callback) callback();
+        });
+    } else {
+        initCatalog();
+        products = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+        if (callback) callback();
+    }
+}
+syncProducts();
 
 // --- DOM elements ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -1527,6 +1635,18 @@ function setupPurchaseModal() {
                 date: new Date().toLocaleString('en-IN'),
                 status: "Pending"
             };
+
+            // Write to Firebase if configured
+            if (database) {
+                database.ref('orders/' + order.id).set(order)
+                    .then(() => {
+                        console.log("Order saved to Firebase Realtime Database:", order.id);
+                        listenToCustomerOrders();
+                    })
+                    .catch(err => {
+                        console.error("Firebase database order write failed:", err);
+                    });
+            }
 
             // Write to local storage
             const orders = safeGetLocalStorage('lightning_deals_orders', []);
@@ -2773,10 +2893,174 @@ function getOrderDisplayStatus(order) {
     return 'Active';
 }
 
+// --- Client Orders Sync & Search Utilities ---
+function syncClientOrders(searchVal, callback) {
+    if (!database) {
+        if (callback) callback(false, "Firebase database is not configured. Please contact the administrator.");
+        return;
+    }
+    const cleanSearch = searchVal.trim();
+    if (!cleanSearch) {
+        if (callback) callback(false, "Input value cannot be empty.");
+        return;
+    }
+
+    const dbRef = database.ref('orders');
+    const mergeOrders = (newOrders) => {
+        if (!newOrders || newOrders.length === 0) return 0;
+        let localOrders = safeGetLocalStorage('lightning_deals_orders', []);
+        let count = 0;
+        newOrders.forEach(no => {
+            if (no && no.id) {
+                const index = localOrders.findIndex(lo => lo.id === no.id);
+                if (index !== -1) {
+                    localOrders[index] = { ...localOrders[index], ...no };
+                } else {
+                    localOrders.unshift(no);
+                    count++;
+                }
+            }
+        });
+        localStorage.setItem('lightning_deals_orders', JSON.stringify(localOrders));
+        renderWorkspace();
+        return count;
+    };
+
+    if (cleanSearch.startsWith('LD-')) {
+        dbRef.child(cleanSearch).once('value')
+            .then(snapshot => {
+                const order = snapshot.val();
+                if (order) {
+                    mergeOrders([order]);
+                    if (callback) callback(true, `Successfully synced order ID ${order.id}.`);
+                } else {
+                    if (callback) callback(false, "No order found with that ID.");
+                }
+            })
+            .catch(err => {
+                console.error("Order ID lookup error:", err);
+                if (callback) callback(false, "Error: " + err.message);
+            });
+    } else if (cleanSearch.includes('@')) {
+        dbRef.orderByChild('email').equalTo(cleanSearch).once('value')
+            .then(snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    const list = Object.values(data);
+                    mergeOrders(list);
+                    if (callback) callback(true, `Successfully synced ${list.length} order(s).`);
+                } else {
+                    if (callback) callback(false, "No orders found for this email address.");
+                }
+            })
+            .catch(err => {
+                console.error("Email lookup error:", err);
+                if (callback) callback(false, "Error: " + err.message);
+            });
+    } else {
+        const cleanPhone = cleanSearch.replace(/[\s\-\+\(\)]/g, '');
+        let phoneVariations = [cleanPhone];
+        if (cleanPhone.length === 10) {
+            phoneVariations.push('91' + cleanPhone);
+        } else if (cleanPhone.length === 12 && cleanPhone.startsWith('91')) {
+            phoneVariations.push(cleanPhone.substring(2));
+        }
+
+        let promises = phoneVariations.map(ph => dbRef.orderByChild('phone').equalTo(ph).once('value'));
+        Promise.all(promises)
+            .then(results => {
+                let allSynced = [];
+                results.forEach(snapshot => {
+                    const val = snapshot.val();
+                    if (val) {
+                        allSynced = allSynced.concat(Object.values(val));
+                    }
+                });
+                if (allSynced.length > 0) {
+                    const unique = {};
+                    allSynced.forEach(o => { unique[o.id] = o; });
+                    const uniqueList = Object.values(unique);
+                    mergeOrders(uniqueList);
+                    if (callback) callback(true, `Successfully synced ${uniqueList.length} order(s).`);
+                } else {
+                    if (callback) callback(false, "No orders found matching this WhatsApp/phone number.");
+                }
+            })
+            .catch(err => {
+                console.error("Phone lookup error:", err);
+                if (callback) callback(false, "Error: " + err.message);
+            });
+    }
+}
+
+let activeListeners = new Set();
+function listenToCustomerOrders() {
+    if (!database) return;
+    const localOrders = safeGetLocalStorage('lightning_deals_orders', []);
+    localOrders.forEach(o => {
+        if (o && o.id && o.id.startsWith('LD-') && !activeListeners.has(o.id)) {
+            activeListeners.add(o.id);
+            database.ref('orders/' + o.id).on('value', (snapshot) => {
+                const orderData = snapshot.val();
+                if (orderData) {
+                    let currentLocal = safeGetLocalStorage('lightning_deals_orders', []);
+                    const idx = currentLocal.findIndex(lo => lo.id === o.id);
+                    if (idx !== -1) {
+                        if (JSON.stringify(currentLocal[idx]) !== JSON.stringify(orderData)) {
+                            currentLocal[idx] = orderData;
+                            localStorage.setItem('lightning_deals_orders', JSON.stringify(currentLocal));
+                            renderWorkspace();
+                        }
+                    }
+                }
+            });
+        }
+    });
+}
+
 function setupDashboardMock() {
     // Navigation / Sidebar tabs
     const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
     const mockPanels = document.querySelectorAll('.dash-mock-panel');
+
+    // Setup order sync UI controls
+    const syncForm = document.getElementById('order-sync-search-form');
+    const syncInput = document.getElementById('order-sync-search-input');
+    const syncBtn = document.getElementById('btn-order-sync-submit');
+    const syncMsg = document.getElementById('order-sync-status-msg');
+
+    if (syncForm && syncInput && syncMsg) {
+        syncForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const searchVal = syncInput.value.trim();
+            if (!searchVal) return;
+
+            if (syncBtn) syncBtn.disabled = true;
+            syncMsg.style.display = 'block';
+            syncMsg.style.background = 'rgba(255, 255, 255, 0.03)';
+            syncMsg.style.color = 'var(--text-secondary)';
+            syncMsg.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+            syncMsg.innerText = "🔍 Connecting and syncing stacks...";
+
+            syncClientOrders(searchVal, (success, msg) => {
+                if (syncBtn) syncBtn.disabled = false;
+                if (success) {
+                    syncMsg.style.background = 'rgba(0, 242, 254, 0.05)';
+                    syncMsg.style.color = 'var(--clr-cyan)';
+                    syncMsg.style.border = '1px solid rgba(0, 242, 254, 0.15)';
+                    syncMsg.innerText = `✅ ${msg}`;
+                } else {
+                    syncMsg.style.background = 'rgba(255, 75, 75, 0.05)';
+                    syncMsg.style.color = '#ff4b4b';
+                    syncMsg.style.border = '1px solid rgba(255, 75, 75, 0.15)';
+                    syncMsg.innerText = `❌ ${msg}`;
+                }
+            });
+        });
+    }
+
+    // Call order listener
+    listenToCustomerOrders();
 
     sidebarBtns.forEach(btn => {
         btn.addEventListener('click', () => {
