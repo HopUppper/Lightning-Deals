@@ -550,9 +550,6 @@ function applyStoreFilters() {
         const isWishlisted = wishlist.includes(prod.id);
 
         card.innerHTML = `
-            <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button">
-                <i data-lucide="heart"></i>
-            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
                 ${badgeHTML}
@@ -573,9 +570,14 @@ function applyStoreFilters() {
                 ${benefitsHTML}
             </ul>
 
-            <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="${prod.id}">
-                <span>Get Access</span>
-            </button>
+            <div class="card-actions-wrapper" style="display: flex; gap: 0.5rem; width: 100%; margin-top: auto;">
+                <button class="btn btn-primary btn-glow cta-purchase-trigger" data-id="${prod.id}" style="flex-grow: 1;">
+                    <span>Add to Cart</span>
+                </button>
+                <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button">
+                    <i data-lucide="heart"></i>
+                </button>
+            </div>
         `;
 
         grid.appendChild(card);
@@ -2429,9 +2431,6 @@ function renderRecentlyViewed() {
         const isWishlisted = wishlist.includes(prod.id);
 
         card.innerHTML = `
-            <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button">
-                <i data-lucide="heart"></i>
-            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
                 ${badgeHTML}
@@ -2448,10 +2447,15 @@ function renderRecentlyViewed() {
                 </div>
             </div>
             
-            <button class="btn btn-primary w-100 cta-purchase-trigger" data-id="${prod.id}">
-                <span>Get Access</span>
-                <i data-lucide="arrow-right"></i>
-            </button>
+            <div class="card-actions-wrapper" style="display: flex; gap: 0.5rem; width: 100%; margin-top: 1rem;">
+                <button class="btn btn-primary cta-purchase-trigger" data-id="${prod.id}" style="flex-grow: 1;">
+                    <span>Add to Cart</span>
+                    <i data-lucide="arrow-right"></i>
+                </button>
+                <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button">
+                    <i data-lucide="heart"></i>
+                </button>
+            </div>
         `;
         grid.appendChild(card);
     });

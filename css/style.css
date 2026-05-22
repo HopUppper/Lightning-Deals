@@ -740,6 +740,42 @@ h1, h2, h3, h4, h5, h6 {
     min-height: 350px;
 }
 
+/* Wishlist Button styling */
+.wishlist-btn {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.wishlist-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #FF3366;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 51, 102, 0.15);
+}
+.wishlist-btn.active {
+    background: rgba(255, 51, 102, 0.1);
+    border-color: rgba(255, 51, 102, 0.3);
+    color: #FF3366;
+}
+.wishlist-btn i, .wishlist-btn svg {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.2s ease;
+}
+.wishlist-btn:active i, .wishlist-btn:active svg {
+    transform: scale(0.85);
+}
+
 /* Premium Product Card */
 .product-card {
     display: flex;
@@ -1352,9 +1388,29 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateY(20px);
     transition: transform var(--transition-normal);
     border-color: rgba(255, 255, 255, 0.1);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.modal-card::-webkit-scrollbar {
+    width: 6px;
+}
+.modal-card::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.01);
+    border-radius: 10px;
+}
+.modal-card::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+}
+.modal-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.25);
 }
 .modal-overlay.active .modal-card {
     transform: translateY(0);
+}
+#product-configure-modal .modal-card,
+#purchase-modal .modal-card {
+    max-width: 550px;
 }
 
 .modal-close-btn {
@@ -1750,6 +1806,9 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex-direction: column;
 }
+.admin-dashboard-layout .container {
+    max-width: 1400px;
+}
 .admin-topbar {
     background: rgba(7, 8, 11, 0.8);
     backdrop-filter: blur(12px);
@@ -1950,7 +2009,7 @@ h1, h2, h3, h4, h5, h6 {
     text-align: left;
 }
 .admin-table th {
-    padding: 1rem 2.2rem;
+    padding: 0.75rem 1rem;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -1959,9 +2018,23 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom: 1px solid var(--border-color);
 }
 .admin-table td {
-    padding: 1rem 2.2rem;
+    padding: 0.75rem 1rem;
     border-bottom: 1px solid rgba(255,255,255,0.02);
     vertical-align: middle;
+}
+.admin-table th.checkbox-cell,
+.admin-table td.checkbox-cell {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    width: 30px;
+    text-align: center;
+}
+.admin-table th.edit-cell,
+.admin-table td.edit-cell {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    width: 50px;
+    text-align: center;
 }
 .admin-table tr:hover td {
     background: rgba(255,255,255,0.01);
@@ -3124,7 +3197,8 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
     background: rgba(255, 255, 255, 0.05);
 }
-.search-input-group i {
+.search-input-group i,
+.search-input-group svg {
     position: absolute;
     left: 1rem;
     top: 50%;
@@ -3135,7 +3209,8 @@ h1, h2, h3, h4, h5, h6 {
     height: 18px;
     transition: color var(--transition-fast);
 }
-.search-input-group input:focus + i {
+.search-input-group input:focus + i,
+.search-input-group input:focus + svg {
     color: var(--clr-cyan);
 }
 .search-suggestions-dropdown {

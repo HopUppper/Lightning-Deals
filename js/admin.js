@@ -455,7 +455,7 @@ function renderProductsTable() {
     if (productsList.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" class="text-center" style="padding: 3rem 1rem; color: var(--text-muted);">
+                <td colspan="6" class="text-center" style="padding: 3rem 1rem; color: var(--text-muted);">
                     <i data-lucide="package-x" style="width: 32px; height: 32px; margin-bottom: 0.5rem; display: block; margin-left: auto; margin-right: auto;"></i>
                     No products found in the database catalog. Create one using the form on the left.
                 </td>
@@ -489,6 +489,11 @@ function renderProductsTable() {
             <td class="checkbox-cell">
                 <input type="checkbox" class="bulk-select-row" data-index="${index}">
             </td>
+            <td class="edit-cell" style="text-align: center;">
+                <button class="btn btn-secondary btn-xs edit-btn-trigger" data-index="${index}" aria-label="Edit product">
+                    <i data-lucide="edit-3" style="width: 13px; height: 13px;"></i>
+                </button>
+            </td>
             <td>
                 <div class="admin-table-product-cell">
                     <div class="admin-table-logo-circle ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
@@ -509,9 +514,6 @@ function renderProductsTable() {
             </td>
             <td>
                 <div class="table-actions">
-                    <button class="btn btn-secondary btn-xs edit-btn-trigger" data-index="${index}" aria-label="Edit product">
-                        <i data-lucide="edit-3" style="width: 13px; height: 13px;"></i>
-                    </button>
                     <button class="btn btn-danger btn-xs delete-btn-trigger" data-index="${index}" aria-label="Delete product">
                         <i data-lucide="trash-2" style="width: 13px; height: 13px;"></i>
                     </button>
