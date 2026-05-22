@@ -949,27 +949,143 @@ function setupDatabaseUtilities() {
             reader.onload = function(evt) {
                 try {
                     const parsed = JSON.parse(evt.target.result);
-                    if (!Array.isArray(parsed)) {
+                    if (!parsed || !Array.isArray(parsed)) {
                         throw new Error("Import payload must be a JSON array of products.");
                     }
 
-                    if (parsed.length > 200) {
-                        throw new Error("Import payload exceeds the maximum capacity of 200 products.");
-                    }
+                    // Robust Validation and Auto-healing
+                    const healedList = [];
+                    const errors = [];
 
-                    parsed.forEach(prod => {
-                        if (!prod.name || !prod.category || !prod.description || !prod.plans || !prod.features) {
-                            throw new Error(`Product objects missing critical fields. Check catalog structure.`);
+                    parsed.forEach((prod, idx) => {
+                        try {
+                            if (!prod || typeof prod !== 'object') {
+                                throw new Error(`Item at index ${idx + 1} is not a valid product object.`);
+                            }
+                            if (!prod.name || typeof prod.name !== 'string' || !prod.name.trim()) {
+                                throw new Error(`Product at index ${idx + 1} is missing a valid 'name'.`);
+                            }
+                            if (!prod.category || typeof prod.category !== 'string' || !prod.category.trim()) {
+                                throw new Error(`Product "${prod.name || 'Unnamed'}" (index ${idx + 1}) is missing a 'category'.`);
+                            }
+                            if (!prod.plans || !Array.isArray(prod.plans) || prod.plans.length === 0) {
+                                throw new Error(`Product "${prod.name}" (index ${idx + 1}) must have at least one pricing plan.`);
+                            }
+
+                            // Auto-heal plans
+                            const validPlans = [];
+                            prod.plans.forEach((plan, planIdx) => {
+                                if (plan && typeof plan === 'object') {
+                                    validPlans.push({
+                                        label: (plan.label || `Plan ${planIdx + 1}`).trim(),
+                                        price: parseFloat(plan.price) || 0,
+                                        retail: parseFloat(plan.retail) || parseFloat(plan.price) || 0
+                                    });
+                                }
+                            });
+
+                            if (validPlans.length === 0) {
+                                throw new Error(`Product "${prod.name}" (index ${idx + 1}) has invalid pricing plans.`);
+                            }
+
+                            // Auto-heal features
+                            let features = [];
+                            if (Array.isArray(prod.features)) {
+                                features = prod.features
+                                    .map(f => typeof f === 'string' ? f.trim() : (f ? String(f).trim() : ''))
+                                    .filter(f => f !== '');
+                            } else if (typeof prod.features === 'string') {
+                                features = healFeatures(prod.features);
+                            }
+                            if (features.length === 0) {
+                                features = ["Full access license activation", "24/7 customer support"];
+                            }
+
+                            // Build fully healed product
+                            const healedProd = {
+                                id: (prod.id || generateId(prod.name)).trim(),
+                                name: prod.name.trim(),
+                                category: prod.category.trim().toLowerCase(),
+                                description: (prod.description || '').trim(),
+                                icon: (prod.icon || prod.name.charAt(0)).trim().toUpperCase(),
+                                iconColor: (prod.iconColor || 'grad-blue').trim(),
+                                tag: (prod.tag || prod.badge || '').trim(),
+                                badge: (prod.badge || prod.tag || '').trim(),
+                                stockStatus: (prod.stockStatus || 'available').trim(),
+                                visible: prod.visible !== false,
+                                bestseller: prod.bestseller === true,
+                                plans: validPlans,
+                                features: features,
+                                activationRequirements: (prod.activationRequirements || "Registered account email address.").trim(),
+                                activationProcess: (prod.activationProcess || "We will send instructions/credentials to your email.").trim()
+                            };
+
+                            healedList.push(healedProd);
+                        } catch (prodErr) {
+                            errors.push(prodErr.message);
                         }
                     });
 
-                    productsList = parsed;
-                    saveCatalogToStorage();
-                    renderCatalogStats();
-                    renderProductsTable();
-                    showFeedback("Catalog database imported successfully!", "green");
+                    if (errors.length > 0) {
+                        throw new Error("Validation failed for some products:\n- " + errors.slice(0, 3).join('\n- ') + (errors.length > 3 ? `\n...and ${errors.length - 3} more errors.` : ''));
+                    }
+
+                    // Prompt user for Merge vs Replace vs Cancel options
+                    showImportOptionsModal(healedList, (choice) => {
+                        if (choice === 'cancel') {
+                            showFeedback("Import cancelled.", "red");
+                            return;
+                        }
+
+                        if (choice === 'replace') {
+                            if (healedList.length > 200) {
+                                showFeedback(`Import error: Replacement exceeds 200 products limit (has ${healedList.length}).`, "red");
+                                return;
+                            }
+                            productsList = healedList;
+                            saveCatalogToStorage();
+                            renderCatalogStats();
+                            renderProductsTable();
+                            showFeedback(`Catalog replaced with ${healedList.length} products successfully!`, "green");
+                        } else if (choice === 'merge') {
+                            const combinedLength = productsList.length + healedList.length;
+                            if (combinedLength > 200) {
+                                showFeedback(`Import error: Merging would result in ${combinedLength} products, which exceeds the limit of 200.`, "red");
+                                return;
+                            }
+
+                            // Keep existing IDs set to avoid duplicates
+                            const existingIds = new Set(productsList.map(p => p.id));
+                            let mergedCount = 0;
+
+                            healedList.forEach(prod => {
+                                let baseId = prod.id;
+                                let uniqueId = baseId;
+                                let suffix = 1;
+                                while (existingIds.has(uniqueId)) {
+                                    uniqueId = `${baseId}-${suffix}`;
+                                    suffix++;
+                                }
+                                prod.id = uniqueId;
+                                existingIds.add(uniqueId);
+                                productsList.push(prod);
+                                mergedCount++;
+                            });
+
+                            saveCatalogToStorage();
+                            renderCatalogStats();
+                            renderProductsTable();
+                            showFeedback(`Merged ${mergedCount} products into your catalog successfully!`, "green");
+                        }
+                    });
+
                 } catch (err) {
-                    showFeedback(`Import error: ${err.message}`, "red");
+                    if (err.message.includes('\n')) {
+                        alert(err.message);
+                        showFeedback("Import validation failed. Check browser alert details.", "red");
+                    } else {
+                        showFeedback(`Import error: ${err.message}`, "red");
+                    }
                 }
             };
             reader.readAsText(file);
@@ -992,13 +1108,103 @@ function setupDatabaseUtilities() {
 
     function showFeedback(msg, color) {
         if (!feedback) return;
-        feedback.innerText = msg;
+        feedback.innerHTML = msg.replace(/\n/g, '<br>');
         feedback.style.display = 'block';
         feedback.style.color = color === 'green' ? 'var(--clr-cyan)' : 'var(--clr-red)';
         setTimeout(() => {
             feedback.style.display = 'none';
-        }, 4000);
+        }, 5000);
     }
+}
+
+// --- Import Options Custom Glassmorphic Modal ---
+function showImportOptionsModal(parsedProducts, onComplete) {
+    // Create modal elements
+    const overlay = document.createElement('div');
+    overlay.className = 'import-modal-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.background = 'rgba(0, 0, 0, 0.7)';
+    overlay.style.backdropFilter = 'blur(8px)';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.zIndex = '100000';
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.3s ease';
+
+    const card = document.createElement('div');
+    card.className = 'glass-card';
+    card.style.width = '90%';
+    card.style.maxWidth = '500px';
+    card.style.padding = '30px';
+    card.style.borderRadius = '16px';
+    card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+    card.style.background = 'rgba(23, 23, 28, 0.9)';
+    card.style.boxShadow = '0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1)';
+    card.style.color = '#ffffff';
+    card.style.transform = 'scale(0.9)';
+    card.style.transition = 'transform 0.3s ease';
+
+    card.innerHTML = `
+        <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 1.5rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px;">
+            <i data-lucide="upload-cloud" style="color: var(--clr-cyan); width: 24px; height: 24px;"></i>
+            Import Catalog Options
+        </h3>
+        <p style="font-size: 0.95rem; line-height: 1.5; color: var(--text-secondary); margin-bottom: 24px;">
+            You are importing <strong style="color: var(--clr-cyan);">${parsedProducts.length}</strong> products. How would you like to apply this import to your store?
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button id="btn-import-merge" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; font-weight: 600;">
+                <i data-lucide="merge" style="width: 18px; height: 18px;"></i>
+                Merge &amp; Append Products
+            </button>
+            <button id="btn-import-replace" class="btn btn-danger" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; font-weight: 600; background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.3); color: #f43f5e; cursor: pointer;">
+                <i data-lucide="refresh-cw" style="width: 18px; height: 18px;"></i>
+                Replace Existing Catalog
+            </button>
+            <button id="btn-import-cancel" class="btn btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; font-weight: 600;">
+                Cancel
+            </button>
+        </div>
+    `;
+
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+
+    // Fade in
+    setTimeout(() => {
+        overlay.style.opacity = '1';
+        card.style.transform = 'scale(1)';
+    }, 10);
+
+    if (window.lucide) window.lucide.createIcons({ src: card });
+
+    const closeModal = () => {
+        overlay.style.opacity = '0';
+        card.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+            overlay.remove();
+        }, 300);
+    };
+
+    card.querySelector('#btn-import-merge').addEventListener('click', () => {
+        closeModal();
+        onComplete('merge');
+    });
+
+    card.querySelector('#btn-import-replace').addEventListener('click', () => {
+        closeModal();
+        onComplete('replace');
+    });
+
+    card.querySelector('#btn-import-cancel').addEventListener('click', () => {
+        closeModal();
+        onComplete('cancel');
+    });
 }
 
 // ==========================================================================
