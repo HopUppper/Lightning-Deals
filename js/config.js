@@ -5,13 +5,14 @@
 // Replace these placeholders with your actual Firebase project settings.
 // You can get these settings by registering a Web App in your Firebase console.
 const FIREBASE_CONFIG = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyAskJbziZqK141AAv4DlOU3XnQb50AM0mQ",
+    authDomain: "lightning-deals-d0adc.firebaseapp.com",
+    databaseURL: "https://lightning-deals-d0adc-default-rtdb.firebaseio.com",
+    projectId: "lightning-deals-d0adc",
+    storageBucket: "lightning-deals-d0adc.firebasestorage.app",
+    messagingSenderId: "871414034338",
+    appId: "1:871414034338:web:a5ab9bbfca44267fed4cfb",
+    measurementId: "G-01H1CDLF8C"
 };
 
 /**
