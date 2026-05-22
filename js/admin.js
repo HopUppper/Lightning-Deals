@@ -350,8 +350,22 @@ function syncAdminData(callback) {
                 }
                 productsList = loaded;
             } else {
-                productsList = DEFAULT_CATALOG;
-                database.ref('products').set(DEFAULT_CATALOG);
+                const local = localStorage.getItem('lightning_deals_products');
+                if (local) {
+                    try {
+                        const parsed = JSON.parse(local);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            productsList = parsed;
+                        } else {
+                            productsList = DEFAULT_CATALOG;
+                        }
+                    } catch(e) {
+                        productsList = DEFAULT_CATALOG;
+                    }
+                } else {
+                    productsList = DEFAULT_CATALOG;
+                }
+                database.ref('products').set(productsList);
             }
             localStorage.setItem('lightning_deals_products', JSON.stringify(productsList));
         }).catch(err => {

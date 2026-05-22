@@ -521,8 +521,22 @@ function syncProducts(callback) {
                 products = loadedProducts;
                 localStorage.setItem('lightning_deals_products', JSON.stringify(products));
             } else {
-                database.ref('products').set(DEFAULT_PRODUCTS);
-                products = DEFAULT_PRODUCTS;
+                const local = localStorage.getItem('lightning_deals_products');
+                if (local) {
+                    try {
+                        const parsed = JSON.parse(local);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            products = parsed;
+                        } else {
+                            products = DEFAULT_PRODUCTS;
+                        }
+                    } catch(e) {
+                        products = DEFAULT_PRODUCTS;
+                    }
+                } else {
+                    products = DEFAULT_PRODUCTS;
+                }
+                database.ref('products').set(products);
                 localStorage.setItem('lightning_deals_products', JSON.stringify(products));
             }
             if (typeof applyStoreFilters === 'function') applyStoreFilters();
