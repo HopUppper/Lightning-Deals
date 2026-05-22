@@ -1362,6 +1362,22 @@ function setupPurchaseModal() {
         });
     }
 
+    const btnSuccessWorkspace = document.getElementById('btn-success-workspace');
+    if (btnSuccessWorkspace) {
+        btnSuccessWorkspace.addEventListener('click', () => {
+            closeModal();
+            if (window.refreshWorkspace) {
+                window.refreshWorkspace();
+            }
+            setTimeout(() => {
+                const target = document.getElementById('roadmap-dashboard');
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 350);
+        });
+    }
+
     if (btnNextToDetails) {
         btnNextToDetails.addEventListener('click', () => {
             showStep(2);
@@ -2675,7 +2691,90 @@ function renderRecentlyViewed() {
     if (window.lucide) window.lucide.createIcons();
 }
 
+function getWarrantyStatus(order) {
+    if (order.status === 'Cancelled') {
+        return 'N/A';
+    }
+    if (order.status !== 'Delivered' && order.status !== 'Paid via Stripe') {
+        return 'Pending Activation';
+    }
+    
+    let actDateStr = order.activationDate;
+    if (!actDateStr) {
+        if (order.date) {
+            const parts = order.date.split(',');
+            actDateStr = parts[0].trim();
+        } else {
+            actDateStr = new Date().toLocaleDateString('en-IN');
+        }
+    }
+    
+    let actDate;
+    if (actDateStr.includes('/')) {
+        const parts = actDateStr.split('/');
+        if (parts[2] && parts[2].length === 4) {
+            actDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+        } else {
+            actDate = new Date(actDateStr);
+        }
+    } else {
+        actDate = new Date(actDateStr);
+    }
+    
+    if (isNaN(actDate.getTime())) {
+        actDate = new Date();
+    }
+    
+    let termMonths = order.warrantyTerm;
+    if (termMonths === undefined || termMonths === null) {
+        const plan = (order.plan || '').toLowerCase();
+        if (plan.includes('lifetime')) termMonths = 9999;
+        else if (plan.includes('12 month') || plan.includes('1 year') || plan.includes('annual')) termMonths = 12;
+        else if (plan.includes('6 month')) termMonths = 6;
+        else if (plan.includes('3 month')) termMonths = 3;
+        else if (plan.includes('2 month')) termMonths = 2;
+        else termMonths = 1;
+    }
+    
+    if (termMonths === 9999 || String(termMonths).toLowerCase() === 'lifetime') {
+        return 'Active';
+    }
+    
+    const expiryDate = new Date(actDate.getTime());
+    expiryDate.setMonth(expiryDate.getMonth() + parseInt(termMonths));
+    
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    expiryDate.setHours(0,0,0,0);
+    
+    const diffTime = expiryDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+        return 'Expired';
+    } else if (diffDays <= 7) {
+        return 'Expiring Soon';
+    } else {
+        return 'Active';
+    }
+}
+
+function getOrderDisplayStatus(order) {
+    if (order.status === 'Cancelled') {
+        return 'Cancelled';
+    }
+    if (order.status === 'Pending' || order.status === 'Pending Stripe Payment') {
+        return 'Pending';
+    }
+    const warranty = getWarrantyStatus(order);
+    if (warranty === 'Expired') {
+        return 'Expired';
+    }
+    return 'Active';
+}
+
 function setupDashboardMock() {
+    // Navigation / Sidebar tabs
     const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
     const mockPanels = document.querySelectorAll('.dash-mock-panel');
 
@@ -2690,4 +2789,434 @@ function setupDashboardMock() {
             if (window.lucide) window.lucide.createIcons();
         });
     });
+
+    // Add smooth scroll for navbar workspace triggers
+    const workspaceTriggers = document.querySelectorAll('.workspace-trigger');
+    workspaceTriggers.forEach(trigger => {
+        trigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.getElementById('roadmap-dashboard');
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+                // Make sure the active nav link updates
+                document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                trigger.classList.add('active');
+            }
+        });
+    });
+
+    // Custom overlay credentials modal logic
+    const credModal = document.getElementById('credentials-modal');
+    const closeCredBtn = document.getElementById('close-credentials-modal-btn');
+    const btnCloseCred = document.getElementById('btn-close-credentials');
+    const btnCopyCred = document.getElementById('btn-copy-credentials');
+    const textCredContent = document.getElementById('credentials-text-content');
+
+    function closeCredentialsModal() {
+        if (credModal) credModal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+    }
+
+    if (closeCredBtn) closeCredBtn.addEventListener('click', closeCredentialsModal);
+    if (btnCloseCred) btnCloseCred.addEventListener('click', closeCredentialsModal);
+    if (btnCopyCred && textCredContent) {
+        btnCopyCred.addEventListener('click', () => {
+            navigator.clipboard.writeText(textCredContent.value).then(() => {
+                const origText = btnCopyCred.innerHTML;
+                btnCopyCred.innerHTML = `<i data-lucide="check" style="width: 14px; height: 14px;"></i><span>Copied!</span>`;
+                btnCopyCred.style.animation = 'copyFlash 0.6s ease';
+                btnCopyCred.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+                if (window.lucide) window.lucide.createIcons();
+                setTimeout(() => {
+                    btnCopyCred.innerHTML = origText;
+                    btnCopyCred.style.animation = '';
+                    btnCopyCred.style.borderColor = '';
+                    if (window.lucide) window.lucide.createIcons();
+                }, 2000);
+            });
+        });
+    }
+
+    // Receipt lightbox logic
+    const receiptLightbox = document.getElementById('client-receipt-lightbox');
+    const closeReceiptBtn = document.getElementById('close-receipt-lightbox-btn');
+    const receiptImg = document.getElementById('receipt-lightbox-img');
+    const receiptDetails = document.getElementById('receipt-lightbox-details');
+
+    function closeReceiptLightbox() {
+        if (receiptLightbox) receiptLightbox.classList.remove('active');
+    }
+    if (closeReceiptBtn) closeReceiptBtn.addEventListener('click', closeReceiptLightbox);
+    if (receiptLightbox) {
+        receiptLightbox.addEventListener('click', (e) => {
+            if (e.target === receiptLightbox) closeReceiptLightbox();
+        });
+    }
+
+    // Main workspace renderer
+    function renderWorkspace() {
+        const orders = safeGetLocalStorage('lightning_deals_orders', []);
+        const licensesPanel = document.getElementById('dash-panel-licenses');
+        const invoicesPanel = document.getElementById('dash-panel-invoices');
+
+        // Check if user has zero orders.
+        const isPreviewMode = orders.length === 0;
+
+        // Seed default items if in preview mode
+        let displayOrders = orders;
+        if (isPreviewMode) {
+            displayOrders = [
+                {
+                    id: "LD-MOCK-1",
+                    product: "ChatGPT Plus (1x)",
+                    plan: "12 Months",
+                    price: 4999,
+                    retail: 22999,
+                    name: "John Doe",
+                    email: "john@example.com",
+                    phone: "919999999999",
+                    utr: "123456789012",
+                    date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toLocaleString('en-IN'),
+                    status: "Delivered",
+                    activationDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    warrantyTerm: 12,
+                    notes: "Account Email: chatgpt-deals@lightning.com\nPassword: PremiumFounderPass1!\nActivation link: https://chatgpt.com\n\nEnjoy your 12-month access!"
+                },
+                {
+                    id: "LD-MOCK-2",
+                    product: "Cursor Pro (1x)",
+                    plan: "6 Months",
+                    price: 2999,
+                    retail: 11999,
+                    name: "John Doe",
+                    email: "john@example.com",
+                    phone: "919999999999",
+                    utr: "234567890123",
+                    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toLocaleString('en-IN'),
+                    status: "Delivered",
+                    activationDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    warrantyTerm: 6,
+                    notes: "Use invite code: cursor-lightning-deal-key-xyz999\nRedeem on: https://cursor.sh/settings\nWarranty validity: 6 Months."
+                },
+                {
+                    id: "LD-MOCK-3",
+                    product: "Adobe Creative Cloud (1x)",
+                    plan: "1 Month",
+                    price: 1148,
+                    retail: 4999,
+                    name: "John Doe",
+                    email: "john@example.com",
+                    phone: "919999999999",
+                    utr: "345678901234",
+                    date: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toLocaleString('en-IN'),
+                    status: "Delivered",
+                    activationDate: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    warrantyTerm: 1,
+                    notes: "Your Adobe invite has been sent to john@example.com. Please accept it within 48 hours to activate access."
+                }
+            ];
+        }
+
+        // Calculate statistics
+        let activeCount = 0;
+        let totalSaved = 0;
+        let nextRenewalDate = null;
+
+        displayOrders.forEach(o => {
+            const displayStatus = getOrderDisplayStatus(o);
+
+            if (displayStatus === 'Active') {
+                activeCount++;
+                
+                // Savings calculation: sum up difference between retail and deal price.
+                let itemRetail = o.retail || 0;
+                if (!itemRetail && o.items) {
+                    o.items.forEach(item => {
+                        itemRetail += (item.retail || (item.price * 3)) * (item.qty || 1);
+                    });
+                }
+                if (!itemRetail) itemRetail = o.price * 3;
+                totalSaved += Math.max(0, itemRetail - o.price);
+
+                // Renewal date calculation
+                let actDateStr = o.activationDate;
+                if (!actDateStr && o.date) {
+                    actDateStr = o.date.split(',')[0].trim();
+                }
+                
+                let actDate;
+                if (actDateStr) {
+                    if (actDateStr.includes('/')) {
+                        const parts = actDateStr.split('/');
+                        if (parts[2] && parts[2].length === 4) {
+                            actDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                        } else {
+                            actDate = new Date(actDateStr);
+                        }
+                    } else {
+                        actDate = new Date(actDateStr);
+                    }
+                }
+                
+                let termMonths = o.warrantyTerm;
+                if (termMonths === undefined || termMonths === null) {
+                    const plan = (o.plan || '').toLowerCase();
+                    if (plan.includes('lifetime')) termMonths = 9999;
+                    else if (plan.includes('12 month') || plan.includes('1 year') || plan.includes('annual')) termMonths = 12;
+                    else if (plan.includes('6 month')) termMonths = 6;
+                    else if (plan.includes('3 month')) termMonths = 3;
+                    else if (plan.includes('2 month')) termMonths = 2;
+                    else termMonths = 1;
+                }
+
+                if (termMonths !== 9999 && termMonths !== 'lifetime' && actDate && !isNaN(actDate.getTime())) {
+                    const exp = new Date(actDate.getTime());
+                    exp.setMonth(exp.getMonth() + parseInt(termMonths));
+                    if (!nextRenewalDate || exp < nextRenewalDate) {
+                        nextRenewalDate = exp;
+                    }
+                }
+            }
+        });
+
+        const nextRenewalStr = nextRenewalDate 
+            ? nextRenewalDate.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })
+            : "Lifetime / N/A";
+
+        // Render Licenses Tab
+        if (licensesPanel) {
+            let bannerHTML = "";
+            if (isPreviewMode) {
+                bannerHTML = `
+                    <div class="success-info-alert" style="margin-bottom: 1.5rem; background: rgba(0, 242, 254, 0.05); border-color: rgba(0, 242, 254, 0.15);">
+                        <i data-lucide="info" class="info-alert-icon" style="color: var(--clr-cyan);"></i>
+                        <div class="info-alert-text" style="color: var(--text-secondary); font-size: 0.8rem;">
+                            <strong>Workspace Preview Mode:</strong> You haven't made any purchases yet. Below is a preview demonstration of your workspace once a subscription stack is activated.
+                        </div>
+                    </div>
+                `;
+            }
+
+            let rowsHTML = "";
+            displayOrders.forEach((o, index) => {
+                const displayStatus = getOrderDisplayStatus(o);
+                
+                let statusBadgeClass = "cancelled";
+                if (displayStatus === 'Active') statusBadgeClass = "active";
+                if (displayStatus === 'Pending') statusBadgeClass = "pending";
+                
+                let actionBtnHTML = "";
+                if (displayStatus === 'Active') {
+                    actionBtnHTML = `<button class="btn btn-secondary btn-sm btn-view-credentials" data-index="${index}" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; border-radius: 6px;">Show Credentials</button>`;
+                } else if (displayStatus === 'Pending') {
+                    const waText = encodeURIComponent(`Hi, checking status of my order ID: ${o.id}. UTR: ${o.utr}. Please activate.`);
+                    actionBtnHTML = `<a href="https://wa.me/917695956938?text=${waText}" target="_blank" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; color: white; display: inline-flex; align-items: center; gap: 4px; border-radius: 6px;"><i data-lucide="message-circle" style="width: 10px; height: 10px;"></i> Activate WhatsApp</a>`;
+                } else {
+                    actionBtnHTML = `<a href="#products" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; color: white; border-radius: 6px;">Renew Deal</a>`;
+                }
+
+                // Expiry / Renew Date
+                let renewDateVal = "Lifetime";
+                let termMonths = o.warrantyTerm;
+                if (termMonths === undefined || termMonths === null) {
+                    const plan = (o.plan || '').toLowerCase();
+                    if (plan.includes('lifetime')) termMonths = 9999;
+                    else if (plan.includes('12 month') || plan.includes('1 year') || plan.includes('annual')) termMonths = 12;
+                    else if (plan.includes('6 month')) termMonths = 6;
+                    else if (plan.includes('3 month')) termMonths = 3;
+                    else if (plan.includes('2 month')) termMonths = 2;
+                    else termMonths = 1;
+                }
+
+                if (termMonths !== 9999 && termMonths !== 'lifetime') {
+                    let actDateStr = o.activationDate;
+                    if (!actDateStr && o.date) {
+                        actDateStr = o.date.split(',')[0].trim();
+                    }
+                    let actDate;
+                    if (actDateStr) {
+                        if (actDateStr.includes('/')) {
+                            const parts = actDateStr.split('/');
+                            if (parts[2] && parts[2].length === 4) {
+                                actDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+                            } else {
+                                actDate = new Date(actDateStr);
+                            }
+                        } else {
+                            actDate = new Date(actDateStr);
+                        }
+                    }
+                    if (actDate && !isNaN(actDate.getTime())) {
+                        const exp = new Date(actDate.getTime());
+                        exp.setMonth(exp.getMonth() + parseInt(termMonths));
+                        renewDateVal = exp.toLocaleDateString('en-IN');
+                    } else {
+                        renewDateVal = "N/A";
+                    }
+                }
+
+                const validityLabel = termMonths === 9999 ? "Lifetime" : `${termMonths} Month${termMonths > 1 ? 's' : ''}`;
+
+                rowsHTML += `
+                    <tr>
+                        <td data-label="Tool Stack" style="font-weight: 600;">${escapeHTML(o.product)}</td>
+                        <td data-label="Validity">${validityLabel}</td>
+                        <td data-label="Renew Date">${renewDateVal}</td>
+                        <td data-label="Status"><span class="dash-badge-status ${statusBadgeClass}">${displayStatus}</span></td>
+                        <td data-label="Action">${actionBtnHTML}</td>
+                    </tr>
+                `;
+            });
+
+            licensesPanel.innerHTML = `
+                <h3 class="dash-panel-title">Active Stack Subscriptions</h3>
+                <p class="dash-panel-subtitle">Manage credentials and monitor renewal dates for your active workspace tools.</p>
+                
+                ${bannerHTML}
+
+                <div class="dash-grid-stats">
+                    <div class="dash-stat-box">
+                        <span class="dash-stat-label">Active Stacks</span>
+                        <span class="dash-stat-value">${activeCount} Stack${activeCount !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div class="dash-stat-box">
+                        <span class="dash-stat-label">Next Renewal</span>
+                        <span class="dash-stat-value" style="color: var(--clr-cyan);">${nextRenewalStr}</span>
+                    </div>
+                    <div class="dash-stat-box">
+                        <span class="dash-stat-label">Total Saved</span>
+                        <span class="dash-stat-value" style="color: var(--clr-green);">₹${totalSaved.toLocaleString('en-IN')}</span>
+                    </div>
+                </div>
+
+                <div style="overflow-x: auto;">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>Tool Stack</th>
+                                <th>Validity</th>
+                                <th>Renew Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHTML}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            // Attach listeners to "Show Credentials" buttons
+            licensesPanel.querySelectorAll('.btn-view-credentials').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.getAttribute('data-index'));
+                    const targetOrder = displayOrders[idx];
+                    if (targetOrder && textCredContent) {
+                        textCredContent.value = targetOrder.notes || "Credentials are being provisioned. Please check back shortly.";
+                        if (credModal) {
+                            credModal.classList.add('active');
+                            document.body.classList.add('modal-open');
+                        }
+                    }
+                });
+            });
+        }
+
+        // Render Invoices Tab
+        if (invoicesPanel) {
+            let bannerHTML = "";
+            if (isPreviewMode) {
+                bannerHTML = `
+                    <div class="success-info-alert" style="margin-bottom: 1.5rem; background: rgba(0, 242, 254, 0.05); border-color: rgba(0, 242, 254, 0.15);">
+                        <i data-lucide="info" class="info-alert-icon" style="color: var(--clr-cyan);"></i>
+                        <div class="info-alert-text" style="color: var(--text-secondary); font-size: 0.8rem;">
+                            <strong>Workspace Preview Mode:</strong> Showing invoice demonstrations below. Your actual purchase receipts will appear here after checkout.
+                        </div>
+                    </div>
+                `;
+            }
+
+            let rowsHTML = "";
+            displayOrders.forEach((o, index) => {
+                const dateStr = o.date ? o.date.split(',')[0].trim() : "N/A";
+                
+                let screenshotActionHTML = "";
+                if (isPreviewMode) {
+                    screenshotActionHTML = `<button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; border-radius: 6px;" onclick="alert('Demo invoice screenshot: Simulated receipt loading.')"><i data-lucide="eye" style="width: 10px; height: 10px; display: inline; margin-right: 4px; vertical-align: middle;"></i> View Receipt</button>`;
+                } else {
+                    if (o.screenshot && o.screenshot !== 'removed:manually_cleared' && !o.screenshot.startsWith('error:')) {
+                        screenshotActionHTML = `<button class="btn btn-secondary btn-sm btn-view-receipt" data-index="${index}" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; border-radius: 6px;"><i data-lucide="eye" style="width: 10px; height: 10px; display: inline; margin-right: 4px; vertical-align: middle;"></i> View Receipt</button>`;
+                    } else {
+                        screenshotActionHTML = `<span style="color: var(--text-muted); font-size: 0.7rem; font-style: italic;">No attachment</span>`;
+                    }
+                }
+
+                rowsHTML += `
+                    <tr>
+                        <td data-label="Invoice ID" style="font-family: monospace;">${escapeHTML(o.id)}</td>
+                        <td data-label="Date">${escapeHTML(dateStr)}</td>
+                        <td data-label="Description">${escapeHTML(o.product)}</td>
+                        <td data-label="Amount" style="color: var(--clr-green); font-weight: 600;">₹${o.price.toLocaleString('en-IN')}</td>
+                        <td data-label="Action">${screenshotActionHTML}</td>
+                    </tr>
+                `;
+            });
+
+            invoicesPanel.innerHTML = `
+                <h3 class="dash-panel-title">Invoices & Billing Statements</h3>
+                <p class="dash-panel-subtitle">Review official receipts and tax statements for your account accounting records.</p>
+                
+                ${bannerHTML}
+
+                <div style="overflow-x: auto;">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>Invoice ID</th>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHTML}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            // Attach listeners to "View Receipt" buttons
+            invoicesPanel.querySelectorAll('.btn-view-receipt').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const idx = parseInt(btn.getAttribute('data-index'));
+                    const targetOrder = displayOrders[idx];
+                    if (targetOrder && targetOrder.screenshot && receiptImg && receiptLightbox) {
+                        receiptImg.src = targetOrder.screenshot;
+                        if (receiptDetails) {
+                            receiptDetails.innerHTML = `Order: ${targetOrder.id} | Paid: ₹${targetOrder.price.toLocaleString('en-IN')} | Date: ${targetOrder.date}`;
+                        }
+                        receiptLightbox.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Connect real-time synchronization from admin changes.
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'lightning_deals_orders') {
+            renderWorkspace();
+        }
+    });
+
+    // Run first render
+    renderWorkspace();
+
+    // Export renderer to window so it can be called externally
+    window.refreshWorkspace = renderWorkspace;
 }
