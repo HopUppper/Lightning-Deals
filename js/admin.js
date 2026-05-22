@@ -704,13 +704,86 @@ function deleteProduct(index) {
 function saveCatalogToStorage() {
     try {
         localStorage.setItem('lightning_deals_products', JSON.stringify(productsList));
+        updateStorageIndicator();
     } catch (e) {
         console.error("Local Storage Save Error (Catalog):", e);
         if (e.name === 'QuotaExceededError' || e.code === 22 || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
-            alert("⚠️ Browser storage is full! Could not save product catalog. Please go to the Orders panel and clear/delete old orders to free up space (orders often contain large screenshot images).");
+            // Auto-cleanup: strip large screenshot data from orders to free space
+            const freed = autoFreeStorageSpace();
+            if (freed) {
+                try {
+                    localStorage.setItem('lightning_deals_products', JSON.stringify(productsList));
+                    updateStorageIndicator();
+                    alert("✅ Product saved! Some old order screenshots were automatically removed to free up browser storage space.");
+                    return;
+                } catch (e2) {
+                    // Still not enough space even after cleanup
+                }
+            }
+            alert("⚠️ Browser storage is full! Could not save product catalog. Please go to the Orders panel and click 'Clear Order History' to delete older orders and free up space.");
         } else {
             alert("⚠️ An error occurred while saving the product catalog: " + e.message);
         }
+    }
+}
+
+// --- Auto-free storage by stripping screenshots from orders ---
+function autoFreeStorageSpace() {
+    try {
+        const ordersRaw = localStorage.getItem('lightning_deals_orders');
+        if (!ordersRaw) return false;
+
+        let orders = JSON.parse(ordersRaw);
+        if (!Array.isArray(orders)) return false;
+
+        let freed = false;
+        orders.forEach(order => {
+            if (order.screenshot && order.screenshot.length > 100) {
+                order.screenshot = "removed:auto_cleanup_to_free_storage";
+                order.screenshotRemoved = true;
+                freed = true;
+            }
+        });
+
+        if (freed) {
+            localStorage.setItem('lightning_deals_orders', JSON.stringify(orders));
+            // Also update the in-memory list if it exists
+            if (typeof ordersList !== 'undefined' && Array.isArray(ordersList)) {
+                ordersList = orders;
+            }
+        }
+
+        // Also try to remove recently viewed items (low-priority data)
+        try { localStorage.removeItem('lightning_deals_recently_viewed'); } catch(ignored) {}
+
+        return freed;
+    } catch (cleanupErr) {
+        console.error("Auto-cleanup error:", cleanupErr);
+        return false;
+    }
+}
+
+// --- Storage Usage Indicator ---
+function updateStorageIndicator() {
+    const indicator = document.getElementById('storage-usage-indicator');
+    if (!indicator) return;
+    try {
+        let totalSize = 0;
+        for (let key in localStorage) {
+            if (localStorage.hasOwnProperty(key)) {
+                totalSize += (localStorage[key].length + key.length) * 2; // UTF-16 = 2 bytes per char
+            }
+        }
+        const usedMB = (totalSize / (1024 * 1024)).toFixed(2);
+        const maxMB = 5; // Standard localStorage limit
+        const pct = Math.min(100, ((totalSize / (maxMB * 1024 * 1024)) * 100)).toFixed(0);
+        let color = 'var(--text-muted)';
+        if (pct > 80) color = '#FF6633';
+        if (pct > 95) color = '#FF3366';
+        indicator.style.color = color;
+        indicator.innerHTML = `💾 Storage: ${usedMB} / ${maxMB} MB (${pct}%)`;
+    } catch (e) {
+        indicator.innerHTML = '';
     }
 }
 
@@ -1199,10 +1272,41 @@ function setupOrdersControls() {
                 renderOrdersStats();
                 renderOrdersTable();
                 updatePendingBadgeCount();
+                updateStorageIndicator();
                 alert("Order history logs cleared successfully.");
             }
         });
     }
+
+    // Clear all screenshots button handler
+    const clearScreenshotsBtn = document.getElementById('btn-clear-screenshots');
+    if (clearScreenshotsBtn) {
+        clearScreenshotsBtn.addEventListener('click', () => {
+            let screenshotCount = 0;
+            ordersList.forEach(order => {
+                if (order.screenshot && order.screenshot.length > 100) screenshotCount++;
+            });
+            if (screenshotCount === 0) {
+                alert("No screenshot data found to clear.");
+                return;
+            }
+            if (confirm(`This will remove screenshot images from ${screenshotCount} order(s) to free up browser storage. Order details will be preserved. Continue?`)) {
+                ordersList.forEach(order => {
+                    if (order.screenshot && order.screenshot.length > 100) {
+                        order.screenshot = "removed:manually_cleared";
+                        order.screenshotRemoved = true;
+                    }
+                });
+                saveOrdersToStorage();
+                renderOrdersTable();
+                updateStorageIndicator();
+                alert(`✅ Screenshots cleared from ${screenshotCount} order(s). Storage space freed!`);
+            }
+        });
+    }
+
+    // Show storage usage indicator
+    updateStorageIndicator();
 
     // Search input handler
     const searchInput = document.getElementById('order-search-input');

@@ -1894,7 +1894,7 @@ function setupScreenshotUpload() {
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
-                const max_size = 600;
+                const max_size = 400;
 
                 if (width > height) {
                     if (width > max_size) {
@@ -1913,8 +1913,8 @@ function setupScreenshotUpload() {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // Compress as JPEG at 0.7 quality to stay under localStorage limit
-                compressedScreenshotBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                // Compress as JPEG at 0.5 quality to minimize localStorage usage
+                compressedScreenshotBase64 = canvas.toDataURL('image/jpeg', 0.5);
 
                 if (previewImg) previewImg.src = compressedScreenshotBase64;
                 if (previewName) previewName.innerText = file.name;
