@@ -12,6 +12,7 @@ const DEFAULT_CATALOG = [
         icon: "C",
         iconColor: "grad-purple",
         tag: "Bestseller",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 499, retail: 1499 },
             { label: "6 Months", price: 1999, retail: 8999 },
@@ -35,6 +36,7 @@ const DEFAULT_CATALOG = [
         icon: "Cc",
         iconColor: "grad-red",
         tag: "90% Off",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 999, retail: 8999 },
             { label: "6 Months", price: 4999, retail: 35999 },
@@ -104,6 +106,7 @@ const DEFAULT_CATALOG = [
         icon: "Nx",
         iconColor: "grad-red",
         tag: "Ultra HD",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 199, retail: 649 },
             { label: "6 Months", price: 999, retail: 3894 },
@@ -127,6 +130,7 @@ const DEFAULT_CATALOG = [
         icon: "Sp",
         iconColor: "grad-green",
         tag: "No Ads",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 149, retail: 179 },
             { label: "6 Months", price: 499, retail: 719 },
@@ -173,6 +177,7 @@ const DEFAULT_CATALOG = [
         icon: "Tv",
         iconColor: "grad-yellow",
         tag: "Pro Traders",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 899, retail: 5990 },
             { label: "6 Months", price: 3999, retail: 29990 },
@@ -196,6 +201,7 @@ const DEFAULT_CATALOG = [
         icon: "Gp",
         iconColor: "grad-green",
         tag: "AI Power",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 599, retail: 1999 },
             { label: "6 Months", price: 2999, retail: 11999 },
@@ -481,6 +487,11 @@ function renderProductsTable() {
             hiddenHTML = `<span class="badge-status badge-status-cancelled" style="margin-left: 6px; font-size: 0.65rem; padding: 1px 6px; border-radius: 4px;">Hidden</span>`;
         }
 
+        let bestsellerHTML = '';
+        if (prod.bestseller === true) {
+            bestsellerHTML = `<span class="badge-status" style="margin-left: 6px; font-size: 0.65rem; padding: 1px 6px; border-radius: 4px; background: rgba(0, 242, 254, 0.15); color: var(--clr-cyan); border: 1px solid rgba(0, 242, 254, 0.25);">Bestseller</span>`;
+        }
+
         const row = document.createElement('tr');
         if (index === editingIndex) {
             row.classList.add('editing-row');
@@ -502,6 +513,7 @@ function renderProductsTable() {
                             <span class="admin-table-title">${prod.name}</span>
                             <span class="stock-tag-product stock-tag-${stockClass}">${stockLabel}</span>
                             ${hiddenHTML}
+                            ${bestsellerHTML}
                         </div>
                     </div>
                 </div>
@@ -612,6 +624,7 @@ function initiateEditProduct(index) {
     document.getElementById('prod-stock').value = prod.stockStatus || 'available';
     document.getElementById('prod-badge').value = prod.badge || prod.tag || '';
     document.getElementById('prod-visible').checked = prod.visible !== false;
+    document.getElementById('prod-bestseller').checked = prod.bestseller === true;
 
     // Update Form state headers
     document.getElementById('form-action-title').innerHTML = `<i data-lucide="edit" style="vertical-align: middle; margin-right: 4px;"></i> Edit Product: ${prod.name}`;
@@ -653,6 +666,7 @@ function cancelProductEdit() {
     document.getElementById('prod-stock').value = 'available';
     document.getElementById('prod-badge').value = '';
     document.getElementById('prod-visible').checked = true;
+    document.getElementById('prod-bestseller').checked = false;
 
     document.getElementById('form-action-title').innerHTML = `<i data-lucide="plus-circle" style="vertical-align: middle; margin-right: 4px;"></i> Add New Product`;
     document.getElementById('form-submit-btn').querySelector('span').innerText = "Save Product";
@@ -727,6 +741,7 @@ function setupProductForm() {
         const stockStatus = document.getElementById('prod-stock').value;
         const badge = document.getElementById('prod-badge').value;
         const visible = document.getElementById('prod-visible').checked;
+        const bestseller = document.getElementById('prod-bestseller') ? document.getElementById('prod-bestseller').checked : false;
 
         // Read and compile plans from visual grid
         let plans = [];
@@ -795,6 +810,11 @@ function setupProductForm() {
 
         const editIndexVal = parseInt(document.getElementById('edit-index').value);
 
+        if (editIndexVal < 0 && productsList.length >= 200) {
+            alert("Maximum product catalog capacity limit (200 subscriptions) has been reached. Please delete or disable existing products before adding new ones.");
+            return;
+        }
+
         const newProd = {
             id: editIndexVal >= 0 ? productsList[editIndexVal].id : generateId(name),
             name: name,
@@ -806,6 +826,7 @@ function setupProductForm() {
             badge: badge || "",
             stockStatus: stockStatus,
             visible: visible,
+            bestseller: bestseller,
             plans: plans,
             features: features,
             activationRequirements: activationRequirements,
@@ -857,6 +878,10 @@ function setupDatabaseUtilities() {
                     const parsed = JSON.parse(evt.target.result);
                     if (!Array.isArray(parsed)) {
                         throw new Error("Import payload must be a JSON array of products.");
+                    }
+
+                    if (parsed.length > 200) {
+                        throw new Error("Import payload exceeds the maximum capacity of 200 products.");
                     }
 
                     parsed.forEach(prod => {

@@ -12,6 +12,7 @@ const DEFAULT_PRODUCTS = [
         icon: "C",
         iconColor: "grad-purple",
         tag: "Bestseller",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 499, retail: 1499 },
             { label: "6 Months", price: 1999, retail: 8999 },
@@ -35,6 +36,7 @@ const DEFAULT_PRODUCTS = [
         icon: "Cc",
         iconColor: "grad-red",
         tag: "90% Off",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 999, retail: 8999 },
             { label: "6 Months", price: 4999, retail: 35999 },
@@ -104,6 +106,7 @@ const DEFAULT_PRODUCTS = [
         icon: "Nx",
         iconColor: "grad-red",
         tag: "Ultra HD",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 199, retail: 649 },
             { label: "6 Months", price: 999, retail: 3894 },
@@ -127,6 +130,7 @@ const DEFAULT_PRODUCTS = [
         icon: "Sp",
         iconColor: "grad-green",
         tag: "No Ads",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 149, retail: 179 },
             { label: "6 Months", price: 499, retail: 719 },
@@ -173,6 +177,7 @@ const DEFAULT_PRODUCTS = [
         icon: "Tv",
         iconColor: "grad-yellow",
         tag: "Pro Traders",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 899, retail: 5990 },
             { label: "6 Months", price: 3999, retail: 29990 },
@@ -196,6 +201,7 @@ const DEFAULT_PRODUCTS = [
         icon: "Gp",
         iconColor: "grad-green",
         tag: "AI Power",
+        bestseller: true,
         plans: [
             { label: "1 Month", price: 599, retail: 1999 },
             { label: "6 Months", price: 2999, retail: 11999 },
@@ -460,7 +466,7 @@ function setupMobileMenu() {
 }
 
 // --- Unified live search & category filters ---
-let currentCategory = 'all';
+let currentCategory = 'bestsellers';
 let searchQuery = '';
 
 function applyStoreFilters() {
@@ -472,12 +478,29 @@ function applyStoreFilters() {
     grid.innerHTML = '';
 
     const query = searchQuery.toLowerCase().trim();
-    const filtered = products.filter(p => {
-        if (p.visible === false) return false;
-        const matchesCategory = (currentCategory === 'all' || p.category === currentCategory);
-        const matchesSearch = (!query || p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
-        return matchesCategory && matchesSearch;
-    });
+    let filtered;
+    if (currentCategory === 'bestsellers') {
+        let bestsellers = products.filter(p => p.visible !== false && (p.bestseller === true || (p.tag && p.tag.toLowerCase().includes('bestseller'))));
+        if (bestsellers.length < 5) {
+            const addedIds = new Set(bestsellers.map(b => b.id));
+            const extraProducts = products.filter(p => p.visible !== false && !addedIds.has(p.id));
+            const fillCount = Math.min(8 - bestsellers.length, extraProducts.length);
+            for (let i = 0; i < fillCount; i++) {
+                bestsellers.push(extraProducts[i]);
+            }
+        }
+        filtered = bestsellers.slice(0, 10);
+        if (query) {
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
+        }
+    } else {
+        filtered = products.filter(p => {
+            if (p.visible === false) return false;
+            const matchesCategory = (currentCategory === 'all' || p.category === currentCategory);
+            const matchesSearch = (!query || p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
+            return matchesCategory && matchesSearch;
+        });
+    }
 
     if (filtered.length === 0) {
         grid.innerHTML = `
@@ -595,7 +618,31 @@ function setupSearchFilters() {
 
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value;
+            const val = e.target.value;
+            searchQuery = val;
+            
+            const trimmed = val.trim();
+            if (trimmed !== '') {
+                if (currentCategory === 'bestsellers') {
+                    currentCategory = 'all';
+                    if (categorySelect) categorySelect.value = 'all';
+                    if (filterContainer) {
+                        filterContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                            btn.classList.toggle('active', btn.getAttribute('data-category') === 'all');
+                        });
+                    }
+                }
+            } else {
+                if (currentCategory === 'all') {
+                    currentCategory = 'bestsellers';
+                    if (categorySelect) categorySelect.value = 'bestsellers';
+                    if (filterContainer) {
+                        filterContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                            btn.classList.toggle('active', btn.getAttribute('data-category') === 'bestsellers');
+                        });
+                    }
+                }
+            }
             applyStoreFilters();
         });
     }
