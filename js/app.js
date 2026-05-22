@@ -391,6 +391,10 @@ document.addEventListener('DOMContentLoaded', () => {
     startLivePurchaseNotifications();
     setupScrollReveal();
     setupMobileBottomNav();
+    setupWishlistModal();
+    initSearchSuggestions();
+    renderRecentlyViewed();
+    updateWishlistUI();
 });
 
 // --- Setup Sticky Header ---
@@ -542,7 +546,13 @@ function applyStoreFilters() {
             benefitsHTML += `<li><i data-lucide="check-circle-2"></i> <span>${feat}</span></li>`;
         });
 
+        const wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
+        const isWishlisted = wishlist.includes(prod.id);
+
         card.innerHTML = `
+            <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button">
+                <i data-lucide="heart"></i>
+            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
                 ${badgeHTML}
@@ -599,6 +609,27 @@ function setupSearchFilters() {
                 });
             }
             applyStoreFilters();
+        });
+    }
+
+    // Desktop category filters click handling
+    if (filterContainer) {
+        filterContainer.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentCategory = btn.getAttribute('data-category');
+                
+                // Sync with mobile selector dropdown
+                if (categorySelect) {
+                    categorySelect.value = currentCategory;
+                }
+                
+                // Sync active classes on buttons
+                filterContainer.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.toggle('active', b === btn);
+                });
+                
+                applyStoreFilters();
+            });
         });
     }
 }
@@ -1357,7 +1388,25 @@ function setupPurchaseModal() {
             // Write to local storage
             const orders = safeGetLocalStorage('lightning_deals_orders', []);
             orders.unshift(order);
-            localStorage.setItem('lightning_deals_orders', JSON.stringify(orders));
+            try {
+                localStorage.setItem('lightning_deals_orders', JSON.stringify(orders));
+            } catch (e) {
+                console.error("Local Storage Write Error during checkout:", e);
+                if (e.name === 'QuotaExceededError' || e.code === 22 || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+                    // Try to save without the screenshot to ensure order doesn't get lost
+                    order.screenshot = "error:screenshot_removed_due_to_storage_quota_limit";
+                    order.screenshotRemoved = true;
+                    // Try again
+                    try {
+                        localStorage.setItem('lightning_deals_orders', JSON.stringify(orders));
+                        alert("⚠️ Your transaction screenshot is very large, and browser local storage is nearly full. We saved your order details, but the screenshot couldn't be saved locally. Please share the receipt screenshot directly with our support team on WhatsApp!");
+                    } catch (e2) {
+                        alert("⚠️ Browser storage is completely full! We could not save this order to local history, but your order details will be displayed next. Please capture a screenshot of the order confirmation!");
+                    }
+                } else {
+                    alert("⚠️ Error saving order details: " + e.message);
+                }
+            }
 
             // Populate Success screen fields
             const successOrderIdEl = document.getElementById('success-order-id');
@@ -1458,6 +1507,7 @@ function setupConfigureModal() {
         if (qtyInput) qtyInput.value = 1;
 
         openConfigModal();
+        trackRecentlyViewed(prod.id);
     });
 
     if (closeBtn) {
@@ -1514,6 +1564,82 @@ function setupConfigureModal() {
         }
 
         updateConfigPrices();
+
+        // Populate Related / Frequently Bought Together products
+        const relatedSection = document.getElementById('config-related-products-section');
+        const relatedList = document.getElementById('config-related-products-list');
+        if (relatedSection && relatedList) {
+            relatedList.innerHTML = '';
+            // Find products in the same category or default others
+            const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+            const relatedProds = activeProducts.filter(p => p.id !== selectedConfigureProduct.id && p.visible !== false).slice(0, 2);
+            
+            if (relatedProds.length > 0) {
+                relatedSection.style.display = 'block';
+                relatedProds.forEach(prod => {
+                    const minPrice = prod.plans && prod.plans.length > 0
+                        ? Math.min(...prod.plans.map(pl => pl.price))
+                        : 0;
+                        
+                    const row = document.createElement('div');
+                    row.className = 'related-product-row';
+                    row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; background: rgba(255, 255, 255, 0.015); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 8px; margin-top: 0.5rem;';
+                    row.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="cart-item-logo ${prod.iconColor || 'grad-blue'}" style="width: 24px; height: 24px; font-size: 0.65rem; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 700;">${prod.icon || 'P'}</div>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary);">${prod.name}</span>
+                                <span style="font-size: 0.65rem; color: var(--clr-cyan);">₹${minPrice.toLocaleString('en-IN')}</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm btn-add-related" data-id="${prod.id}" style="padding: 0.2rem 0.5rem; font-size: 0.65rem; border-radius: 6px;">
+                            Add
+                        </button>
+                    `;
+                    relatedList.appendChild(row);
+                });
+                
+                // Event listener for adding related products directly to cart
+                relatedList.querySelectorAll('.btn-add-related').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.currentTarget.getAttribute('data-id');
+                        const prod = activeProducts.find(p => p.id === id);
+                        if (prod) {
+                            // Add first plan of the product to cart
+                            const firstPlan = prod.plans[0];
+                            const cartItem = {
+                                id: prod.id,
+                                name: prod.name,
+                                icon: prod.icon,
+                                iconColor: prod.iconColor,
+                                planLabel: firstPlan.label,
+                                validity: firstPlan.validity,
+                                price: firstPlan.price,
+                                qty: 1
+                            };
+                            
+                            // Check if already in cart
+                            const existingIdx = cart.findIndex(item => item.id === cartItem.id && item.planLabel === cartItem.planLabel);
+                            if (existingIdx > -1) {
+                                cart[existingIdx].qty++;
+                            } else {
+                                cart.push(cartItem);
+                            }
+                            
+                            localStorage.setItem('lightning_deals_cart', JSON.stringify(cart));
+                            updateCartBadge();
+                            showToast(`${prod.name} added to cart!`, 'success');
+                            
+                            // Disable button or update text to Added
+                            e.currentTarget.disabled = true;
+                            e.currentTarget.innerText = 'Added';
+                        }
+                    });
+                });
+            } else {
+                relatedSection.style.display = 'none';
+            }
+        }
 
         modal.classList.add('active');
         document.body.style.overflow = 'hidden'; 
@@ -1904,5 +2030,431 @@ function setupMobileBottomNav() {
     });
 
     // Initialize icons
+    if (window.lucide) window.lucide.createIcons();
+}
+
+// --- Search Suggestions & Highlighting Dropdown ---
+function initSearchSuggestions() {
+    const searchInput = document.getElementById('store-search-input');
+    const suggestionsDropdown = document.getElementById('search-suggestions');
+    if (!searchInput || !suggestionsDropdown) return;
+
+    searchInput.addEventListener('input', () => {
+        const value = searchInput.value.trim().toLowerCase();
+        if (!value) {
+            suggestionsDropdown.innerHTML = '';
+            suggestionsDropdown.classList.remove('show');
+            return;
+        }
+
+        // Refresh products list from local storage
+        const activeProducts = (safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS)).filter(p => p.visible !== false);
+        const matches = activeProducts.filter(p => 
+            p.name.toLowerCase().includes(value) || 
+            (p.description && p.description.toLowerCase().includes(value))
+        );
+
+        if (matches.length === 0) {
+            suggestionsDropdown.innerHTML = `
+                <div style="padding: 0.8rem 1.2rem; color: var(--text-muted); font-size: 0.85rem; text-align: center;">
+                    No matching deals found
+                </div>
+            `;
+            suggestionsDropdown.classList.add('show');
+            return;
+        }
+
+        suggestionsDropdown.innerHTML = '';
+        matches.slice(0, 5).forEach(prod => {
+            const item = document.createElement('div');
+            item.className = 'suggestion-item';
+            item.innerHTML = `
+                <div class="suggestion-icon-circle ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
+                <div class="suggestion-details">
+                    <span class="suggestion-name">${prod.name}</span>
+                    <span class="suggestion-category">${getCategoryDisplayName(prod.category)}</span>
+                </div>
+            `;
+            item.addEventListener('click', () => {
+                searchInput.value = prod.name;
+                searchQuery = prod.name;
+                applyStoreFilters();
+                suggestionsDropdown.classList.remove('show');
+                
+                // Highlight and scroll to the product
+                const card = document.getElementById(`prod-card-${prod.id}`);
+                if (card) {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    card.classList.add('glow-pulse');
+                    setTimeout(() => card.classList.remove('glow-pulse'), 2000);
+                }
+            });
+            suggestionsDropdown.appendChild(item);
+        });
+        suggestionsDropdown.classList.add('show');
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !suggestionsDropdown.contains(e.target)) {
+            suggestionsDropdown.classList.remove('show');
+        }
+    });
+
+    // Show suggestions on focus if not empty
+    searchInput.addEventListener('focus', () => {
+        if (searchInput.value.trim()) {
+            suggestionsDropdown.classList.add('show');
+        }
+    });
+}
+
+function getCategoryDisplayName(category) {
+    const map = {
+        'design': 'Design & Creative',
+        'ai': 'AI Tools',
+        'business': 'Business & Professional',
+        'finance': 'Finance & Trading',
+        'productivity': 'Productivity & Office',
+        'streaming': 'Streaming Services',
+        'education': 'Education & Others'
+    };
+    return map[category] || (category ? category.toUpperCase() : '');
+}
+
+// --- Toast Notification System ---
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${type}`;
+
+    const iconName = type === 'success' ? 'check-circle' : 'alert-circle';
+    toast.innerHTML = `
+        <i data-lucide="${iconName}"></i>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(toast);
+    if (window.lucide) window.lucide.createIcons();
+
+    // Trigger animate in
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 50);
+
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => {
+            toast.remove();
+        }, 300);
+    }, 4000);
+}
+
+// --- Wishlist Management System ---
+function setupWishlistModal() {
+    const modal = document.getElementById('wishlist-modal');
+    const openBtns = [
+        document.getElementById('header-wishlist-btn'),
+        document.getElementById('mob-nav-wishlist-btn')
+    ];
+    const closeBtns = [
+        document.getElementById('close-wishlist-modal-btn'),
+        document.getElementById('btn-close-wishlist')
+    ];
+
+    if (!modal) return;
+
+    openBtns.forEach(btn => {
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                modal.classList.add('active');
+                renderWishlistItems();
+            });
+        }
+    });
+
+    closeBtns.forEach(btn => {
+        if (btn) {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                modal.classList.remove('active');
+            });
+        }
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.remove('active');
+        }
+    });
+}
+
+function updateWishlistUI() {
+    const wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
+    const count = wishlist.length;
+
+    const countBadge = document.getElementById('wishlist-count-badge');
+    const mobBadge = document.getElementById('mob-wishlist-badge');
+
+    if (countBadge) {
+        if (count > 0) {
+            countBadge.innerText = count;
+            countBadge.style.display = 'flex';
+        } else {
+            countBadge.style.display = 'none';
+        }
+    }
+
+    if (mobBadge) {
+        if (count > 0) {
+            mobBadge.innerText = count;
+            mobBadge.style.display = 'flex';
+        } else {
+            mobBadge.style.display = 'none';
+        }
+    }
+
+    // Toggle active state on all wishlist buttons matching the page products
+    document.querySelectorAll('.wishlist-btn').forEach(btn => {
+        const id = btn.getAttribute('data-id');
+        if (wishlist.includes(id)) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+function renderWishlistItems() {
+    const list = document.getElementById('wishlist-items-list');
+    if (!list) return;
+
+    const wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
+    if (wishlist.length === 0) {
+        list.innerHTML = `
+            <div class="text-center" style="padding: 2.5rem 0; opacity: 0.7;">
+                <i data-lucide="heart" style="width: 36px; height: 36px; margin-bottom: 0.5rem; display: block; margin-left: auto; margin-right: auto; color: var(--text-muted);"></i>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Your wishlist is empty</p>
+            </div>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        return;
+    }
+
+    list.innerHTML = '';
+    const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+
+    wishlist.forEach((id) => {
+        const prod = activeProducts.find(p => p.id === id);
+        if (!prod) return;
+
+        const itemRow = document.createElement('div');
+        itemRow.className = 'cart-item-row';
+
+        // Find min price for the product to display
+        let minPrice = 0;
+        if (prod.plans && prod.plans.length > 0) {
+            minPrice = Math.min(...prod.plans.map(pl => parseFloat(pl.price) || 0));
+        }
+
+        itemRow.innerHTML = `
+            <div class="cart-item-info">
+                <div class="cart-item-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
+                <div class="cart-item-details">
+                    <span class="cart-item-title">${prod.name}</span>
+                    <span class="cart-item-plan">Starting from ₹${minPrice.toLocaleString('en-IN')}</span>
+                </div>
+            </div>
+            <div class="cart-item-actions">
+                <button type="button" class="btn btn-primary btn-wishlist-add-cart" data-id="${prod.id}" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; border-radius: 6px;">
+                    <i data-lucide="shopping-cart" style="width: 12px; height: 12px; margin-right: 4px;"></i> Buy
+                </button>
+                <button type="button" class="btn-wishlist-remove" data-id="${prod.id}" title="Remove from wishlist" style="background: none; border: none; color: var(--clr-red); cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
+                    <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
+                </button>
+            </div>
+        `;
+
+        list.appendChild(itemRow);
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+
+    // Event listeners
+    list.querySelectorAll('.btn-wishlist-remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.currentTarget.getAttribute('data-id');
+            let wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
+            const idx = wishlist.indexOf(id);
+            if (idx !== -1) {
+                wishlist.splice(idx, 1);
+                localStorage.setItem('lightning_deals_wishlist', JSON.stringify(wishlist));
+                updateWishlistUI();
+                renderWishlistItems();
+            }
+        });
+    });
+
+    list.querySelectorAll('.btn-wishlist-add-cart').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = e.currentTarget.getAttribute('data-id');
+            const modal = document.getElementById('wishlist-modal');
+            if (modal) modal.classList.remove('active');
+
+            const cardTrigger = document.querySelector(`.cta-purchase-trigger[data-id="${id}"]`);
+            if (cardTrigger) {
+                cardTrigger.click();
+            }
+        });
+    });
+}
+
+// Global click event to intercept wishlist-btn clicks anywhere
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.wishlist-btn');
+    if (!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const id = btn.getAttribute('data-id');
+    if (!id) return;
+
+    let wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
+    const idx = wishlist.indexOf(id);
+
+    const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+    const prod = activeProducts.find(p => p.id === id);
+    const prodName = prod ? prod.name : 'Product';
+
+    if (idx === -1) {
+        wishlist.push(id);
+        btn.classList.add('active');
+        showToast(`${prodName} added to wishlist!`, 'success');
+    } else {
+        wishlist.splice(idx, 1);
+        btn.classList.remove('active');
+        showToast(`${prodName} removed from wishlist.`, 'success');
+    }
+
+    try {
+        localStorage.setItem('lightning_deals_wishlist', JSON.stringify(wishlist));
+    } catch (err) {
+        showToast('Storage quota exceeded. Could not update wishlist.', 'error');
+    }
+
+    updateWishlistUI();
+    renderWishlistItems();
+});
+
+// --- Recently Viewed Deals ---
+function trackRecentlyViewed(productId) {
+    let recentlyViewed = safeGetLocalStorage('lightning_deals_recently_viewed', []);
+    recentlyViewed = recentlyViewed.filter(id => id !== productId);
+    recentlyViewed.unshift(productId);
+    recentlyViewed = recentlyViewed.slice(0, 4);
+
+    try {
+        localStorage.setItem('lightning_deals_recently_viewed', JSON.stringify(recentlyViewed));
+    } catch (err) {
+        // Ignored
+    }
+    renderRecentlyViewed();
+}
+
+function renderRecentlyViewed() {
+    const section = document.getElementById('recently-viewed-section');
+    const grid = document.getElementById('recently-viewed-grid');
+    if (!grid || !section) return;
+
+    const recentlyViewed = safeGetLocalStorage('lightning_deals_recently_viewed', []);
+    if (recentlyViewed.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+    grid.innerHTML = '';
+
+    const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+
+    recentlyViewed.forEach(id => {
+        const prod = activeProducts.find(p => p.id === id && p.visible !== false);
+        if (!prod) return;
+
+        const card = document.createElement('div');
+        card.className = 'product-card glass-card';
+        card.id = `recent-prod-card-${prod.id}`;
+
+        let minPrice = 0;
+        if (prod.plans && prod.plans.length > 0) {
+            minPrice = Math.min(...prod.plans.map(pl => parseFloat(pl.price) || 0));
+        }
+
+        let badgeHTML = '';
+        if (prod.badge) {
+            badgeHTML = `<span class="prod-badge">${prod.badge}</span>`;
+        }
+
+        let stockHTML = '';
+        if (prod.stockStatus) {
+            let dotClass = 'available';
+            let label = 'Available';
+            const status = prod.stockStatus.toLowerCase();
+            if (status === 'available') { dotClass = 'available'; label = 'Available'; }
+            else if (status === 'limited') { dotClass = 'limited'; label = 'Limited Slots'; }
+            else if (status === 'outofstock') { dotClass = 'outofstock'; label = 'Out of Stock'; }
+            else if (status === 'instant') { dotClass = 'instant'; label = 'Instant Activation'; }
+
+            stockHTML = `
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot ${dotClass}"></span>
+                    <span class="stock-label">${label}</span>
+                </div>
+            `;
+        } else {
+            stockHTML = `
+                <div class="stock-status-wrapper">
+                    <span class="stock-dot available"></span>
+                    <span class="stock-label">Available</span>
+                </div>
+            `;
+        }
+
+        const wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
+        const isWishlisted = wishlist.includes(prod.id);
+
+        card.innerHTML = `
+            <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button">
+                <i data-lucide="heart"></i>
+            </button>
+            <div class="prod-header">
+                <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
+                ${badgeHTML}
+            </div>
+            <h3 class="prod-title">${prod.name}</h3>
+            ${stockHTML}
+            <p class="prod-desc" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8rem;">${prod.description}</p>
+            
+            <div class="prod-price-area" style="margin-top: auto;">
+                <span class="prod-retail">Starting from</span>
+                <div class="prod-offer">
+                    <span class="prod-price-new">₹${minPrice.toLocaleString('en-IN')}</span>
+                    <span class="prod-price-suffix">/ plan</span>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary w-100 cta-purchase-trigger" data-id="${prod.id}">
+                <span>Get Access</span>
+                <i data-lucide="arrow-right"></i>
+            </button>
+        `;
+        grid.appendChild(card);
+    });
+
     if (window.lucide) window.lucide.createIcons();
 }

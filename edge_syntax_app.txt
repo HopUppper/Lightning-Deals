@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html><head>
     <title>JS Syntax Test Runner - app.js</title>
     <script>
@@ -26,4 +26,4 @@
     <div id="test-complete">READY</div>
 
 
-</body></html>
+<div id="error-log-output">SYNTAX_ERRORS:[{"message":"Script error.","source":"","lineno":0,"colno":0}]</div></body></html>

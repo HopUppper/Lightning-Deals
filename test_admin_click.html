@@ -146,6 +146,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         <div class="glass-card admin-form-card" id="form-container">
                             <div class="form-card-header">
                                 <h3 class="form-card-title" id="form-action-title"><i data-lucide="plus-circle" style="vertical-align: middle; margin-right: 4px;"></i> Add New Product</h3>
+                                <span class="editing-banner-badge" id="edit-mode-badge" style="display: none;">EDITING MODE</span>
                                 <button class="btn btn-secondary btn-xs" id="cancel-edit-btn" style="display: none;">Cancel Edit</button>
                             </div>
                             
@@ -206,14 +207,16 @@ window.onerror = function(message, source, lineno, colno, error) {
                                     </div>
                                     <div class="form-group">
                                         <label for="prod-badge">Badge Tag</label>
-                                        <select id="prod-badge">
-                                            <option value="">No Badge</option>
-                                            <option value="Bestseller">Bestseller</option>
-                                            <option value="Popular">Popular</option>
-                                            <option value="Instant">Instant</option>
-                                            <option value="Limited">Limited</option>
-                                            <option value="Recommended">Recommended</option>
-                                        </select>
+                                        <input type="text" id="prod-badge" list="badge-suggestions" placeholder="e.g. Bestseller, 90% Off">
+                                        <datalist id="badge-suggestions">
+                                            <option value="Bestseller">
+                                            <option value="Popular">
+                                            <option value="Instant">
+                                            <option value="Limited">
+                                            <option value="Recommended">
+                                            <option value="90% Off">
+                                            <option value="Workspaces">
+                                        </datalist>
                                     </div>
                                 </div>
 

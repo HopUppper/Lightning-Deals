@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en"><head>
 <script>
 window.errorsLog = [];
@@ -89,7 +89,7 @@ window.onerror = function(message, source, lineno, colno, error) {
     <!-- Main Content -->
     <main>
         <!-- Hero Section -->
-        <section id="hero" class="hero-section">
+        <section id="hero" class="hero-section reveal revealed">
             <div class="container hero-container">
                 <div class="hero-content">
                     <div class="hero-badge fade-in">
@@ -132,7 +132,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <div class="hero-visual fade-in delay-2">
                     <div class="visual-wrapper">
                         <!-- Floating Glass Card 1 -->
-                        <div class="floating-card card-1 glass-card">
+                        <div class="floating-card card-1 glass-card reveal">
                             <div class="fc-header">
                                 <div class="fc-icon-wrapper-canva">C</div>
                                 <div>
@@ -147,7 +147,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         </div>
 
                         <!-- Floating Glass Card 2 -->
-                        <div class="floating-card card-2 glass-card">
+                        <div class="floating-card card-2 glass-card reveal">
                             <div class="fc-header">
                                 <div class="fc-icon-wrapper-adobe">A</div>
                                 <div>
@@ -161,7 +161,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         </div>
 
                         <!-- Floating Glass Card 3 -->
-                        <div class="floating-card card-3 glass-card">
+                        <div class="floating-card card-3 glass-card reveal">
                             <div class="fc-header">
                                 <div class="fc-icon-wrapper-linkedin">in</div>
                                 <div>
@@ -175,7 +175,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         </div>
 
                         <!-- Main Animated Mockup Screen -->
-                        <div class="main-mockup glass-card">
+                        <div class="main-mockup glass-card reveal">
                             <div class="mockup-header">
                                 <div class="dots">
                                     <span></span>
@@ -214,11 +214,11 @@ window.onerror = function(message, source, lineno, colno, error) {
         </section>
 
         <!-- Trust Features Section -->
-        <section id="trust" class="trust-section">
+        <section id="trust" class="trust-section reveal">
             <div class="container">
                 <div class="grid grid-3-cols" id="trust-cards-container">
                     <!-- Trust Card 1 -->
-                    <div class="glass-card trust-card">
+                    <div class="glass-card trust-card reveal">
                         <div class="trust-card-icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="zap" aria-hidden="true" class="lucide lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg>
                         </div>
@@ -226,7 +226,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         <p class="trust-card-description">Your digital subscription credentials will be sent to you via WhatsApp or Email within 5-15 minutes of purchase.</p>
                     </div>
                     <!-- Trust Card 2 -->
-                    <div class="glass-card trust-card">
+                    <div class="glass-card trust-card reveal">
                         <div class="trust-card-icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="shield-check" aria-hidden="true" class="lucide lucide-shield-check"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
                         </div>
@@ -234,7 +234,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         <p class="trust-card-description">Official private accounts or shared team invites. No credentials theft, completely legal and risk-free licenses.</p>
                     </div>
                     <!-- Trust Card 3 -->
-                    <div class="glass-card trust-card">
+                    <div class="glass-card trust-card reveal">
                         <div class="trust-card-icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="headset" aria-hidden="true" class="lucide lucide-headset"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"></path><path d="M21 16v2a4 4 0 0 1-4 4h-5"></path></svg>
                         </div>
@@ -246,9 +246,9 @@ window.onerror = function(message, source, lineno, colno, error) {
         </section>
 
         <!-- Products Section -->
-        <section id="products" class="products-section">
+        <section id="products" class="products-section reveal">
             <div class="container">
-                <div class="section-header text-center">
+                <div class="section-header text-center reveal">
                     <h2 class="section-title">Trending <span class="gradient-text">Subscription Deals</span></h2>
                     <p class="section-subtitle">Get full access to standard commercial tools. Choose your subscription and grab your discount instantly.</p>
                 </div>
@@ -288,7 +288,10 @@ window.onerror = function(message, source, lineno, colno, error) {
                 </div>
 
                 <!-- Products Grid -->
-                <div class="products-grid" id="store-products-grid"><div class="glass-card product-card" id="prod-card-canva-pro">
+                <div class="products-grid" id="store-products-grid"><div class="glass-card product-card reveal" id="prod-card-canva-pro">
+            <button class="wishlist-btn " data-id="canva-pro" aria-label="Toggle Wishlist" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="heart" aria-hidden="true" class="lucide lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
+            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo grad-purple">C</div>
                 <span class="prod-badge-tag badge-bestseller">Bestseller</span>
@@ -305,7 +308,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="prod-price-area">
                 <span class="prod-retail">Starting from</span>
                 <div class="prod-offer">
-                    <span class="prod-price-new">Ôé╣499</span>
+                    <span class="prod-price-new">₹499</span>
                     <span class="prod-price-suffix">/ plan</span>
                 </div>
             </div>
@@ -317,7 +320,10 @@ window.onerror = function(message, source, lineno, colno, error) {
             <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="canva-pro">
                 <span>Get Access</span>
             </button>
-        </div><div class="glass-card product-card" id="prod-card-adobe-cc">
+        </div><div class="glass-card product-card reveal" id="prod-card-adobe-cc">
+            <button class="wishlist-btn " data-id="adobe-cc" aria-label="Toggle Wishlist" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="heart" aria-hidden="true" class="lucide lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
+            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo grad-red">Cc</div>
                 <span class="prod-badge-tag badge-bestseller">90% Off</span>
@@ -334,7 +340,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="prod-price-area">
                 <span class="prod-retail">Starting from</span>
                 <div class="prod-offer">
-                    <span class="prod-price-new">Ôé╣999</span>
+                    <span class="prod-price-new">₹999</span>
                     <span class="prod-price-suffix">/ plan</span>
                 </div>
             </div>
@@ -346,7 +352,10 @@ window.onerror = function(message, source, lineno, colno, error) {
             <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="adobe-cc">
                 <span>Get Access</span>
             </button>
-        </div><div class="glass-card product-card" id="prod-card-notion-pro">
+        </div><div class="glass-card product-card reveal" id="prod-card-notion-pro">
+            <button class="wishlist-btn " data-id="notion-pro" aria-label="Toggle Wishlist" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="heart" aria-hidden="true" class="lucide lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
+            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo grad-blue">N</div>
                 <span class="prod-badge-tag badge-bestseller">Workspaces</span>
@@ -363,7 +372,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="prod-price-area">
                 <span class="prod-retail">Starting from</span>
                 <div class="prod-offer">
-                    <span class="prod-price-new">Ôé╣299</span>
+                    <span class="prod-price-new">₹299</span>
                     <span class="prod-price-suffix">/ plan</span>
                 </div>
             </div>
@@ -375,7 +384,10 @@ window.onerror = function(message, source, lineno, colno, error) {
             <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="notion-pro">
                 <span>Get Access</span>
             </button>
-        </div><div class="glass-card product-card" id="prod-card-ms-office">
+        </div><div class="glass-card product-card reveal" id="prod-card-ms-office">
+            <button class="wishlist-btn " data-id="ms-office" aria-label="Toggle Wishlist" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="heart" aria-hidden="true" class="lucide lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
+            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo grad-red">O</div>
                 <span class="prod-badge-tag badge-bestseller">Essential</span>
@@ -392,7 +404,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="prod-price-area">
                 <span class="prod-retail">Starting from</span>
                 <div class="prod-offer">
-                    <span class="prod-price-new">Ôé╣349</span>
+                    <span class="prod-price-new">₹349</span>
                     <span class="prod-price-suffix">/ plan</span>
                 </div>
             </div>
@@ -404,7 +416,10 @@ window.onerror = function(message, source, lineno, colno, error) {
             <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="ms-office">
                 <span>Get Access</span>
             </button>
-        </div><div class="glass-card product-card" id="prod-card-netflix-premium">
+        </div><div class="glass-card product-card reveal" id="prod-card-netflix-premium">
+            <button class="wishlist-btn " data-id="netflix-premium" aria-label="Toggle Wishlist" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="heart" aria-hidden="true" class="lucide lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
+            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo grad-red">Nx</div>
                 <span class="prod-badge-tag badge-bestseller">Ultra HD</span>
@@ -421,7 +436,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="prod-price-area">
                 <span class="prod-retail">Starting from</span>
                 <div class="prod-offer">
-                    <span class="prod-price-new">Ôé╣199</span>
+                    <span class="prod-price-new">₹199</span>
                     <span class="prod-price-suffix">/ plan</span>
                 </div>
             </div>
@@ -433,7 +448,10 @@ window.onerror = function(message, source, lineno, colno, error) {
             <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="netflix-premium">
                 <span>Get Access</span>
             </button>
-        </div><div class="glass-card product-card" id="prod-card-spotify-premium">
+        </div><div class="glass-card product-card reveal" id="prod-card-spotify-premium">
+            <button class="wishlist-btn " data-id="spotify-premium" aria-label="Toggle Wishlist" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="heart" aria-hidden="true" class="lucide lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
+            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo grad-green">Sp</div>
                 <span class="prod-badge-tag badge-bestseller">No Ads</span>
@@ -450,7 +468,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="prod-price-area">
                 <span class="prod-retail">Starting from</span>
                 <div class="prod-offer">
-                    <span class="prod-price-new">Ôé╣149</span>
+                    <span class="prod-price-new">₹149</span>
                     <span class="prod-price-suffix">/ plan</span>
                 </div>
             </div>
@@ -462,7 +480,10 @@ window.onerror = function(message, source, lineno, colno, error) {
             <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="spotify-premium">
                 <span>Get Access</span>
             </button>
-        </div><div class="glass-card product-card" id="prod-card-linkedin-premium">
+        </div><div class="glass-card product-card reveal" id="prod-card-linkedin-premium">
+            <button class="wishlist-btn " data-id="linkedin-premium" aria-label="Toggle Wishlist" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="heart" aria-hidden="true" class="lucide lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
+            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo grad-blue">In</div>
                 <span class="prod-badge-tag badge-popular">Hot Deal</span>
@@ -479,7 +500,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="prod-price-area">
                 <span class="prod-retail">Starting from</span>
                 <div class="prod-offer">
-                    <span class="prod-price-new">Ôé╣799</span>
+                    <span class="prod-price-new">₹799</span>
                     <span class="prod-price-suffix">/ plan</span>
                 </div>
             </div>
@@ -491,7 +512,10 @@ window.onerror = function(message, source, lineno, colno, error) {
             <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="linkedin-premium">
                 <span>Get Access</span>
             </button>
-        </div><div class="glass-card product-card" id="prod-card-tradingview-premium">
+        </div><div class="glass-card product-card reveal" id="prod-card-tradingview-premium">
+            <button class="wishlist-btn " data-id="tradingview-premium" aria-label="Toggle Wishlist" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="heart" aria-hidden="true" class="lucide lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
+            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo grad-yellow">Tv</div>
                 <span class="prod-badge-tag badge-recommended">Pro Traders</span>
@@ -508,7 +532,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="prod-price-area">
                 <span class="prod-retail">Starting from</span>
                 <div class="prod-offer">
-                    <span class="prod-price-new">Ôé╣899</span>
+                    <span class="prod-price-new">₹899</span>
                     <span class="prod-price-suffix">/ plan</span>
                 </div>
             </div>
@@ -520,7 +544,10 @@ window.onerror = function(message, source, lineno, colno, error) {
             <button class="btn btn-primary w-100 btn-glow margin-top-auto cta-purchase-trigger" data-id="tradingview-premium">
                 <span>Get Access</span>
             </button>
-        </div><div class="glass-card product-card" id="prod-card-chatgpt-plus">
+        </div><div class="glass-card product-card reveal" id="prod-card-chatgpt-plus">
+            <button class="wishlist-btn " data-id="chatgpt-plus" aria-label="Toggle Wishlist" type="button">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="heart" aria-hidden="true" class="lucide lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"></path></svg>
+            </button>
             <div class="prod-header">
                 <div class="prod-badge-logo grad-green">Gp</div>
                 <span class="prod-badge-tag badge-bestseller">AI Power</span>
@@ -537,7 +564,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="prod-price-area">
                 <span class="prod-retail">Starting from</span>
                 <div class="prod-offer">
-                    <span class="prod-price-new">Ôé╣599</span>
+                    <span class="prod-price-new">₹599</span>
                     <span class="prod-price-suffix">/ plan</span>
                 </div>
             </div>
@@ -554,19 +581,19 @@ window.onerror = function(message, source, lineno, colno, error) {
         </section>
 
         <!-- Why Choose Us Section -->
-        <section id="why-choose-us" class="why-section">
+        <section id="why-choose-us" class="why-section reveal">
             <div class="container">
-                <div class="section-header text-center">
+                <div class="section-header text-center reveal">
                     <h2 class="section-title">Why Buy From <span class="gradient-text">Lightning Deals?</span></h2>
                     <p class="section-subtitle">We bridge the gap between premium subscriptions and budget. Here is how we differ from direct providers.</p>
                 </div>
 
                 <div class="comparison-grid">
                     <!-- Comparison Card 1 (Direct Subscriptions) -->
-                    <div class="glass-card comp-card comp-direct">
+                    <div class="glass-card comp-card comp-direct reveal">
                         <h3 class="comp-title">Direct Subscriptions</h3>
                         <ul class="comp-list">
-                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x text-red"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Extremely expensive (Ôé╣1,200 - Ôé╣8,000+/mo)</li>
+                            <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x text-red"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Extremely expensive (₹1,200 - ₹8,000+/mo)</li>
                             <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x text-red"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Rigid cancellation and hidden fees</li>
                             <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x text-red"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Slow email-only customer service</li>
                             <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x text-red"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg> Requires recurring credit card holds</li>
@@ -574,7 +601,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                     </div>
 
                     <!-- Comparison Card 2 (Lightning Deals) -->
-                    <div class="glass-card comp-card comp-lightning">
+                    <div class="glass-card comp-card comp-lightning reveal">
                         <div class="comp-badge">Recommended</div>
                         <h3 class="comp-title">Lightning Deals</h3>
                         <ul class="comp-list">
@@ -590,9 +617,9 @@ window.onerror = function(message, source, lineno, colno, error) {
         </section>
 
         <!-- How It Works Section -->
-        <section id="how-it-works" class="timeline-section">
+        <section id="how-it-works" class="timeline-section reveal">
             <div class="container">
-                <div class="section-header text-center">
+                <div class="section-header text-center reveal">
                     <h2 class="section-title">How To <span class="gradient-text">Get Started</span></h2>
                     <p class="section-subtitle">Get up and running with your premium account in four simple steps.</p>
                 </div>
@@ -670,9 +697,9 @@ window.onerror = function(message, source, lineno, colno, error) {
         </section>
 
         <!-- Testimonials Section -->
-        <section id="testimonials" class="testimonials-section">
+        <section id="testimonials" class="testimonials-section reveal">
             <div class="container">
-                <div class="section-header text-center">
+                <div class="section-header text-center reveal">
                     <h2 class="section-title">Loved by <span class="gradient-text">Thousands of Users</span></h2>
                     <p class="section-subtitle">Read feedback from designers, developers, students, and traders who save thousands every month.</p>
                 </div>
@@ -680,7 +707,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <div class="carousel-container">
                     <div class="carousel-track" id="testimonial-track">
                         <!-- Testimonial 1 -->
-                        <div class="glass-card testimonial-card">
+                        <div class="glass-card testimonial-card reveal">
                             <div class="t-rating">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
@@ -699,7 +726,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         </div>
 
                         <!-- Testimonial 2 -->
-                        <div class="glass-card testimonial-card">
+                        <div class="glass-card testimonial-card reveal">
                             <div class="t-rating">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
@@ -718,7 +745,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         </div>
 
                         <!-- Testimonial 3 -->
-                        <div class="glass-card testimonial-card">
+                        <div class="glass-card testimonial-card reveal">
                             <div class="t-rating">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
@@ -737,7 +764,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         </div>
 
                         <!-- Testimonial 4 -->
-                        <div class="glass-card testimonial-card">
+                        <div class="glass-card testimonial-card reveal">
                             <div class="t-rating">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="star" aria-hidden="true" class="lucide lucide-star fill-gold"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>
@@ -763,9 +790,9 @@ window.onerror = function(message, source, lineno, colno, error) {
         </section>
 
         <!-- FAQ Section -->
-        <section id="faq" class="faq-section">
+        <section id="faq" class="faq-section reveal">
             <div class="container">
-                <div class="section-header text-center">
+                <div class="section-header text-center reveal">
                     <h2 class="section-title">Frequently Asked <span class="gradient-text">Questions</span></h2>
                     <p class="section-subtitle">Everything you need to know about our subscriptions, safety, and delivery guarantees.</p>
                 </div>
@@ -780,7 +807,7 @@ window.onerror = function(message, source, lineno, colno, error) {
 
                 <div class="faq-accordion-list">
                     <!-- FAQ 1 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item glass-card reveal">
                         <button class="faq-toggle" id="faq-q1">
                             <span>How does this work? How can it be so discounted?</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down faq-icon"><path d="m6 9 6 6 6-6"></path></svg>
@@ -793,7 +820,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                     </div>
 
                     <!-- FAQ 2 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item glass-card reveal">
                         <button class="faq-toggle" id="faq-q2">
                             <span>Is it safe and legal to use?</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down faq-icon"><path d="m6 9 6 6 6-6"></path></svg>
@@ -806,7 +833,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                     </div>
 
                     <!-- FAQ 3 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item glass-card reveal">
                         <button class="faq-toggle" id="faq-q3">
                             <span>How fast is delivery?</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down faq-icon"><path d="m6 9 6 6 6-6"></path></svg>
@@ -819,7 +846,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                     </div>
 
                     <!-- FAQ 4 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item glass-card reveal">
                         <button class="faq-toggle" id="faq-q4">
                             <span>What happens if the subscription stops working?</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down faq-icon"><path d="m6 9 6 6 6-6"></path></svg>
@@ -832,7 +859,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                     </div>
 
                     <!-- FAQ 5 -->
-                    <div class="faq-item glass-card">
+                    <div class="faq-item glass-card reveal">
                         <button class="faq-toggle" id="faq-q5">
                             <span>What payment methods do you accept?</span>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="chevron-down" aria-hidden="true" class="lucide lucide-chevron-down faq-icon"><path d="m6 9 6 6 6-6"></path></svg>
@@ -848,7 +875,7 @@ window.onerror = function(message, source, lineno, colno, error) {
         </section>
 
         <!-- Contact Section -->
-        <section id="contact" class="contact-section">
+        <section id="contact" class="contact-section reveal">
             <div class="container">
                 <div class="contact-grid">
                     <div class="contact-info">
@@ -865,7 +892,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         </div>
                     </div>
 
-                    <div class="contact-form-wrapper glass-card">
+                    <div class="contact-form-wrapper glass-card reveal">
                         <h3 class="form-title">Send a Quick Message</h3>
                         <form id="store-contact-form">
                             <div class="form-group">
@@ -935,13 +962,13 @@ window.onerror = function(message, source, lineno, colno, error) {
             </div>
         </div>
         <div class="footer-bottom text-center">
-            <p>┬® 2026 Lightning Deals. All rights reserved. We are an independent software reseller platform.</p>
+            <p>© 2026 Lightning Deals. All rights reserved. We are an independent software reseller platform.</p>
         </div>
     </footer>
 
     <!-- Product Plan Selection & Quantity Configuration Modal -->
     <div class="modal-overlay" id="product-configure-modal" role="dialog" aria-modal="true" aria-labelledby="config-product-title">
-        <div class="modal-card glass-card">
+        <div class="modal-card glass-card reveal">
             <!-- Close Button -->
             <button class="modal-close-btn" id="close-config-modal-btn" aria-label="Close dialog">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
@@ -966,7 +993,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="modal-qty-container">
                 <label for="config-qty-input" style="font-weight: 600; margin-bottom: 0;">Quantity</label>
                 <div class="qty-selector">
-                    <button type="button" class="qty-btn" id="btn-qty-minus" aria-label="Decrease quantity">ÔêÆ</button>
+                    <button type="button" class="qty-btn" id="btn-qty-minus" aria-label="Decrease quantity">−</button>
                     <input type="number" id="config-qty-input" class="qty-input" value="1" min="1" max="99" readonly="">
                     <button type="button" class="qty-btn" id="btn-qty-plus" aria-label="Increase quantity">+</button>
                 </div>
@@ -975,11 +1002,11 @@ window.onerror = function(message, source, lineno, colno, error) {
             <div class="price-summary-box">
                 <div class="ps-row">
                     <span class="ps-lbl">Retail Price:</span>
-                    <span class="ps-val-old" id="config-old-price">Ôé╣0</span>
+                    <span class="ps-val-old" id="config-old-price">₹0</span>
                 </div>
                 <div class="ps-row">
                     <span class="ps-lbl highlight">Discounted Price:</span>
-                    <span class="ps-val-new" id="config-new-price">Ôé╣0</span>
+                    <span class="ps-val-new" id="config-new-price">₹0</span>
                 </div>
                 <div class="savings-tag" id="config-savings-tag">You Save 0%</div>
             </div>
@@ -1012,7 +1039,7 @@ window.onerror = function(message, source, lineno, colno, error) {
 
     <!-- Interactive Purchase Inquiry & Payment Modal -->
     <div class="modal-overlay" id="purchase-modal" role="dialog" aria-modal="true" aria-labelledby="modal-product-title">
-        <div class="modal-card glass-card">
+        <div class="modal-card glass-card reveal">
             <!-- Close Button -->
             <button class="modal-close-btn" id="close-modal-btn" aria-label="Close dialog">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="x" aria-hidden="true" class="lucide lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
@@ -1056,15 +1083,15 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <div class="price-summary-box">
                     <div class="ps-row">
                         <span class="ps-lbl">Subtotal:</span>
-                        <span class="ps-val-subtotal" id="modal-subtotal-price">Ôé╣0</span>
+                        <span class="ps-val-subtotal" id="modal-subtotal-price">₹0</span>
                     </div>
                     <div class="ps-row" id="modal-discount-row" style="display: none;">
                         <span class="ps-lbl highlight">Coupon Discount:</span>
-                        <span class="ps-val-discount" id="modal-discount-amount" style="color: var(--clr-red);">-Ôé╣0</span>
+                        <span class="ps-val-discount" id="modal-discount-amount" style="color: var(--clr-red);">-₹0</span>
                     </div>
                     <div class="ps-row">
                         <span class="ps-lbl highlight" style="font-size: 1.1rem;">Total Amount:</span>
-                        <span class="ps-val-new" id="modal-new-price" style="font-size: 1.3rem;">Ôé╣0</span>
+                        <span class="ps-val-new" id="modal-new-price" style="font-size: 1.3rem;">₹0</span>
                     </div>
                 </div>
 
@@ -1114,7 +1141,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                     
                     <div class="price-to-pay-box">
                         <span class="pay-lbl">Amount to Pay:</span>
-                        <span class="pay-amount" id="modal-pay-amount-label">Ôé╣0</span>
+                        <span class="pay-amount" id="modal-pay-amount-label">₹0</span>
                     </div>
 
                     <div class="upi-qr-wrapper">
@@ -1189,7 +1216,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         </div>
                         <div class="success-detail-row">
                             <span class="detail-label">Total Paid</span>
-                            <span class="detail-value" id="success-order-total">Ôé╣0</span>
+                            <span class="detail-value" id="success-order-total">₹0</span>
                         </div>
                         <div class="success-detail-row">
                             <span class="detail-label">Payment UTR</span>
@@ -1230,7 +1257,7 @@ window.onerror = function(message, source, lineno, colno, error) {
 
     <!-- Store logic script -->
     <script src="js/app.js"></script>
-<div id="error-log-output">[]</div>
+<div id="error-log-output">[{"message":"Script error.","source":"","lineno":0,"colno":0,"stack":""}]</div>
 <script>
 window.addEventListener('load', () => {
     setTimeout(() => {

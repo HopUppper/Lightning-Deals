@@ -482,6 +482,9 @@ function renderProductsTable() {
         }
 
         const row = document.createElement('tr');
+        if (index === editingIndex) {
+            row.classList.add('editing-row');
+        }
         row.innerHTML = `
             <td class="checkbox-cell">
                 <input type="checkbox" class="bulk-select-row" data-index="${index}">
@@ -613,6 +616,14 @@ function initiateEditProduct(index) {
     document.getElementById('form-submit-btn').querySelector('span').innerText = "Update Product";
     document.getElementById('cancel-edit-btn').style.display = 'inline-block';
 
+    // Add visual edit mode classes
+    const formContainer = document.getElementById('form-container');
+    if (formContainer) formContainer.classList.add('edit-mode-active');
+    const editBadge = document.getElementById('edit-mode-badge');
+    if (editBadge) editBadge.style.display = 'inline-block';
+
+    renderProductsTable();
+
     document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
     if (window.lucide) window.lucide.createIcons();
 }
@@ -644,6 +655,15 @@ function cancelProductEdit() {
     document.getElementById('form-action-title').innerHTML = `<i data-lucide="plus-circle" style="vertical-align: middle; margin-right: 4px;"></i> Add New Product`;
     document.getElementById('form-submit-btn').querySelector('span').innerText = "Save Product";
     document.getElementById('cancel-edit-btn').style.display = 'none';
+
+    // Remove visual edit mode classes
+    const formContainer = document.getElementById('form-container');
+    if (formContainer) formContainer.classList.remove('edit-mode-active');
+    const editBadge = document.getElementById('edit-mode-badge');
+    if (editBadge) editBadge.style.display = 'none';
+
+    renderProductsTable();
+
     if (window.lucide) window.lucide.createIcons();
 }
 
@@ -666,7 +686,16 @@ function deleteProduct(index) {
 
 // --- Save Catalog to Storage ---
 function saveCatalogToStorage() {
-    localStorage.setItem('lightning_deals_products', JSON.stringify(productsList));
+    try {
+        localStorage.setItem('lightning_deals_products', JSON.stringify(productsList));
+    } catch (e) {
+        console.error("Local Storage Save Error (Catalog):", e);
+        if (e.name === 'QuotaExceededError' || e.code === 22 || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+            alert("⚠️ Browser storage is full! Could not save product catalog. Please go to the Orders panel and clear/delete old orders to free up space (orders often contain large screenshot images).");
+        } else {
+            alert("⚠️ An error occurred while saving the product catalog: " + e.message);
+        }
+    }
 }
 
 // --- Setup Form Submission CRUD ---
@@ -1120,7 +1149,16 @@ function deleteOrderLog(index) {
 
 // --- Save Orders Array to Storage ---
 function saveOrdersToStorage() {
-    localStorage.setItem('lightning_deals_orders', JSON.stringify(ordersList));
+    try {
+        localStorage.setItem('lightning_deals_orders', JSON.stringify(ordersList));
+    } catch (e) {
+        console.error("Local Storage Save Error (Orders):", e);
+        if (e.name === 'QuotaExceededError' || e.code === 22 || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+            alert("⚠️ Browser storage is full! Could not save order updates. Please click 'Clear Order History' to delete older orders (which contain large screenshot images) and free up space.");
+        } else {
+            alert("⚠️ An error occurred while saving the orders database: " + e.message);
+        }
+    }
 }
 
 // --- Set up Orders control buttons ---

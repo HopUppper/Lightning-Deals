@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en"><head>
 <script>
 window.errorsLog = [];
@@ -50,7 +50,7 @@ window.onerror = function(message, source, lineno, colno, error) {
             <form id="admin-login-form">
                 <div class="form-group margin-top-md">
                     <label for="admin-pin">Enter Access PIN</label>
-                    <input type="password" id="admin-pin" placeholder="ÔÇóÔÇóÔÇóÔÇóÔÇóÔÇóÔÇóÔÇó" required="" autofocus="" style="text-align: center; letter-spacing: 0.2em;">
+                    <input type="password" id="admin-pin" placeholder="••••••••" required="" autofocus="" style="text-align: center; letter-spacing: 0.2em;">
                     <span class="error-text" id="login-error-msg" style="display: none;">Incorrect PIN. Please try again.</span>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 btn-glow margin-top-sm" id="login-submit-btn">
@@ -145,6 +145,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         <div class="glass-card admin-form-card" id="form-container">
                             <div class="form-card-header">
                                 <h3 class="form-card-title" id="form-action-title"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="plus-circle" aria-hidden="true" style="vertical-align: middle; margin-right: 4px;" class="lucide lucide-plus-circle"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg> Add New Product</h3>
+                                <span class="editing-banner-badge" id="edit-mode-badge" style="display: none;">EDITING MODE</span>
                                 <button class="btn btn-secondary btn-xs" id="cancel-edit-btn" style="display: none;">Cancel Edit</button>
                             </div>
                             
@@ -205,14 +206,16 @@ window.onerror = function(message, source, lineno, colno, error) {
                                     </div>
                                     <div class="form-group">
                                         <label for="prod-badge">Badge Tag</label>
-                                        <select id="prod-badge">
-                                            <option value="">No Badge</option>
-                                            <option value="Bestseller">Bestseller</option>
-                                            <option value="Popular">Popular</option>
-                                            <option value="Instant">Instant</option>
-                                            <option value="Limited">Limited</option>
-                                            <option value="Recommended">Recommended</option>
-                                        </select>
+                                        <input type="text" id="prod-badge" list="badge-suggestions" placeholder="e.g. Bestseller, 90% Off">
+                                        <datalist id="badge-suggestions">
+                                            <option value="Bestseller">
+                                            </option><option value="Popular">
+                                            </option><option value="Instant">
+                                            </option><option value="Limited">
+                                            </option><option value="Recommended">
+                                            </option><option value="90% Off">
+                                            </option><option value="Workspaces">
+                                        </option></datalist>
                                     </div>
                                 </div>
 
@@ -231,8 +234,8 @@ window.onerror = function(message, source, lineno, colno, error) {
                                                  <label for="plan-enable-1mo" style="font-weight: 600;">1 Month</label>
                                              </div>
                                              <div class="tier-inputs-col">
-                                                 <input type="number" id="plan-price-1mo" placeholder="Sale Ôé╣" min="0">
-                                                 <input type="number" id="plan-retail-1mo" placeholder="Retail Ôé╣" min="0">
+                                                 <input type="number" id="plan-price-1mo" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-1mo" placeholder="Retail ₹" min="0">
                                              </div>
                                          </div>
 
@@ -243,8 +246,8 @@ window.onerror = function(message, source, lineno, colno, error) {
                                                  <label for="plan-enable-2mo" style="font-weight: 600;">2 Months</label>
                                              </div>
                                              <div class="tier-inputs-col">
-                                                 <input type="number" id="plan-price-2mo" placeholder="Sale Ôé╣" min="0">
-                                                 <input type="number" id="plan-retail-2mo" placeholder="Retail Ôé╣" min="0">
+                                                 <input type="number" id="plan-price-2mo" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-2mo" placeholder="Retail ₹" min="0">
                                              </div>
                                          </div>
 
@@ -255,8 +258,8 @@ window.onerror = function(message, source, lineno, colno, error) {
                                                  <label for="plan-enable-3mo" style="font-weight: 600;">3 Months</label>
                                              </div>
                                              <div class="tier-inputs-col">
-                                                 <input type="number" id="plan-price-3mo" placeholder="Sale Ôé╣" min="0">
-                                                 <input type="number" id="plan-retail-3mo" placeholder="Retail Ôé╣" min="0">
+                                                 <input type="number" id="plan-price-3mo" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-3mo" placeholder="Retail ₹" min="0">
                                              </div>
                                          </div>
                                          
@@ -267,8 +270,8 @@ window.onerror = function(message, source, lineno, colno, error) {
                                                  <label for="plan-enable-6mo" style="font-weight: 600;">6 Months</label>
                                              </div>
                                              <div class="tier-inputs-col">
-                                                 <input type="number" id="plan-price-6mo" placeholder="Sale Ôé╣" min="0">
-                                                 <input type="number" id="plan-retail-6mo" placeholder="Retail Ôé╣" min="0">
+                                                 <input type="number" id="plan-price-6mo" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-6mo" placeholder="Retail ₹" min="0">
                                              </div>
                                          </div>
                                          
@@ -279,8 +282,8 @@ window.onerror = function(message, source, lineno, colno, error) {
                                                  <label for="plan-enable-1yr" style="font-weight: 600;">12 Months (1 Year)</label>
                                              </div>
                                              <div class="tier-inputs-col">
-                                                 <input type="number" id="plan-price-1yr" placeholder="Sale Ôé╣" min="0">
-                                                 <input type="number" id="plan-retail-1yr" placeholder="Retail Ôé╣" min="0">
+                                                 <input type="number" id="plan-price-1yr" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-1yr" placeholder="Retail ₹" min="0">
                                              </div>
                                          </div>
                                          
@@ -291,8 +294,8 @@ window.onerror = function(message, source, lineno, colno, error) {
                                                  <label for="plan-enable-lt" style="font-weight: 600;">Lifetime</label>
                                              </div>
                                              <div class="tier-inputs-col">
-                                                 <input type="number" id="plan-price-lt" placeholder="Sale Ôé╣" min="0">
-                                                 <input type="number" id="plan-retail-lt" placeholder="Retail Ôé╣" min="0">
+                                                 <input type="number" id="plan-price-lt" placeholder="Sale ₹" min="0">
+                                                 <input type="number" id="plan-retail-lt" placeholder="Retail ₹" min="0">
                                              </div>
                                          </div>
                                     </div>
@@ -407,7 +410,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span class="table-badge-category">Design &amp; Creative</span>
             </td>
             <td>
-                <span class="text-cyan" style="font-weight: 700;">Ôé╣499</span>
+                <span class="text-cyan" style="font-weight: 700;">₹499</span>
             </td>
             <td>
                 <div class="table-actions">
@@ -439,7 +442,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span class="table-badge-category">Design &amp; Creative</span>
             </td>
             <td>
-                <span class="text-cyan" style="font-weight: 700;">Ôé╣999</span>
+                <span class="text-cyan" style="font-weight: 700;">₹999</span>
             </td>
             <td>
                 <div class="table-actions">
@@ -471,7 +474,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span class="table-badge-category">PRODUCTIVITY</span>
             </td>
             <td>
-                <span class="text-cyan" style="font-weight: 700;">Ôé╣299</span>
+                <span class="text-cyan" style="font-weight: 700;">₹299</span>
             </td>
             <td>
                 <div class="table-actions">
@@ -503,7 +506,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span class="table-badge-category">PRODUCTIVITY</span>
             </td>
             <td>
-                <span class="text-cyan" style="font-weight: 700;">Ôé╣349</span>
+                <span class="text-cyan" style="font-weight: 700;">₹349</span>
             </td>
             <td>
                 <div class="table-actions">
@@ -535,7 +538,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span class="table-badge-category">STREAMING</span>
             </td>
             <td>
-                <span class="text-cyan" style="font-weight: 700;">Ôé╣199</span>
+                <span class="text-cyan" style="font-weight: 700;">₹199</span>
             </td>
             <td>
                 <div class="table-actions">
@@ -567,7 +570,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span class="table-badge-category">STREAMING</span>
             </td>
             <td>
-                <span class="text-cyan" style="font-weight: 700;">Ôé╣149</span>
+                <span class="text-cyan" style="font-weight: 700;">₹149</span>
             </td>
             <td>
                 <div class="table-actions">
@@ -599,7 +602,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span class="table-badge-category">Business &amp; Professional</span>
             </td>
             <td>
-                <span class="text-cyan" style="font-weight: 700;">Ôé╣799</span>
+                <span class="text-cyan" style="font-weight: 700;">₹799</span>
             </td>
             <td>
                 <div class="table-actions">
@@ -631,7 +634,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span class="table-badge-category">Finance &amp; Trading</span>
             </td>
             <td>
-                <span class="text-cyan" style="font-weight: 700;">Ôé╣899</span>
+                <span class="text-cyan" style="font-weight: 700;">₹899</span>
             </td>
             <td>
                 <div class="table-actions">
@@ -663,7 +666,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span class="table-badge-category">AI Tools</span>
             </td>
             <td>
-                <span class="text-cyan" style="font-weight: 700;">Ôé╣599</span>
+                <span class="text-cyan" style="font-weight: 700;">₹599</span>
             </td>
             <td>
                 <div class="table-actions">
@@ -721,7 +724,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                         <div class="stat-icon-wrapper cyan-glow"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="indian-rupee" aria-hidden="true" class="lucide lucide-indian-rupee"><path d="M6 3h12"></path><path d="M6 8h12"></path><path d="m6 13 8.5 8"></path><path d="M6 13h3"></path><path d="M9 13c6.667 0 6.667-10 0-10"></path></svg></div>
                         <div>
                             <h4 class="stat-label">Completed Sales</h4>
-                            <p class="stat-value" id="stat-total-revenue">Ôé╣0</p>
+                            <p class="stat-value" id="stat-total-revenue">₹0</p>
                         </div>
                     </div>
                 </section>
@@ -805,7 +808,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                             <div class="stat-icon-wrapper green-glow"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="indian-rupee" aria-hidden="true" class="lucide lucide-indian-rupee"><path d="M6 3h12"></path><path d="M6 8h12"></path><path d="m6 13 8.5 8"></path><path d="M6 13h3"></path><path d="M9 13c6.667 0 6.667-10 0-10"></path></svg></div>
                             <div>
                                 <h4 class="stat-label">Gross Revenue</h4>
-                                <p class="stat-value" id="stat-analytics-revenue">Ôé╣0</p>
+                                <p class="stat-value" id="stat-analytics-revenue">₹0</p>
                             </div>
                         </div>
                     </section>
@@ -905,7 +908,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                                         <label for="coupon-type">Discount Type *</label>
                                         <select id="coupon-type" required="">
                                             <option value="percentage">Percentage (%)</option>
-                                            <option value="flat">Flat Amount (Ôé╣)</option>
+                                            <option value="flat">Flat Amount (₹)</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
@@ -915,7 +918,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="coupon-min-order">Minimum Order Value (Ôé╣) *</label>
+                                    <label for="coupon-min-order">Minimum Order Value (₹) *</label>
                                     <input type="number" id="coupon-min-order" placeholder="e.g. 999" min="0" value="0" required="">
                                     <small class="form-tip">Set to 0 if there is no minimum threshold.</small>
                                 </div>
@@ -958,7 +961,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span style="font-weight: 600; color: var(--text-primary);">10% Off</span>
             </td>
             <td>
-                <span style="color: var(--text-secondary);">Ôé╣0</span>
+                <span style="color: var(--text-secondary);">₹0</span>
             </td>
             <td>
                 <span class="badge-status badge-status-delivered">Active</span>
@@ -978,10 +981,10 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span class="text-cyan" style="font-weight: 700; font-family: monospace; font-size: 0.95rem; text-transform: uppercase;">DEALS200</span>
             </td>
             <td>
-                <span style="font-weight: 600; color: var(--text-primary);">Ôé╣200 Off</span>
+                <span style="font-weight: 600; color: var(--text-primary);">₹200 Off</span>
             </td>
             <td>
-                <span style="color: var(--text-secondary);">Ôé╣999</span>
+                <span style="color: var(--text-secondary);">₹999</span>
             </td>
             <td>
                 <span class="badge-status badge-status-delivered">Active</span>
@@ -1004,7 +1007,7 @@ window.onerror = function(message, source, lineno, colno, error) {
                 <span style="font-weight: 600; color: var(--text-primary);">15% Off</span>
             </td>
             <td>
-                <span style="color: var(--text-secondary);">Ôé╣1,999</span>
+                <span style="color: var(--text-secondary);">₹1,999</span>
             </td>
             <td>
                 <span class="badge-status badge-status-delivered">Active</span>

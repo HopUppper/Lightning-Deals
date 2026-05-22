@@ -48,6 +48,11 @@
             </nav>
 
             <div class="header-actions">
+                <button class="wishlist-trigger-btn" id="header-wishlist-btn" aria-label="View Wishlist">
+                    <i data-lucide="heart" style="width: 16px; height: 16px;"></i>
+                    <span class="wishlist-label">Wishlist</span>
+                    <span class="badge-wishlist-count" id="wishlist-count-badge" style="display: none;">0</span>
+                </button>
                 <button class="cart-trigger-btn" id="header-cart-btn" aria-label="View Shopping Cart">
                     <i data-lucide="shopping-cart" style="width: 16px; height: 16px;"></i>
                     <span class="cart-label">Cart</span>
@@ -245,8 +250,11 @@
                 <!-- Search & Filters Wrapper -->
                 <div class="search-filter-wrapper">
                     <div class="search-input-group">
-                        <input type="text" id="store-search-input" placeholder="Search premium subscriptions...">
+                        <input type="text" id="store-search-input" placeholder="Search premium subscriptions..." autocomplete="off">
                         <i data-lucide="search"></i>
+                        <div class="search-suggestions-dropdown" id="search-suggestions">
+                            <!-- Filled dynamically -->
+                        </div>
                     </div>
                     
                     <!-- Desktop Category Filter Buttons -->
@@ -282,6 +290,17 @@
                     <div class="loading-state text-center">
                         <div class="spinner"></div>
                         <p>Loading premium deals...</p>
+                    </div>
+                </div>
+
+                <!-- Recently Viewed Section -->
+                <div class="recently-viewed-container" id="recently-viewed-section" style="display: none; margin-top: 4rem; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 3rem;">
+                    <div class="section-header text-center" style="margin-bottom: 2rem;">
+                        <h3 class="section-title" style="font-size: 1.5rem;">Recently <span class="gradient-text">Viewed Deals</span></h3>
+                        <p class="section-subtitle" style="font-size: 0.85rem;">Items you checked out recently.</p>
+                    </div>
+                    <div class="products-grid" id="recently-viewed-grid">
+                        <!-- Dynamically populated -->
                     </div>
                 </div>
             </div>
@@ -737,6 +756,13 @@
                 </div>
             </div>
 
+            <div class="modal-related-products" id="config-related-products-section" style="display: none; margin-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 1rem;">
+                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block; font-size: 0.85rem; color: var(--text-primary);">Frequently Bought Together</label>
+                <div id="config-related-products-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <!-- Filled dynamically -->
+                </div>
+            </div>
+
             <div class="modal-footer">
                 <button class="btn btn-primary w-100 btn-glow" id="btn-add-to-cart">
                     <i data-lucide="shopping-cart" style="width: 16px; height: 16px; margin-right: 6px;"></i>
@@ -954,6 +980,28 @@
         </div>
     </div>
 
+    <!-- Wishlist Drawer Modal -->
+    <div class="modal-overlay" id="wishlist-modal" role="dialog" aria-modal="true" aria-labelledby="wishlist-modal-title">
+        <div class="modal-card glass-card">
+            <button class="modal-close-btn" id="close-wishlist-modal-btn" aria-label="Close dialog">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="modal-header">
+                <div class="modal-logo-wrapper" style="background: linear-gradient(135deg, #FF3366 0%, #FF6633 100%);"><i data-lucide="heart"></i></div>
+                <div>
+                    <h3 class="modal-title" id="wishlist-modal-title">My Wishlist</h3>
+                    <span class="modal-subtitle">Your favorite premium deals saved for later.</span>
+                </div>
+            </div>
+            <div class="cart-items-wrapper" id="wishlist-items-list">
+                <!-- Filled dynamically -->
+            </div>
+            <div class="modal-footer" style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: 1rem;">
+                <button class="btn btn-secondary w-100" id="btn-close-wishlist">Continue Browsing</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Mobile Bottom Navigation Bar -->
     <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
         <div class="mobile-bottom-nav-inner">
@@ -965,6 +1013,11 @@
                 <i data-lucide="package"></i>
                 <span>Products</span>
             </a>
+            <button class="mob-nav-item" id="mob-nav-wishlist-btn">
+                <i data-lucide="heart"></i>
+                <span>Wishlist</span>
+                <span class="mob-nav-badge" id="mob-wishlist-badge" style="display:none;">0</span>
+            </button>
             <button class="mob-nav-item" id="mob-nav-cart-btn">
                 <i data-lucide="shopping-cart"></i>
                 <span>Cart</span>
