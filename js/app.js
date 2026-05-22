@@ -334,10 +334,18 @@ function safeGetLocalStorage(key, defaultValue) {
 function initCatalog() {
     const val = localStorage.getItem('lightning_deals_products');
     if (!val || val === 'undefined' || val === 'null') {
+        // No catalog exists at all — seed with defaults
         localStorage.setItem('lightning_deals_products', JSON.stringify(DEFAULT_PRODUCTS));
     } else {
-        const parsed = safeGetLocalStorage('lightning_deals_products', null);
-        if (!parsed || !Array.isArray(parsed) || parsed.length <= 5) {
+        try {
+            const parsed = JSON.parse(val);
+            if (!parsed || !Array.isArray(parsed)) {
+                // Corrupted data — reset to defaults
+                localStorage.setItem('lightning_deals_products', JSON.stringify(DEFAULT_PRODUCTS));
+            }
+            // Otherwise keep whatever the user/admin has saved, even if empty
+        } catch (e) {
+            // JSON parse error — reset to defaults
             localStorage.setItem('lightning_deals_products', JSON.stringify(DEFAULT_PRODUCTS));
         }
     }
