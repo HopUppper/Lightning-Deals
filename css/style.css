@@ -5962,4 +5962,562 @@ html, body {
     }
 }
 
+/* ==========================================================================
+   PHASE 2: MODERN PREMIUM MARKETPLACE OVERHAUL STYLES
+   ========================================================================== */
+
+/* --- Floating Radial Orbs --- */
+.bg-orbs-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -2;
+    pointer-events: none;
+}
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.12;
+    animation: drift-orb 25s infinite alternate ease-in-out;
+}
+.orb-cyan {
+    top: -10%;
+    left: 10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(0, 242, 254, 0.45) 0%, rgba(79, 172, 254, 0.05) 70%);
+}
+.orb-purple {
+    bottom: -10%;
+    right: 5%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(138, 43, 226, 0.35) 0%, rgba(179, 125, 255, 0.02) 80%);
+    animation-delay: -5s;
+}
+.orb-blue {
+    top: 40%;
+    left: 50%;
+    width: 450px;
+    height: 450px;
+    background: radial-gradient(circle, rgba(79, 172, 254, 0.25) 0%, rgba(0, 0, 0, 0) 60%);
+    animation-delay: -10s;
+}
+@keyframes drift-orb {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(6%, -4%) scale(1.08); }
+    100% { transform: translate(-4%, 8%) scale(1.15); }
+}
+
+/* --- Live Toast Purchase Notification --- */
+#live-toast-notification {
+    position: fixed;
+    bottom: 80px; /* Elevated to sit clean above mobile bottom nav */
+    left: 24px;
+    background: rgba(13, 16, 23, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 0.85rem 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 242, 254, 0.08);
+    z-index: 99999;
+    transform: translateY(120px) scale(0.9);
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    max-width: 330px;
+}
+@media (max-width: 768px) {
+    #live-toast-notification {
+        left: 12px;
+        right: 12px;
+        max-width: calc(100% - 24px);
+        bottom: 84px;
+    }
+}
+#live-toast-notification.show {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+#live-toast-notification .toast-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--grad-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #07080b;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 12px rgba(0, 242, 254, 0.35);
+    flex-shrink: 0;
+}
+#live-toast-notification .toast-body {
+    flex-grow: 1;
+}
+#live-toast-notification .toast-heading {
+    font-size: 0.82rem;
+    color: #fff;
+    font-weight: 600;
+    margin-bottom: 1px;
+}
+#live-toast-notification .toast-sub {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+}
+#live-toast-notification .toast-badge-status {
+    font-size: 0.62rem;
+    color: var(--clr-cyan);
+    background: rgba(0, 242, 254, 0.08);
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 242, 254, 0.12);
+    font-weight: 600;
+    margin-left: 6px;
+}
+
+/* --- Pricing Psychology & Urgency --- */
+.price-comp-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 0.5rem 0;
+}
+.retail-crossed {
+    text-decoration: line-through;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 400;
+}
+.savings-badge {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.18);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.06);
+}
+.demand-badge {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 0.4rem;
+}
+.demand-high {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    color: var(--clr-red);
+}
+.demand-popular {
+    background: rgba(251, 191, 36, 0.08);
+    border: 1px solid rgba(251, 191, 36, 0.15);
+    color: var(--clr-gold);
+}
+
+/* --- Social Proof Activation Carousel --- */
+.proof-carousel-section {
+    padding: 5rem 0;
+    background: linear-gradient(180deg, rgba(7,8,11,0) 0%, rgba(255,255,255,0.01) 50%, rgba(7,8,11,0) 100%);
+    border-top: 1px solid rgba(255,255,255,0.03);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.proof-carousel-container {
+    width: 100%;
+    overflow: hidden;
+    padding: 1.5rem 0;
+    position: relative;
+    mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+}
+.proof-carousel-track {
+    display: flex;
+    gap: 2rem;
+    animation: scroll-proof-slides 45s linear infinite;
+    width: max-content;
+}
+.proof-carousel-track:hover {
+    animation-play-state: paused;
+}
+.proof-card {
+    width: 280px;
+    background: rgba(13, 16, 23, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 0.9rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: border-color 0.3s, transform 0.3s;
+}
+.proof-card:hover {
+    border-color: rgba(0, 242, 254, 0.25);
+    transform: translateY(-4px);
+}
+.proof-img-container {
+    position: relative;
+    width: 100%;
+    height: 150px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+}
+.proof-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(3.5px);
+    transition: filter 0.4s ease;
+}
+.proof-card:hover .proof-img {
+    filter: blur(0px);
+}
+.proof-overlay-lens {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(7, 8, 11, 0.9) 100%);
+}
+.proof-card-info {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.proof-card-user {
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: #fff;
+}
+.proof-card-details {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+@keyframes scroll-proof-slides {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* --- Stripe-Style Checkout Steps Progress --- */
+.checkout-progress-bar-wrapper {
+    margin-bottom: 2rem;
+    padding: 0.5rem 0.5rem 0;
+}
+.checkout-progress-bar {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    max-width: 450px;
+    margin: 0 auto;
+}
+.checkout-progress-line {
+    position: absolute;
+    top: 16px;
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.08);
+    z-index: 1;
+}
+.checkout-progress-fill {
+    height: 100%;
+    background: var(--grad-primary);
+    width: 0%;
+    transition: width 0.4s ease;
+}
+.progress-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+.step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #0f121a;
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.progress-step.active .step-number {
+    border-color: var(--clr-cyan);
+    color: #fff;
+    background: rgba(0, 242, 254, 0.1);
+    box-shadow: 0 0 16px rgba(0, 242, 254, 0.3);
+}
+.progress-step.complete .step-number {
+    border-color: var(--clr-green);
+    background: var(--clr-green);
+    color: #07080b;
+}
+.step-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.progress-step.active .step-label {
+    color: var(--clr-cyan);
+}
+.progress-step.complete .step-label {
+    color: var(--text-secondary);
+}
+
+/* --- Mini Landing Page Tabs in Product Configuration Modal --- */
+.modal-landing-tabs {
+    display: flex;
+    gap: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 1.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.modal-landing-tabs::-webkit-scrollbar { display: none; }
+.tab-trigger {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 0.6rem 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+.tab-trigger.active {
+    color: #fff;
+}
+.tab-trigger.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--grad-primary);
+}
+.tab-pane {
+    display: none;
+    animation: fadeInTab 0.3s ease;
+}
+.tab-pane.active {
+    display: block;
+}
+@keyframes fadeInTab {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Product Modal Detail Layout Widgets --- */
+.modal-landing-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    gap: 1.5rem;
+}
+@media (max-width: 768px) {
+    .modal-landing-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.who-is-for-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0.5rem 0 1rem;
+}
+.who-is-tag {
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    background: rgba(0, 242, 254, 0.06);
+    border: 1px solid rgba(0, 242, 254, 0.12);
+    color: var(--clr-cyan);
+    border-radius: 8px;
+}
+.compatibility-list {
+    display: flex;
+    gap: 8px;
+    margin: 0.5rem 0 1rem;
+}
+.comp-badge {
+    font-size: 0.68rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 3px 8px;
+    border-radius: 6px;
+    color: var(--text-secondary);
+}
+.eta-indicator-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.01);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+}
+.eta-pulse-green {
+    width: 8px;
+    height: 8px;
+    background: var(--clr-green);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--clr-green);
+    animation: pulse-green-glow 2s infinite;
+}
+@keyframes pulse-green-glow {
+    0% { transform: scale(0.9); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.9); opacity: 0.5; }
+}
+.eta-text {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
+/* --- recommended add-on cross sells --- */
+.cross-sell-wrapper {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 1rem;
+    margin-top: 1.5rem;
+}
+.cross-sell-heading {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+.cross-sell-item-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.cross-sell-item-card:last-child {
+    border-bottom: none;
+}
+.cross-sell-logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+}
+.cross-sell-details {
+    flex-grow: 1;
+}
+.cross-sell-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+}
+.cross-sell-price {
+    font-size: 0.7rem;
+    color: var(--clr-cyan);
+}
+.btn-cross-sell-add {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-cross-sell-add:hover {
+    background: var(--grad-primary);
+    border-color: transparent;
+    color: #07080b;
+}
+
+/* --- Payment icons strip --- */
+.payment-partners-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    padding: 1.5rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    margin-top: 2rem;
+}
+.partner-logo-box {
+    opacity: 0.45;
+    transition: opacity 0.3s;
+    display: flex;
+    align-items: center;
+}
+.partner-logo-box:hover {
+    opacity: 0.85;
+}
+.partner-logo-box img {
+    height: 20px;
+    object-fit: contain;
+    filter: grayscale(1) brightness(2);
+}
+
+/* --- Urgency/Stock Badge anims --- */
+.slot-urgency-banner {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.76rem;
+    color: var(--clr-red);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 1rem 0;
+}
+
+/* --- Skeleton loaders --- */
+.skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 37%, rgba(255,255,255,0.03) 63%);
+    background-size: 400% 100%;
+    animation: skeleton-shimmer 1.4s ease infinite;
+}
+@keyframes skeleton-shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+
 

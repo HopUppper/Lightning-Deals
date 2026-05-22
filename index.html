@@ -16,6 +16,11 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+    <div class="bg-orbs-container">
+        <div class="orb orb-cyan"></div>
+        <div class="orb orb-purple"></div>
+        <div class="orb orb-blue"></div>
+    </div>
     <div class="bg-mesh-grid"></div>
     <!-- Background Glow Blobs -->
     <div class="glow-blob glow-1"></div>
@@ -92,18 +97,18 @@
                 <div class="hero-content">
                     <div class="hero-badge fade-in">
                         <i data-lucide="sparkles" class="icon-sparkle"></i>
-                        <span>Elite SaaS Marketplace & Startup Stack</span>
+                        <span>The Modern Marketplace for Premium Digital Tools</span>
                     </div>
                     <h1 class="hero-title fade-in delay-1">
-                        The Premium <br>
-                        <span class="gradient-text">Startup Stack</span> for Founders & Developers
+                        Premium Software <br>
+                        <span class="gradient-text">Access for Everyone</span>
                     </h1>
                     <p class="hero-subtitle fade-in delay-2">
-                        Get instant access to ChatGPT Pro, Vercel Pro, Adobe Creative Cloud, Cursor Pro, Notion AI, Canva Pro and more. Build your dream workspace for 90% less.
+                        Get instant premium access to ChatGPT Plus, Canva Pro, Adobe Creative Cloud, Cursor Pro, TradingView, and more. Build your dream workspace for 90% less.
                     </p>
                     <div class="hero-actions fade-in delay-3">
                         <a href="#products" class="btn btn-primary btn-lg btn-glow" id="hero-cta-primary">
-                            <span>Explore the Stack</span>
+                            <span>Explore Premium Deals</span>
                         </a>
                         <a href="#how-it-works" class="btn btn-secondary btn-lg" id="hero-cta-secondary">
                             <span>How it Works</span>
@@ -112,7 +117,7 @@
                     <div class="hero-trust-metrics fade-in delay-4">
                         <div class="trust-metric">
                             <span class="metric-val">10k+</span>
-                            <span class="metric-lbl">Active Founders</span>
+                            <span class="metric-lbl">Active Users</span>
                         </div>
                         <div class="trust-divider"></div>
                         <div class="trust-metric">
@@ -212,7 +217,7 @@
 
             <!-- Brand Logo Marquee Scroll -->
             <div class="brand-marquee-container">
-                <div class="brand-marquee-title">Used by founders and developers from</div>
+                <div class="brand-marquee-title">Powering creators, students, developers, and businesses from</div>
                 <div class="brand-marquee-track">
                     <div class="brand-logo-item">
                         <i data-lucide="terminal"></i><span>Supabase</span>
@@ -284,6 +289,105 @@
                         <p class="trust-card-description">Got a logout issue or need renewal help? Our friendly chat support team is always available to assist you instantly on WhatsApp.</p>
                     </div>
                 </div>
+
+                <!-- Payment Partners Strip -->
+                <div class="payment-partners-strip">
+                    <div class="partner-logo-box" title="Paytm">
+                        <span style="font-weight: 800; font-size: 1.1rem; color: #00baf2; letter-spacing: -0.02em;">Paytm</span>
+                    </div>
+                    <div class="partner-logo-box" title="PhonePe">
+                        <span style="font-weight: 800; font-size: 1.1rem; color: #5f259f; letter-spacing: -0.01em;">PhonePe</span>
+                    </div>
+                    <div class="partner-logo-box" title="Google Pay">
+                        <span style="font-weight: 700; font-size: 1.1rem; color: #fff;">GPay</span>
+                    </div>
+                    <div class="partner-logo-box" title="UPI">
+                        <span style="font-weight: 800; font-size: 1.1rem; color: #097939; letter-spacing: 0.05em;">UPI</span>
+                    </div>
+                    <div class="partner-logo-box" title="Razorpay">
+                        <span style="font-weight: 800; font-size: 1.1rem; color: #0b72e7; letter-spacing: -0.02em;">Razorpay</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Proof Carousel Section -->
+        <section class="proof-carousel-section">
+            <div class="container">
+                <div class="section-header text-center" style="margin-bottom: 2rem;">
+                    <h2 class="section-title">Verified <span class="gradient-text">Activation Proof</span></h2>
+                    <p class="section-subtitle">Real screenshots of customer setups and activated memberships. Hover to unblur.</p>
+                </div>
+                
+                <div class="proof-carousel-container">
+                    <div class="proof-carousel-track">
+                        <!-- Card 1 -->
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/chatgpt_proof.png" alt="ChatGPT Plus Activation Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Rahul M. (Mumbai)</span>
+                                <span class="proof-card-details">ChatGPT Plus</span>
+                            </div>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/canva_proof.png" alt="Canva Pro Invite Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Siddharth J. (Delhi)</span>
+                                <span class="proof-card-details">Canva Pro Team</span>
+                            </div>
+                        </div>
+                        <!-- Card 3 -->
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/adobe_proof.png" alt="Adobe CC License Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Sarah L. (Bangalore)</span>
+                                <span class="proof-card-details">Adobe Creative Cloud</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Duplicate cards for infinite scrolling loop -->
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/chatgpt_proof.png" alt="ChatGPT Plus Activation Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Rahul M. (Mumbai)</span>
+                                <span class="proof-card-details">ChatGPT Plus</span>
+                            </div>
+                        </div>
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/canva_proof.png" alt="Canva Pro Invite Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Siddharth J. (Delhi)</span>
+                                <span class="proof-card-details">Canva Pro Team</span>
+                            </div>
+                        </div>
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/adobe_proof.png" alt="Adobe CC License Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Sarah L. (Bangalore)</span>
+                                <span class="proof-card-details">Adobe Creative Cloud</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -316,8 +420,21 @@
                         <button class="filter-btn" data-category="finance">Finance</button>
                     </div>
 
+                    <!-- Target Audience Filters -->
+                    <div class="persona-filter-wrapper" style="margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: center; width: 100%;">
+                        <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Filter by Use Case:</span>
+                        <div class="category-filters" id="persona-filters-container" style="margin-bottom: 0; display: inline-flex;">
+                            <button class="filter-btn active" data-persona="all">All Users</button>
+                            <button class="filter-btn" data-persona="students">Students</button>
+                            <button class="filter-btn" data-persona="creators">Creators</button>
+                            <button class="filter-btn" data-persona="developers">Developers</button>
+                            <button class="filter-btn" data-persona="business">Businesses</button>
+                            <button class="filter-btn" data-persona="traders">Traders</button>
+                        </div>
+                    </div>
+
                     <!-- Mobile Category Dropdown Selector -->
-                    <div class="mobile-filter-select-wrapper">
+                    <div class="mobile-filter-select-wrapper" style="display: flex; gap: 0.5rem; flex-direction: column; width: 100%;">
                         <select class="mobile-filter-select" id="store-category-select">
                             <option value="bestsellers">Bestsellers</option>
                             <option value="all">All Stacks</option>
@@ -326,6 +443,14 @@
                             <option value="design">Design & Creative</option>
                             <option value="productivity">Productivity</option>
                             <option value="finance">Finance</option>
+                        </select>
+                        <select class="mobile-filter-select" id="store-persona-select" style="margin-top: 0.5rem;">
+                            <option value="all">All Users</option>
+                            <option value="students">For Students</option>
+                            <option value="creators">For Creators</option>
+                            <option value="developers">For Developers</option>
+                            <option value="business">For Businesses</option>
+                            <option value="traders">For Traders</option>
                         </select>
                     </div>
                 </div>
@@ -962,90 +1087,113 @@
             </div>
 
             <!-- Tab Header Controls -->
-            <div class="modal-tabs-header">
-                <button class="modal-tab-btn active" data-tab="overview">Overview</button>
-                <button class="modal-tab-btn" data-tab="usecases">Use Cases</button>
-                <button class="modal-tab-btn" data-tab="pricing">Compare Price</button>
-                <button class="modal-tab-btn" data-tab="faq">Activation FAQ</button>
+            <div class="modal-landing-tabs">
+                <button class="tab-trigger active" data-tab="overview">Overview</button>
+                <button class="tab-trigger" data-tab="usecases">Who is this for?</button>
+                <button class="tab-trigger" data-tab="pricing">Compare Price</button>
+                <button class="tab-trigger" data-tab="faq">Activation Guide</button>
             </div>
 
-            <!-- Tab 1: Overview Panel -->
-            <div class="modal-tab-content-panel active" id="tab-overview">
-                <div class="form-group">
-                    <label>Select Plan Validity</label>
-                    <div class="plan-selector" id="config-plans-group">
-                        <!-- Filled dynamically -->
-                    </div>
-                </div>
-
-                <div class="modal-qty-container" style="margin-top: 1rem;">
-                    <label for="config-qty-input" style="font-weight: 600; margin-bottom: 0;">Quantity</label>
-                    <div class="qty-selector">
-                        <button type="button" class="qty-btn" id="btn-qty-minus" aria-label="Decrease quantity">−</button>
-                        <input type="number" id="config-qty-input" class="qty-input" value="1" min="1" max="99" readonly>
-                        <button type="button" class="qty-btn" id="btn-qty-plus" aria-label="Increase quantity">+</button>
-                    </div>
-                </div>
-
-                <div class="activation-info-box margin-top-md">
-                    <div class="activation-info-header">
-                        <i data-lucide="info" class="text-cyan" style="width: 16px; height: 16px; min-width: 16px;"></i>
-                        <span>Activation Details (Important)</span>
-                    </div>
-                    <div class="activation-info-body">
-                        <div class="info-section">
-                            <strong class="info-label">Requirements from Customer:</strong>
-                            <p class="info-content" id="config-activation-reqs"></p>
+            <div class="modal-landing-grid">
+                <!-- Left Panel: Tabs Content -->
+                <div class="modal-tabs-content">
+                    <!-- Tab 1: Overview Panel -->
+                    <div class="tab-pane active" id="tab-overview">
+                        <div class="form-group">
+                            <label>Select Plan Validity</label>
+                            <div class="plan-selector" id="config-plans-group">
+                                <!-- Filled dynamically -->
+                            </div>
                         </div>
-                        <div class="info-section margin-top-xs">
-                            <strong class="info-label">Activation Process:</strong>
-                            <p class="info-content" id="config-activation-process"></p>
+
+                        <div class="modal-qty-container" style="margin-top: 1rem;">
+                            <label for="config-qty-input" style="font-weight: 600; margin-bottom: 0;">Quantity</label>
+                            <div class="qty-selector">
+                                <button type="button" class="qty-btn" id="btn-qty-minus" aria-label="Decrease quantity">−</button>
+                                <input type="number" id="config-qty-input" class="qty-input" value="1" min="1" max="99" readonly>
+                                <button type="button" class="qty-btn" id="btn-qty-plus" aria-label="Increase quantity">+</button>
+                            </div>
+                        </div>
+
+                        <div class="activation-info-box margin-top-md">
+                            <div class="activation-info-header">
+                                <i data-lucide="info" class="text-cyan" style="width: 16px; height: 16px; min-width: 16px;"></i>
+                                <span>Activation Details (Important)</span>
+                            </div>
+                            <div class="activation-info-body">
+                                <div class="info-section">
+                                    <strong class="info-label">Requirements from Customer:</strong>
+                                    <p class="info-content" id="config-activation-reqs"></p>
+                                </div>
+                                <div class="info-section margin-top-xs">
+                                    <strong class="info-label">Activation Process:</strong>
+                                    <p class="info-content" id="config-activation-process"></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Tab 2: Best Use Cases Panel -->
-            <div class="modal-tab-content-panel" id="tab-usecases">
-                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: var(--text-primary);">Best Use Cases & Included Features</label>
-                <ul class="modal-features-list" id="config-use-cases-list">
-                    <!-- Filled dynamically -->
-                </ul>
-            </div>
-
-            <!-- Tab 3: Price Comparison Panel -->
-            <div class="modal-tab-content-panel" id="tab-pricing">
-                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: var(--text-primary);">Retail Pricing vs LightningDeals</label>
-                <div class="comp-table-wrapper" style="overflow-x: auto; border: 1px solid rgba(255,255,255,0.03); border-radius: 8px;">
-                    <table class="comp-pricing-table">
-                        <thead>
-                            <tr>
-                                <th>Validity Plan</th>
-                                <th>Retail Price</th>
-                                <th>Deals Price</th>
-                                <th>You Save</th>
-                            </tr>
-                        </thead>
-                        <tbody id="config-comparison-tbody">
+                    <!-- Tab 2: Best Use Cases Panel -->
+                    <div class="tab-pane" id="tab-usecases">
+                        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: var(--text-primary);">Best Use Cases & Included Features</label>
+                        <div class="who-is-for-list" id="config-who-is-for-list" style="margin-bottom: 1rem;">
+                            <!-- Filled dynamically: tags like "For Designers" -->
+                        </div>
+                        <ul class="modal-features-list" id="config-use-cases-list">
                             <!-- Filled dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                        </ul>
+                    </div>
 
-            <!-- Tab 4: FAQ & Reassurance Panel -->
-            <div class="modal-tab-content-panel" id="tab-faq">
-                <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: var(--text-primary);">Activation FAQ & Direct Support</label>
-                <div class="act-timeline" id="config-faq-list">
-                    <!-- Filled dynamically -->
-                </div>
-            </div>
+                    <!-- Tab 3: Price Comparison Panel -->
+                    <div class="tab-pane" id="tab-pricing">
+                        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: var(--text-primary);">Retail Pricing vs LightningDeals</label>
+                        <div class="comp-table-wrapper" style="overflow-x: auto; border: 1px solid rgba(255,255,255,0.03); border-radius: 8px;">
+                            <table class="comp-pricing-table">
+                                <thead>
+                                    <tr>
+                                        <th>Validity Plan</th>
+                                        <th>Retail Price</th>
+                                        <th>Deals Price</th>
+                                        <th>You Save</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="config-comparison-tbody">
+                                    <!-- Filled dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-            <!-- Frequently Bought Together section (always visible below active tab) -->
-            <div class="modal-related-products" id="config-related-products-section" style="display: none; margin-top: 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 0.75rem;">
-                <label style="font-weight: 600; margin-bottom: 0.5rem; display: block; font-size: 0.85rem; color: var(--text-primary);">Frequently Bought Together</label>
-                <div id="config-related-products-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <!-- Filled dynamically -->
+                    <!-- Tab 4: FAQ & Reassurance Panel -->
+                    <div class="tab-pane" id="tab-faq">
+                        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem; color: var(--text-primary);">Activation FAQ & Direct Support</label>
+                        <div class="act-timeline" id="config-faq-list">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Metadata & Cross-sells -->
+                <div class="modal-sidebar-info">
+                    <div style="margin-bottom: 1rem;">
+                        <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.5rem;">Compatibility:</span>
+                        <div class="compatibility-list" id="config-compatibility-list" style="margin-bottom: 1rem;">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="eta-indicator-box" style="margin: 0 0 1.5rem 0;">
+                        <div class="eta-pulse-green"></div>
+                        <span class="eta-text" id="config-activation-eta">Delivery Time: 5 - 15 Minutes</span>
+                    </div>
+
+                    <!-- Frequently Bought Together / Cross Sells -->
+                    <div class="cross-sell-wrapper" id="config-related-products-section" style="display: none; margin-top: 0; padding: 0.85rem;">
+                        <div class="cross-sell-heading" style="font-size: 0.75rem; margin-bottom: 0.5rem;">Frequently Bought Together</div>
+                        <div id="config-related-products-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1405,9 +1553,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <!-- Database Configuration -->
-    <script src="js/config.js"></script>
+    <script src="js/config.js?v=2.0.0"></script>
 
     <!-- Store logic script -->
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=2.0.0"></script>
 </body>
 </html>

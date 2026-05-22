@@ -657,7 +657,37 @@ function setupMobileMenu() {
 
 // --- Unified live search & category filters ---
 let currentCategory = 'bestsellers';
+let currentPersona = 'all';
 let searchQuery = '';
+
+function getProductPersonas(prod) {
+    if (prod.persona) {
+        if (Array.isArray(prod.persona)) return prod.persona;
+        if (typeof prod.persona === 'string') return prod.persona.split(',').map(s => s.trim().toLowerCase());
+    }
+    // Fallback based on ID/category/name
+    const id = (prod.id || '').toLowerCase();
+    const cat = (prod.category || '').toLowerCase();
+    const name = (prod.name || '').toLowerCase();
+    const personas = [];
+    
+    if (cat === 'dev' || id.includes('cursor') || id.includes('github') || id.includes('copilot') || id.includes('jetbrains') || name.includes('developer') || name.includes('github')) {
+        personas.push('developers');
+    }
+    if (cat === 'design' || id.includes('canva') || id.includes('adobe') || id.includes('midjourney') || id.includes('figma') || id.includes('framer')) {
+        personas.push('creators');
+    }
+    if (cat === 'finance' || id.includes('tradingview') || name.includes('trading') || name.includes('crypto')) {
+        personas.push('traders');
+    }
+    if (id.includes('notion') || id.includes('office') || id.includes('microsoft') || id.includes('canva') || id.includes('chatgpt') || id.includes('gpt')) {
+        personas.push('students');
+    }
+    if (id.includes('office') || id.includes('notion') || id.includes('slack') || id.includes('zoom') || id.includes('gsuite') || id.includes('google')) {
+        personas.push('business');
+    }
+    return personas;
+}
 
 function applyStoreFilters() {
     const grid = document.getElementById('store-products-grid');
@@ -669,14 +699,21 @@ function applyStoreFilters() {
 
     const query = searchQuery.toLowerCase().trim();
     let filtered;
+    
     if (currentCategory === 'bestsellers') {
         let bestsellers = products.filter(p => p.visible !== false && (p.bestseller === true || (p.tag && p.tag.toLowerCase().includes('bestseller'))));
+        if (currentPersona !== 'all') {
+            bestsellers = bestsellers.filter(p => getProductPersonas(p).includes(currentPersona));
+        }
         if (bestsellers.length < 5) {
             const addedIds = new Set(bestsellers.map(b => b.id));
             const extraProducts = products.filter(p => p.visible !== false && !addedIds.has(p.id));
-            const fillCount = Math.min(8 - bestsellers.length, extraProducts.length);
+            const filteredExtra = currentPersona === 'all' 
+                ? extraProducts 
+                : extraProducts.filter(p => getProductPersonas(p).includes(currentPersona));
+            const fillCount = Math.min(8 - bestsellers.length, filteredExtra.length);
             for (let i = 0; i < fillCount; i++) {
-                bestsellers.push(extraProducts[i]);
+                bestsellers.push(filteredExtra[i]);
             }
         }
         filtered = bestsellers.slice(0, 10);
@@ -687,8 +724,9 @@ function applyStoreFilters() {
         filtered = products.filter(p => {
             if (p.visible === false) return false;
             const matchesCategory = (currentCategory === 'all' || p.category === currentCategory);
+            const matchesPersona = (currentPersona === 'all' || getProductPersonas(p).includes(currentPersona));
             const matchesSearch = (!query || p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query));
-            return matchesCategory && matchesSearch;
+            return matchesCategory && matchesPersona && matchesSearch;
         });
     }
 
@@ -705,9 +743,12 @@ function applyStoreFilters() {
 
     filtered.forEach(prod => {
         // Calculate starting price
-        const minPrice = prod.plans && prod.plans.length > 0
-            ? Math.min(...prod.plans.map(pl => pl.price))
-            : 0;
+        const minPlan = prod.plans && prod.plans.length > 0
+            ? prod.plans.reduce((min, p) => p.price < min.price ? p : min, prod.plans[0])
+            : null;
+        const minPrice = minPlan ? minPlan.price : 0;
+        const retailPrice = minPlan && minPlan.retail ? minPlan.retail : (prod.retailPrice || minPrice * 3);
+        const percentSaved = retailPrice > minPrice ? Math.round(((retailPrice - minPrice) / retailPrice) * 100) : 0;
 
         const card = document.createElement('div');
         card.className = 'glass-card product-card';
@@ -752,6 +793,14 @@ function applyStoreFilters() {
             `;
         }
 
+        // Demand urgency badge
+        let demandHTML = '';
+        if (prod.demand === 'high' || prod.stockStatus === 'limited') {
+            demandHTML = `<span class="demand-badge demand-high"><i data-lucide="trending-up" style="width: 10px; height: 10px;"></i> High Demand</span>`;
+        } else if (prod.demand === 'popular' || prod.bestseller) {
+            demandHTML = `<span class="demand-badge demand-popular"><i data-lucide="zap" style="width: 10px; height: 10px;"></i> Popular Deal</span>`;
+        }
+
         // Build benefits list using healFeatures helper
         let benefitsHTML = '';
         const healed = healFeatures(prod.features);
@@ -762,28 +811,57 @@ function applyStoreFilters() {
         const wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
         const isWishlisted = wishlist.includes(prod.id);
 
+        // Compatibility tags rendering
+        let compatibilityHTML = '';
+        let platforms = [];
+        if (prod.compatibility) {
+            platforms = Array.isArray(prod.compatibility) ? prod.compatibility : prod.compatibility.split(',').map(s => s.trim());
+        } else {
+            // Fallback compatibility lists
+            const id = prod.id.toLowerCase();
+            if (id.includes('adobe') || id.includes('office') || id.includes('ms-')) {
+                platforms = ['Win', 'Mac', 'iOS', 'Android'];
+            } else if (id.includes('cursor') || id.includes('jetbrains')) {
+                platforms = ['Win', 'Mac', 'Linux'];
+            } else if (id.includes('canva') || id.includes('notion') || id.includes('chatgpt') || id.includes('tradingview')) {
+                platforms = ['Web', 'iOS', 'Android'];
+            } else {
+                platforms = ['Web'];
+            }
+        }
+        compatibilityHTML = `
+            <div class="compatibility-list" style="margin-top: 0.5rem; display: flex; gap: 4px; flex-wrap: wrap;">
+                ${platforms.map(p => `<span style="font-size: 0.65rem; background: rgba(255,255,255,0.04); padding: 2px 6px; border-radius: 4px; color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.05); font-weight: 500;">${p}</span>`).join('')}
+            </div>
+        `;
+
         card.innerHTML = `
             <div class="prod-header">
                 <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
                 ${badgeHTML}
             </div>
             <h3 class="prod-title">${prod.name}</h3>
-            ${stockHTML}
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 0.25rem;">
+                ${stockHTML}
+                ${demandHTML}
+            </div>
             <p class="prod-desc">${prod.description}</p>
+            ${compatibilityHTML}
             
-            <div class="prod-price-area">
+            <div class="prod-price-area" style="margin-top: 1rem;">
                 <span class="prod-retail">Starting from</span>
-                <div class="prod-offer">
+                <div class="price-comp-row">
                     <span class="prod-price-new">₹${minPrice.toLocaleString('en-IN')}</span>
-                    <span class="prod-price-suffix">/ plan</span>
+                    <span class="retail-crossed">₹${retailPrice.toLocaleString('en-IN')}</span>
+                    ${percentSaved > 0 ? `<span class="savings-badge">Save ${percentSaved}%</span>` : ''}
                 </div>
             </div>
 
-            <ul class="prod-benefits">
+            <ul class="prod-benefits" style="margin-top: 0.75rem;">
                 ${benefitsHTML}
             </ul>
 
-            <div class="card-actions-wrapper" style="display: flex; gap: 0.5rem; width: 100%; margin-top: auto;">
+            <div class="card-actions-wrapper" style="display: flex; gap: 0.5rem; width: 100%; margin-top: auto; padding-top: 1rem;">
                 <button class="btn btn-primary btn-glow cta-purchase-trigger" data-id="${prod.id}" style="flex-grow: 1;">
                     <span>Add to Cart</span>
                 </button>
@@ -813,6 +891,8 @@ function setupSearchFilters() {
     const searchInput = document.getElementById('store-search-input');
     const categorySelect = document.getElementById('store-category-select');
     const filterContainer = document.getElementById('category-filters-container');
+    const personaSelect = document.getElementById('store-persona-select');
+    const personaContainer = document.getElementById('persona-filters-container');
 
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
@@ -872,6 +952,41 @@ function setupSearchFilters() {
                 
                 // Sync active classes on buttons
                 filterContainer.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.toggle('active', b === btn);
+                });
+                
+                applyStoreFilters();
+            });
+        });
+    }
+
+    if (personaSelect) {
+        personaSelect.addEventListener('change', (e) => {
+            currentPersona = e.target.value;
+            
+            // Sync with desktop buttons
+            if (personaContainer) {
+                personaContainer.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.getAttribute('data-persona') === currentPersona);
+                });
+            }
+            applyStoreFilters();
+        });
+    }
+
+    // Desktop persona filters click handling
+    if (personaContainer) {
+        personaContainer.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentPersona = btn.getAttribute('data-persona');
+                
+                // Sync with mobile selector dropdown
+                if (personaSelect) {
+                    personaSelect.value = currentPersona;
+                }
+                
+                // Sync active classes on buttons
+                personaContainer.querySelectorAll('.filter-btn').forEach(b => {
                     b.classList.toggle('active', b === btn);
                 });
                 
@@ -1771,8 +1886,8 @@ function setupConfigureModal() {
     if (!modal) return;
 
     // Setup modal tab switching
-    const tabBtns = modal.querySelectorAll('.modal-tab-btn');
-    const tabPanels = modal.querySelectorAll('.modal-tab-content-panel');
+    const tabBtns = modal.querySelectorAll('.tab-trigger');
+    const tabPanels = modal.querySelectorAll('.tab-pane');
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const targetTab = btn.getAttribute('data-tab');
@@ -1832,7 +1947,55 @@ function setupConfigureModal() {
             badge.className = `modal-logo-wrapper ${selectedConfigureProduct.iconColor || 'grad-blue'}`;
         }
 
-        // Tab 2: Best Use Cases
+        // Populate Compatibility
+        const compatibilityEl = document.getElementById('config-compatibility-list');
+        if (compatibilityEl) {
+            compatibilityEl.innerHTML = '';
+            let platforms = [];
+            if (selectedConfigureProduct.compatibility) {
+                platforms = Array.isArray(selectedConfigureProduct.compatibility)
+                    ? selectedConfigureProduct.compatibility
+                    : selectedConfigureProduct.compatibility.split(',').map(s => s.trim());
+            } else {
+                // Fallback compatibility lists
+                const id = selectedConfigureProduct.id.toLowerCase();
+                if (id.includes('adobe') || id.includes('office') || id.includes('ms-')) {
+                    platforms = ['Win', 'Mac', 'iOS', 'Android'];
+                } else if (id.includes('cursor') || id.includes('jetbrains')) {
+                    platforms = ['Win', 'Mac', 'Linux'];
+                } else if (id.includes('canva') || id.includes('notion') || id.includes('chatgpt') || id.includes('tradingview')) {
+                    platforms = ['Web', 'iOS', 'Android'];
+                } else {
+                    platforms = ['Web'];
+                }
+            }
+            platforms.forEach(plat => {
+                const span = document.createElement('span');
+                span.style.cssText = 'font-size: 0.7rem; background: rgba(0, 242, 254, 0.05); padding: 4px 8px; border-radius: 6px; color: var(--clr-cyan); border: 1px solid rgba(0, 242, 254, 0.12); font-weight: 500;';
+                span.innerText = plat;
+                compatibilityEl.appendChild(span);
+            });
+        }
+
+        // Populate ETA Indicator
+        const etaEl = document.getElementById('config-activation-eta');
+        if (etaEl) {
+            etaEl.innerText = `Delivery Time: ${selectedConfigureProduct.activationEta || '5 - 15 Minutes'}`;
+        }
+
+        // Tab 2: Best Use Cases & Use-case tags
+        const whoIsForEl = document.getElementById('config-who-is-for-list');
+        if (whoIsForEl) {
+            whoIsForEl.innerHTML = '';
+            const personas = getProductPersonas(selectedConfigureProduct);
+            personas.forEach(pers => {
+                const span = document.createElement('span');
+                span.style.cssText = 'font-size: 0.7rem; background: rgba(255, 255, 255, 0.04); padding: 4px 8px; border-radius: 6px; color: var(--text-secondary); border: 1px solid rgba(255, 255, 255, 0.08); font-weight: 500; text-transform: capitalize;';
+                span.innerText = `For ${pers}`;
+                whoIsForEl.appendChild(span);
+            });
+        }
+
         const useCasesList = document.getElementById('config-use-cases-list');
         if (useCasesList && selectedConfigureProduct.features) {
             useCasesList.innerHTML = '';

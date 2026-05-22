@@ -833,6 +833,12 @@ function initiateEditProduct(index) {
     document.getElementById('prod-badge').value = prod.badge || prod.tag || '';
     document.getElementById('prod-visible').checked = prod.visible !== false;
     document.getElementById('prod-bestseller').checked = prod.bestseller === true;
+    
+    // Populate custom metadata fields
+    document.getElementById('prod-retail-price').value = prod.retailPrice || '';
+    document.getElementById('prod-activation-eta').value = prod.activationEta || '5 - 15 Minutes';
+    document.getElementById('prod-compatibility').value = Array.isArray(prod.compatibility) ? prod.compatibility.join(', ') : (prod.compatibility || 'Windows, Mac, iOS, Android, Web');
+    document.getElementById('prod-persona').value = Array.isArray(prod.persona) ? prod.persona.join(', ') : (prod.persona || '');
 
     // Update Form state headers
     document.getElementById('form-action-title').innerHTML = `<i data-lucide="edit" style="vertical-align: middle; margin-right: 4px;"></i> Edit Product: ${prod.name}`;
@@ -875,6 +881,12 @@ function cancelProductEdit() {
     document.getElementById('prod-badge').value = '';
     document.getElementById('prod-visible').checked = true;
     document.getElementById('prod-bestseller').checked = false;
+    
+    // Clear custom metadata fields
+    document.getElementById('prod-retail-price').value = '';
+    document.getElementById('prod-activation-eta').value = '5 - 15 Minutes';
+    document.getElementById('prod-compatibility').value = 'Windows, Mac, iOS, Android, Web';
+    document.getElementById('prod-persona').value = '';
 
     document.getElementById('form-action-title').innerHTML = `<i data-lucide="plus-circle" style="vertical-align: middle; margin-right: 4px;"></i> Add New Product`;
     document.getElementById('form-submit-btn').querySelector('span').innerText = "Save Product";
@@ -1029,6 +1041,18 @@ function setupProductForm() {
         const visible = document.getElementById('prod-visible').checked;
         const bestseller = document.getElementById('prod-bestseller') ? document.getElementById('prod-bestseller').checked : false;
 
+        const retailPriceInput = document.getElementById('prod-retail-price');
+        const retailPrice = retailPriceInput && retailPriceInput.value.trim() !== '' ? parseFloat(retailPriceInput.value) : 0;
+        
+        const activationEtaInput = document.getElementById('prod-activation-eta');
+        const activationEta = activationEtaInput ? activationEtaInput.value.trim() : '5 - 15 Minutes';
+        
+        const compatibilityInput = document.getElementById('prod-compatibility');
+        const compatibility = compatibilityInput ? compatibilityInput.value.split(',').map(s => s.trim()).filter(s => s !== '') : ['Windows', 'Mac', 'iOS', 'Android', 'Web'];
+        
+        const personaInput = document.getElementById('prod-persona');
+        const persona = personaInput ? personaInput.value.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== '') : [];
+
         // Read and compile plans from visual grid
         let plans = [];
         const tierMapping = [
@@ -1116,7 +1140,11 @@ function setupProductForm() {
             plans: plans,
             features: features,
             activationRequirements: activationRequirements,
-            activationProcess: activationProcess
+            activationProcess: activationProcess,
+            retailPrice: retailPrice,
+            activationEta: activationEta,
+            compatibility: compatibility,
+            persona: persona
         };
 
         if (editIndexVal >= 0) {
@@ -1230,7 +1258,11 @@ function setupDatabaseUtilities() {
                                 plans: validPlans,
                                 features: features,
                                 activationRequirements: (prod.activationRequirements || "Registered account email address.").trim(),
-                                activationProcess: (prod.activationProcess || "We will send instructions/credentials to your email.").trim()
+                                activationProcess: (prod.activationProcess || "We will send instructions/credentials to your email.").trim(),
+                                retailPrice: parseFloat(prod.retailPrice) || 0,
+                                activationEta: (prod.activationEta || '5 - 15 Minutes').trim(),
+                                compatibility: Array.isArray(prod.compatibility) ? prod.compatibility : (typeof prod.compatibility === 'string' ? prod.compatibility.split(',').map(s => s.trim()).filter(s => s !== '') : ['Windows', 'Mac', 'iOS', 'Android', 'Web']),
+                                persona: Array.isArray(prod.persona) ? prod.persona : (typeof prod.persona === 'string' ? prod.persona.split(',').map(s => s.trim().toLowerCase()).filter(s => s !== '') : [])
                             };
 
                             healedList.push(healedProd);
