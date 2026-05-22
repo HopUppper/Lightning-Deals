@@ -2,6 +2,17 @@
    LIGHTNING DEALS - STOREFRONT CLIENT-SIDE CONTROLLER
    ========================================================================== */
 
+// --- Utility Functions ---
+function escapeHTML(str) {
+    if (!str) return '';
+    return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 // --- Default Catalog Seeding (Prices in Indian Rupees ₹) ---
 const DEFAULT_PRODUCTS = [
     {

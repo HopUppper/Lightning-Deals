@@ -6175,7 +6175,7 @@ html, body {
 .proof-img-container {
     position: relative;
     width: 100%;
-    height: 400px;
+    aspect-ratio: 1 / 1;
     border-radius: 12px;
     overflow: hidden;
     background: #000;
