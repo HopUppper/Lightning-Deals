@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+window.errorsLog = [];
+window.onerror = function(message, source, lineno, colno, error) {
+    window.errorsLog.push({
+        message: message,
+        source: source,
+        lineno: lineno,
+        colno: colno,
+        stack: error ? error.stack : ''
+    });
+    return false;
+};
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lightning Deals | Premium Digital Subscriptions up to 90% Off</title>
@@ -1324,5 +1337,14 @@
 
     <!-- Store logic script -->
     <script src="js/app.js"></script>
+<div id="error-log-output"></div>
+<script>
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        document.getElementById('error-log-output').innerText = JSON.stringify(window.errorsLog);
+    }, 1500);
+});
+</script>
 </body>
 </html>
+

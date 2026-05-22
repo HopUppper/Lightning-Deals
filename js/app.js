@@ -216,6 +216,54 @@ const DEFAULT_PRODUCTS = [
         ],
         activationRequirements: "Your ChatGPT account email address.",
         activationProcess: "We will send an activation link or access credentials via WhatsApp/Email to activate Plus."
+    },
+    {
+        id: "cursor-pro",
+        name: "Cursor Pro",
+        category: "dev",
+        description: "The AI-first code editor designed for pair programming. Get unlimited fast GPT-4o/Claude 3.5 Sonnet queries, codebase indexing, and inline edits.",
+        icon: "Cr",
+        iconColor: "grad-blue",
+        tag: "Developer Choice",
+        bestseller: true,
+        plans: [
+            { label: "1 Month", price: 599, retail: 1999 },
+            { label: "6 Months", price: 2999, retail: 11999 },
+            { label: "12 Months (1 Year)", price: 4999, retail: 23999 }
+        ],
+        features: [
+            "Unlimited fast premium AI requests",
+            "Full codebase indexing & context search",
+            "Copilot++ inline code completions",
+            "Claude 3.5 Sonnet & GPT-4o native access",
+            "Full replacement warranty term cover"
+        ],
+        activationRequirements: "Your Cursor registered email address.",
+        activationProcess: "We will add your email to our active team plan or provide credentials via WhatsApp/Email."
+    },
+    {
+        id: "github-copilot",
+        name: "GitHub Copilot",
+        category: "dev",
+        description: "Your AI pair programmer. Get real-time code suggestions directly in VS Code, JetBrains, and Neovim, based on comments and context.",
+        icon: "Gh",
+        iconColor: "grad-purple",
+        tag: "Essential Dev",
+        bestseller: true,
+        plans: [
+            { label: "1 Month", price: 499, retail: 1499 },
+            { label: "6 Months", price: 2499, retail: 8999 },
+            { label: "12 Months (1 Year)", price: 3999, retail: 17999 }
+        ],
+        features: [
+            "Multi-language autocomplete suggestions",
+            "VS Code, JetBrains, Neovim extensions support",
+            "Natural language comments to code translation",
+            "Quality inline code explanations & refactoring",
+            "Official organization seat invite activation"
+        ],
+        activationRequirements: "Your GitHub username or registered email address.",
+        activationProcess: "We will invite your GitHub account to join our team organization. Acceptance upgrades it immediately."
     }
 ];
 
@@ -342,8 +390,19 @@ function initCatalog() {
             if (!parsed || !Array.isArray(parsed)) {
                 // Corrupted data — reset to defaults
                 localStorage.setItem('lightning_deals_products', JSON.stringify(DEFAULT_PRODUCTS));
+            } else {
+                // Ensure all default products are present
+                let updated = false;
+                DEFAULT_PRODUCTS.forEach(dp => {
+                    if (!parsed.some(p => p.id === dp.id)) {
+                        parsed.push(dp);
+                        updated = true;
+                    }
+                });
+                if (updated) {
+                    localStorage.setItem('lightning_deals_products', JSON.stringify(parsed));
+                }
             }
-            // Otherwise keep whatever the user/admin has saved, even if empty
         } catch (e) {
             // JSON parse error — reset to defaults
             localStorage.setItem('lightning_deals_products', JSON.stringify(DEFAULT_PRODUCTS));
@@ -398,6 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupFAQAccordion();
     setupFAQSearch();
     setupConfigureModal();
+    setupDashboardMock();
     setupPurchaseModal();
     setupScreenshotUpload();
     updateCartBadge();
@@ -610,6 +670,14 @@ function applyStoreFilters() {
                 </button>
             </div>
         `;
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        });
 
         grid.appendChild(card);
     });
@@ -979,12 +1047,14 @@ function setupPurchaseModal() {
         renderCartItems();
 
         modal.classList.add('active');
+        document.body.classList.add('modal-open');
         document.body.style.overflow = 'hidden'; 
         if (window.lucide) window.lucide.createIcons();
     }
 
     function closeModal() {
         modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
         document.body.style.overflow = ''; 
         // Reset to step 1 after transition
         setTimeout(() => {
@@ -1550,6 +1620,17 @@ function setupConfigureModal() {
 
     if (!modal) return;
 
+    // Setup modal tab switching
+    const tabBtns = modal.querySelectorAll('.modal-tab-btn');
+    const tabPanels = modal.querySelectorAll('.modal-tab-content-panel');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetTab = btn.getAttribute('data-tab');
+            tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+            tabPanels.forEach(p => p.classList.toggle('active', p.id === `tab-${targetTab}`));
+        });
+    });
+
     // Intercept "Get Access" button clicks to configure product before checkout
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.cta-purchase-trigger');
@@ -1578,6 +1659,10 @@ function setupConfigureModal() {
     function openConfigModal() {
         if (!selectedConfigureProduct) return;
         
+        // Reset tabs to default (Overview)
+        tabBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-tab') === 'overview'));
+        tabPanels.forEach(p => p.classList.toggle('active', p.id === 'tab-overview'));
+
         // Populate modal data
         document.getElementById('config-product-title').innerText = selectedConfigureProduct.name;
         document.getElementById('config-product-desc').innerText = selectedConfigureProduct.description;
@@ -1595,6 +1680,72 @@ function setupConfigureModal() {
         if (badge) {
             badge.innerText = selectedConfigureProduct.icon || 'P';
             badge.className = `modal-logo-wrapper ${selectedConfigureProduct.iconColor || 'grad-blue'}`;
+        }
+
+        // Tab 2: Best Use Cases
+        const useCasesList = document.getElementById('config-use-cases-list');
+        if (useCasesList && selectedConfigureProduct.features) {
+            useCasesList.innerHTML = '';
+            selectedConfigureProduct.features.forEach(feat => {
+                const li = document.createElement('li');
+                li.style.cssText = 'display: flex; align-items: flex-start; gap: 8px; margin-bottom: 0.5rem; color: var(--text-secondary); font-size: 0.85rem;';
+                li.innerHTML = `
+                    <i data-lucide="check" class="text-green" style="width: 16px; height: 16px; min-width: 16px; margin-top: 2px;"></i>
+                    <span>${feat}</span>
+                `;
+                useCasesList.appendChild(li);
+            });
+        }
+
+        // Tab 3: Price Comparison
+        const compTbody = document.getElementById('config-comparison-tbody');
+        if (compTbody && selectedConfigureProduct.plans) {
+            compTbody.innerHTML = '';
+            selectedConfigureProduct.plans.forEach(plan => {
+                const savePercent = plan.retail > 0 ? Math.round(((plan.retail - plan.price) / plan.retail) * 100) : 0;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${plan.label}</td>
+                    <td style="text-decoration: line-through; opacity: 0.6;">₹${plan.retail.toLocaleString('en-IN')}</td>
+                    <td style="font-weight: 600; color: var(--clr-cyan);">₹${plan.price.toLocaleString('en-IN')}</td>
+                    <td style="font-weight: 600; color: var(--clr-green);">${savePercent}%</td>
+                `;
+                compTbody.appendChild(tr);
+            });
+        }
+
+        // Tab 4: Activation FAQ
+        const faqList = document.getElementById('config-faq-list');
+        if (faqList) {
+            faqList.innerHTML = `
+                <div class="act-timeline-item" style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div class="act-timeline-badge" style="width: 28px; height: 28px; border-radius: 50%; background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.3); display: flex; align-items: center; justify-content: center; color: var(--clr-cyan); flex-shrink: 0;">
+                        <i data-lucide="key" style="width: 14px; height: 14px;"></i>
+                    </div>
+                    <div class="act-timeline-content" style="flex: 1;">
+                        <h4 class="act-timeline-title" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">1. What is required from you?</h4>
+                        <p class="act-timeline-desc" style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">${selectedConfigureProduct.activationRequirements || 'Provide your email address associated with the account.'}</p>
+                    </div>
+                </div>
+                <div class="act-timeline-item" style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div class="act-timeline-badge" style="width: 28px; height: 28px; border-radius: 50%; background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.3); display: flex; align-items: center; justify-content: center; color: var(--clr-cyan); flex-shrink: 0;">
+                        <i data-lucide="send" style="width: 14px; height: 14px;"></i>
+                    </div>
+                    <div class="act-timeline-content" style="flex: 1;">
+                        <h4 class="act-timeline-title" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">2. Activation Process</h4>
+                        <p class="act-timeline-desc" style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">${selectedConfigureProduct.activationProcess || 'We will upgrade your account or send invite credentials within 1-2 hours.'}</p>
+                    </div>
+                </div>
+                <div class="act-timeline-item" style="display: flex; gap: 1rem;">
+                    <div class="act-timeline-badge" style="width: 28px; height: 28px; border-radius: 50%; background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.3); display: flex; align-items: center; justify-content: center; color: var(--clr-cyan); flex-shrink: 0;">
+                        <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+                    </div>
+                    <div class="act-timeline-content" style="flex: 1;">
+                        <h4 class="act-timeline-title" style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">3. 100% Replacement Warranty</h4>
+                        <p class="act-timeline-desc" style="font-size: 0.75rem; color: var(--text-secondary); margin: 0;">Every purchase includes our comprehensive, full-term warranty. If any access issues occur, we replace or restore the account seat immediately via our WhatsApp support desk.</p>
+                    </div>
+                </div>
+            `;
         }
 
         // Build plan options selection buttons
@@ -1640,16 +1791,16 @@ function setupConfigureModal() {
                         
                     const row = document.createElement('div');
                     row.className = 'related-product-row';
-                    row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; background: rgba(255, 255, 255, 0.015); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 8px; margin-top: 0.5rem;';
+                    row.style.cssText = 'display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 0.75rem; background: rgba(255, 255, 255, 0.015); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 8px; margin-top: 0.5rem; gap: 8px;';
                     row.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div class="cart-item-logo ${prod.iconColor || 'grad-blue'}" style="width: 24px; height: 24px; font-size: 0.65rem; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 700;">${prod.icon || 'P'}</div>
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary);">${prod.name}</span>
+                        <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                            <div class="cart-item-logo ${prod.iconColor || 'grad-blue'}" style="width: 24px; height: 24px; font-size: 0.65rem; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;">${prod.icon || 'P'}</div>
+                            <div style="display: flex; flex-direction: column; min-width: 0; flex: 1;">
+                                <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${prod.name}</span>
                                 <span style="font-size: 0.65rem; color: var(--clr-cyan);">₹${minPrice.toLocaleString('en-IN')}</span>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-secondary btn-sm btn-add-related" data-id="${prod.id}" style="padding: 0.2rem 0.5rem; font-size: 0.65rem; border-radius: 6px;">
+                        <button type="button" class="btn btn-secondary btn-sm btn-add-related" data-id="${prod.id}" style="padding: 0.25rem 0.6rem; font-size: 0.65rem; border-radius: 6px; flex-shrink: 0;">
                             Add
                         </button>
                     `;
@@ -1699,12 +1850,14 @@ function setupConfigureModal() {
         }
 
         modal.classList.add('active');
+        document.body.classList.add('modal-open');
         document.body.style.overflow = 'hidden'; 
         if (window.lucide) window.lucide.createIcons();
     }
 
     function closeConfigModal() {
         modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
         document.body.style.overflow = ''; 
     }
 
@@ -2174,7 +2327,8 @@ function getCategoryDisplayName(category) {
         'finance': 'Finance & Trading',
         'productivity': 'Productivity & Office',
         'streaming': 'Streaming Services',
-        'education': 'Education & Others'
+        'education': 'Education & Others',
+        'dev': 'Developer Tools'
     };
     return map[category] || (category ? category.toUpperCase() : '');
 }
@@ -2229,6 +2383,7 @@ function setupWishlistModal() {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 modal.classList.add('active');
+                document.body.classList.add('modal-open');
                 renderWishlistItems();
             });
         }
@@ -2239,6 +2394,7 @@ function setupWishlistModal() {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 modal.classList.remove('active');
+                document.body.classList.remove('modal-open');
             });
         }
     });
@@ -2246,6 +2402,7 @@ function setupWishlistModal() {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
             modal.classList.remove('active');
+            document.body.classList.remove('modal-open');
         }
     });
 }
@@ -2516,4 +2673,21 @@ function renderRecentlyViewed() {
     });
 
     if (window.lucide) window.lucide.createIcons();
+}
+
+function setupDashboardMock() {
+    const sidebarBtns = document.querySelectorAll('.dash-sidebar-btn');
+    const mockPanels = document.querySelectorAll('.dash-mock-panel');
+
+    sidebarBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const panelId = btn.getAttribute('data-dash-panel');
+            if (!panelId) return;
+
+            sidebarBtns.forEach(b => b.classList.toggle('active', b === btn));
+            mockPanels.forEach(p => p.classList.toggle('active', p.id === panelId));
+            
+            if (window.lucide) window.lucide.createIcons();
+        });
+    });
 }
