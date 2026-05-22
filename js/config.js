@@ -7,7 +7,7 @@
 const FIREBASE_CONFIG = {
     apiKey: "AIzaSyAskJbziZqK141AAv4DlOU3XnQb50AM0mQ",
     authDomain: "lightning-deals-d0adc.firebaseapp.com",
-    databaseURL: "https://lightning-deals-d0adc-default-rtdb.firebaseio.com",
+    databaseURL: "https://lightning-deals-d0adc-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "lightning-deals-d0adc",
     storageBucket: "lightning-deals-d0adc.firebasestorage.app",
     messagingSenderId: "871414034338",
