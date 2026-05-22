@@ -2596,6 +2596,56 @@ h1, h2, h3, h4, h5, h6 {
    CART SYSTEM & TOAST NOTIFICATION STYLES
    ========================================================================== */
 
+/* Wishlist Header Button */
+.wishlist-trigger-btn {
+    position: relative;
+    padding: 0.5rem 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all var(--transition-fast);
+}
+
+.wishlist-trigger-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #FF3366;
+    box-shadow: 0 0 10px rgba(255, 51, 102, 0.2);
+}
+
+.wishlist-trigger-btn i, .wishlist-trigger-btn svg {
+    color: var(--text-primary);
+    transition: color var(--transition-fast);
+}
+
+.wishlist-trigger-btn:hover i, .wishlist-trigger-btn:hover svg {
+    color: #FF3366;
+}
+
+/* Wishlist Count Badge */
+.badge-wishlist-count {
+    display: none;
+    background: #FF3366;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    box-shadow: 0 0 8px rgba(255, 51, 102, 0.4);
+}
+
 /* Cart Header Button */
 .cart-trigger-btn {
     position: relative;
