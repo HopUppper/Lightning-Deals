@@ -96,12 +96,12 @@
             <div class="container hero-container">
                 <div class="hero-content">
                     <div class="hero-badge fade-in">
-                        <i data-lucide="sparkles" class="icon-sparkle"></i>
-                        <span>The Modern Marketplace for Premium Digital Tools</span>
+                        <i data-lucide="zap" class="icon-sparkle" style="color: var(--clr-cyan);"></i>
+                        <span>UPTO 90% OFF SPECIAL OFFER</span>
                     </div>
                     <h1 class="hero-title fade-in delay-1">
-                        Premium Software <br>
-                        <span class="gradient-text">Access for Everyone</span>
+                        Premium AI & Software Access <br>
+                        <span class="gradient-text">Without Enterprise Pricing</span>
                     </h1>
                     <p class="hero-subtitle fade-in delay-2">
                         Get instant premium access to ChatGPT Plus, Canva Pro, Adobe Creative Cloud, Cursor Pro, TradingView, and more. Build your dream workspace for 90% less.
@@ -113,22 +113,6 @@
                         <a href="#how-it-works" class="btn btn-secondary btn-lg" id="hero-cta-secondary">
                             <span>How it Works</span>
                         </a>
-                    </div>
-                    <div class="hero-trust-metrics fade-in delay-4">
-                        <div class="trust-metric">
-                            <span class="metric-val">10k+</span>
-                            <span class="metric-lbl">Active Users</span>
-                        </div>
-                        <div class="trust-divider"></div>
-                        <div class="trust-metric">
-                            <span class="metric-val">₹4.5Cr+</span>
-                            <span class="metric-lbl">Combined Savings</span>
-                        </div>
-                        <div class="trust-divider"></div>
-                        <div class="trust-metric">
-                            <span class="metric-val">5 Min</span>
-                            <span class="metric-lbl">Instant Setup</span>
-                        </div>
                     </div>
                 </div>
 
@@ -185,7 +169,7 @@
                                     <span></span>
                                     <span></span>
                                 </div>
-                                <div class="mockup-search">lightning-deals.com/dashboard</div>
+                                <div class="mockup-search">lightning-deals.online/dashboard</div>
                             </div>
                             <div class="mockup-body">
                                 <div class="mockup-sidebar">
@@ -255,6 +239,38 @@
                     </div>
                     <div class="brand-logo-item">
                         <i data-lucide="figma"></i><span>Figma</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trust Bar Section -->
+        <section id="trust-bar" class="trust-bar-section" style="padding: 1.8rem 0; background: rgba(7, 8, 11, 0.4); border-bottom: 1px solid rgba(255, 255, 255, 0.03);">
+            <div class="container">
+                <div style="display: flex; justify-content: space-around; align-items: center; flex-wrap: wrap; gap: 1.5rem; text-align: center;">
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: #fff; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">10,000+</span>
+                        <span style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Active Users</span>
+                    </div>
+                    <div style="width: 1px; height: 25px; background: rgba(255,255,255,0.06); display: inline-block;" class="trust-divider-hide-mobile"></div>
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: #fff; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">₹4.5Cr+</span>
+                        <span style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Combined Savings</span>
+                    </div>
+                    <div style="width: 1px; height: 25px; background: rgba(255,255,255,0.06); display: inline-block;" class="trust-divider-hide-mobile"></div>
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: #fff; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">5 Min</span>
+                        <span style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Average Setup</span>
+                    </div>
+                    <div style="width: 1px; height: 25px; background: rgba(255,255,255,0.06); display: inline-block;" class="trust-divider-hide-mobile"></div>
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: #fff; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">100% Safe</span>
+                        <span style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">Direct Invites</span>
+                    </div>
+                    <div style="width: 1px; height: 25px; background: rgba(255,255,255,0.06); display: inline-block;" class="trust-divider-hide-mobile"></div>
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                        <span style="font-size: 1.4rem; font-weight: 800; color: #fff; background: var(--grad-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Priority Chat</span>
+                        <span style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700;">WhatsApp Support</span>
                     </div>
                 </div>
             </div>
@@ -455,6 +471,18 @@
                     </div>
                 </div>
 
+                <!-- Billing Cycle Toggle Switcher -->
+                <div class="billing-toggle-container">
+                    <span class="billing-toggle-label active" id="billing-toggle-monthly">Monthly Billing</span>
+                    <button class="billing-switch-btn" id="billing-toggle-switcher" role="switch" aria-checked="false" aria-label="Toggle billing cycle">
+                        <span class="billing-switch-thumb"></span>
+                    </button>
+                    <span class="billing-toggle-label" id="billing-toggle-yearly">
+                        Yearly Billing
+                        <span class="save-badge-toggle">Save up to 40%</span>
+                    </span>
+                </div>
+
                 <!-- Products Grid -->
                 <div class="products-grid" id="store-products-grid">
                     <!-- Dynamically populated from JS -->
@@ -477,38 +505,274 @@
             </div>
         </section>
 
-        <!-- Why Choose Us Section -->
-        <section id="why-choose-us" class="why-section">
+        <!-- Section 4: Why Prices Are Lower -->
+        <section id="why-lower" class="why-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
             <div class="container">
                 <div class="section-header text-center">
-                    <h2 class="section-title">Why Buy From <span class="gradient-text">Lightning Deals?</span></h2>
-                    <p class="section-subtitle">We bridge the gap between premium subscriptions and budget. Here is how we differ from direct providers.</p>
+                    <h2 class="section-title">Why Our Prices Are <span class="gradient-text">So Low</span></h2>
+                    <p class="section-subtitle">We bridge the gap between premium enterprise SaaS licenses and budget-conscious builders. Here is how we do it, 100% legally.</p>
                 </div>
 
-                <div class="comparison-grid">
-                    <!-- Comparison Card 1 (Direct Subscriptions) -->
-                    <div class="glass-card comp-card comp-direct">
-                        <h3 class="comp-title">Direct Subscriptions</h3>
-                        <ul class="comp-list">
-                            <li><i data-lucide="x" class="text-red"></i> Extremely expensive (₹1,200 - ₹8,000+/mo)</li>
-                            <li><i data-lucide="x" class="text-red"></i> Rigid cancellation and hidden fees</li>
-                            <li><i data-lucide="x" class="text-red"></i> Slow email-only customer service</li>
-                            <li><i data-lucide="x" class="text-red"></i> Requires recurring credit card holds</li>
-                        </ul>
+                <div class="why-lower-grid">
+                    <!-- Card 1: Bulk Buying -->
+                    <div class="why-lower-card glass-card">
+                        <div class="why-lower-icon">
+                            <i data-lucide="package"></i>
+                        </div>
+                        <h3>Bulk Enterprise Licensing</h3>
+                        <p>We acquire licenses in bulk through official corporate developer accounts, volume team bundles, and enterprise seats, which allows us to get wholesale pricing and distribute slots affordably.</p>
                     </div>
 
-                    <!-- Comparison Card 2 (Lightning Deals) -->
-                    <div class="glass-card comp-card comp-lightning">
-                        <div class="comp-badge">Recommended</div>
-                        <h3 class="comp-title">Lightning Deals</h3>
-                        <ul class="comp-list">
-                            <li><i data-lucide="check" class="text-cyan"></i> Unbelievable pricing (Save up to 90% off)</li>
-                            <li><i data-lucide="check" class="text-cyan"></i> No contracts, pay-as-you-go flexible options</li>
-                            <li><i data-lucide="check" class="text-cyan"></i> Direct WhatsApp chat assistance</li>
-                            <li><i data-lucide="check" class="text-cyan"></i> UPI payments (GPay, PhonePe, Paytm)</li>
-                            <li><i data-lucide="check" class="text-cyan"></i> Full replacement warranty during subscription term</li>
-                        </ul>
+                    <!-- Card 2: Regional Parity -->
+                    <div class="why-lower-card glass-card">
+                        <div class="why-lower-icon">
+                            <i data-lucide="globe"></i>
+                        </div>
+                        <h3>Regional Purchasing Power</h3>
+                        <p>SaaS companies charge differently across global markets. We purchase licenses in regions with lower purchasing parity rates and pass the massive structural discount directly onto you.</p>
                     </div>
+
+                    <!-- Card 3: Direct Invites -->
+                    <div class="why-lower-card glass-card">
+                        <div class="why-lower-icon">
+                            <i data-lucide="shield-check"></i>
+                        </div>
+                        <h3>100% Legal Direct Activation</h3>
+                        <p>No illegal crack files or stolen credentials. We send official team organization invites or activation links directly to your personal email, maintaining your complete privacy.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Who This Is For -->
+        <section id="who-is-for" class="why-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Who is Lightning Deals <span class="gradient-text">Designed For?</span></h2>
+                    <p class="section-subtitle">Whether you are a solo builder, designer, student, or scaling a team, we have your software costs covered.</p>
+                </div>
+
+                <div class="who-for-grid">
+                    <!-- Card 1: Founders -->
+                    <div class="who-for-card glass-card">
+                        <div class="who-for-icon-wrapper">
+                            <i data-lucide="rocket"></i>
+                        </div>
+                        <div class="who-for-details">
+                            <h3>Founders & Startups</h3>
+                            <p>Extend your runway by saving on critical productivity, research, and communication stacks during the early stages.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Developers -->
+                    <div class="who-for-card glass-card">
+                        <div class="who-for-icon-wrapper">
+                            <i data-lucide="code"></i>
+                        </div>
+                        <div class="who-for-details">
+                            <h3>Developers & Engineers</h3>
+                            <p>Access high-end IDE plugins, premium autocomplete seats, AI editors, and database management suites without the steep price tag.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Creators -->
+                    <div class="who-for-card glass-card">
+                        <div class="who-for-icon-wrapper">
+                            <i data-lucide="palette"></i>
+                        </div>
+                        <div class="who-for-details">
+                            <h3>Creators & Designers</h3>
+                            <p>Unlock professional styling platforms, design tool organizations, video compilers, and high-fidelity templates.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Students -->
+                    <div class="who-for-card glass-card">
+                        <div class="who-for-icon-wrapper">
+                            <i data-lucide="graduation-cap"></i>
+                        </div>
+                        <div class="who-for-details">
+                            <h3>Students & Researchers</h3>
+                            <p>Get priority access to advanced LLMs, office suites, and collaborative workspace tiers to supercharge your learning.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Agencies -->
+                    <div class="who-for-card glass-card">
+                        <div class="who-for-icon-wrapper">
+                            <i data-lucide="briefcase"></i>
+                        </div>
+                        <div class="who-for-details">
+                            <h3>Digital Agencies</h3>
+                            <p>Provision premium seats for all of your designers and copywriters under wholesale organizational invite slots.</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 6: AI Power Users -->
+                    <div class="who-for-card glass-card">
+                        <div class="who-for-icon-wrapper">
+                            <i data-lucide="cpu"></i>
+                        </div>
+                        <div class="who-for-details">
+                            <h3>AI Power Users</h3>
+                            <p>Experiment with advanced models, plugins, code assistants, and graphics generators on a flexible subscription budget.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Bundles Section -->
+        <section id="bundles" class="why-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Save Extra With <span class="gradient-text">Our Stack Bundles</span></h2>
+                    <p class="section-subtitle">Curated collections of premium software stacks. One simple yearly payment, massive cumulative savings.</p>
+                </div>
+
+                <div class="bundles-grid">
+                    <!-- Bundle 1: AI Founder Stack -->
+                    <div class="bundle-card glass-card bundle-featured">
+                        <div class="bundle-badge">Most Popular</div>
+                        <div>
+                            <h3 class="bundle-title">AI Founder Stack</h3>
+                            <p class="bundle-desc">Essential AI and business tools to build and market your startup runway.</p>
+                            <div class="bundle-price-row">
+                                <span class="bundle-price">₹4,999</span>
+                                <span class="bundle-retail">₹1,04,000</span>
+                            </div>
+                            <ul class="bundle-features">
+                                <li><i data-lucide="check"></i> ChatGPT Plus (12 Mo)</li>
+                                <li><i data-lucide="check"></i> Cursor Pro (12 Mo)</li>
+                                <li><i data-lucide="check"></i> Notion Pro (12 Mo)</li>
+                                <li><i data-lucide="check"></i> LinkedIn Premium (12 Mo)</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-primary w-100 btn-glow cta-bundle-purchase-trigger" data-bundle-id="bundle-ai-founder" style="margin-top: auto;">
+                            <span>Buy Founder Stack</span>
+                        </button>
+                    </div>
+
+                    <!-- Bundle 2: Creator Stack -->
+                    <div class="bundle-card glass-card">
+                        <div>
+                            <h3 class="bundle-title">Creator Stack</h3>
+                            <p class="bundle-desc">Everything needed for visual asset production, copywriting, and media channels.</p>
+                            <div class="bundle-price-row">
+                                <span class="bundle-price">₹3,499</span>
+                                <span class="bundle-retail">₹84,000</span>
+                            </div>
+                            <ul class="bundle-features">
+                                <li><i data-lucide="check"></i> Adobe Creative Cloud (12 Mo)</li>
+                                <li><i data-lucide="check"></i> Canva Pro Invite (12 Mo)</li>
+                                <li><i data-lucide="check"></i> Spotify Premium (12 Mo)</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-secondary w-100 cta-bundle-purchase-trigger" data-bundle-id="bundle-creator" style="margin-top: auto;">
+                            <span>Buy Creator Stack</span>
+                        </button>
+                    </div>
+
+                    <!-- Bundle 3: Developer Stack -->
+                    <div class="bundle-card glass-card">
+                        <div>
+                            <h3 class="bundle-title">Developer Stack</h3>
+                            <p class="bundle-desc">AI autocomplete coding workspace helpers and database documentation hubs.</p>
+                            <div class="bundle-price-row">
+                                <span class="bundle-price">₹5,999</span>
+                                <span class="bundle-retail">₹52,000</span>
+                            </div>
+                            <ul class="bundle-features">
+                                <li><i data-lucide="check"></i> Cursor Pro (12 Mo)</li>
+                                <li><i data-lucide="check"></i> GitHub Copilot (12 Mo)</li>
+                                <li><i data-lucide="check"></i> Notion Pro (12 Mo)</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-secondary w-100 cta-bundle-purchase-trigger" data-bundle-id="bundle-developer" style="margin-top: auto;">
+                            <span>Buy Developer Stack</span>
+                        </button>
+                    </div>
+
+                    <!-- Bundle 4: Student Stack -->
+                    <div class="bundle-card glass-card">
+                        <div>
+                            <h3 class="bundle-title">Student Stack</h3>
+                            <p class="bundle-desc">Basic design capabilities and essential office document authoring packs.</p>
+                            <div class="bundle-price-row">
+                                <span class="bundle-price">₹1,999</span>
+                                <span class="bundle-retail">₹44,000</span>
+                            </div>
+                            <ul class="bundle-features">
+                                <li><i data-lucide="check"></i> Canva Pro Invite (12 Mo)</li>
+                                <li><i data-lucide="check"></i> Notion Pro (12 Mo)</li>
+                                <li><i data-lucide="check"></i> MS Office 365 (12 Mo)</li>
+                            </ul>
+                        </div>
+                        <button class="btn btn-secondary w-100 cta-bundle-purchase-trigger" data-bundle-id="bundle-student" style="margin-top: auto;">
+                            <span>Buy Student Stack</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Price Comparison Table -->
+        <section id="price-comparison" class="why-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Compare What <span class="gradient-text">You Save</span></h2>
+                    <p class="section-subtitle">See how our low-overhead slots compare with standard commercial retail software pricing.</p>
+                </div>
+
+                <div class="comparison-table-wrapper">
+                    <table class="comparison-table-main">
+                        <thead>
+                            <tr>
+                                <th>Premium Product</th>
+                                <th>Official Retail Cost / Mo</th>
+                                <th>Lightning Deals Cost / Mo</th>
+                                <th>Your Lifetime Savings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-weight: 700; color: #fff;">ChatGPT Plus</td>
+                                <td>₹1,999 / mo</td>
+                                <td style="color: var(--clr-cyan); font-weight: 700;">₹599 / mo</td>
+                                <td><span class="savings-pill">Save 70%</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; color: #fff;">Canva Pro Team Invite</td>
+                                <td>₹1,499 / mo</td>
+                                <td style="color: var(--clr-cyan); font-weight: 700;">₹499 / mo</td>
+                                <td><span class="savings-pill">Save 66%</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; color: #fff;">Adobe Creative Cloud</td>
+                                <td>₹8,999 / mo</td>
+                                <td style="color: var(--clr-cyan); font-weight: 700;">₹999 / mo</td>
+                                <td><span class="savings-pill">Save 89%</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; color: #fff;">Cursor Pro AI Editor</td>
+                                <td>₹1,999 / mo</td>
+                                <td style="color: var(--clr-cyan); font-weight: 700;">₹599 / mo</td>
+                                <td><span class="savings-pill">Save 70%</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; color: #fff;">TradingView Premium</td>
+                                <td>₹5,990 / mo</td>
+                                <td style="color: var(--clr-cyan); font-weight: 700;">₹899 / mo</td>
+                                <td><span class="savings-pill">Save 85%</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: 700; color: #fff;">LinkedIn Premium Business</td>
+                                <td>₹5,999 / mo</td>
+                                <td style="color: var(--clr-cyan); font-weight: 700;">₹799 / mo</td>
+                                <td><span class="savings-pill">Save 86%</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </section>
@@ -592,8 +856,7 @@
                 </div>
             </div>
         </section>
-
-        <!-- Testimonials Section -->
+        <!-- Section 8: Testimonials -->
         <section id="testimonials" class="testimonials-section">
             <div class="container">
                 <div class="section-header text-center">
@@ -601,88 +864,96 @@
                     <p class="section-subtitle">Read feedback from designers, developers, students, and traders who save thousands every month.</p>
                 </div>
 
-                <div class="carousel-container">
-                    <div class="carousel-track" id="testimonial-track">
-                        <!-- Testimonial 1 -->
-                        <div class="glass-card testimonial-card">
-                            <div class="t-rating">
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
+                <div class="chat-testimonials-grid">
+                    <!-- Testimonial 1: Discord Style -->
+                    <div class="chat-testimonial-card glass-card">
+                        <div class="chat-avatar" style="background: rgba(0, 242, 254, 0.1); color: var(--clr-cyan);">RM</div>
+                        <div class="chat-msg-content">
+                            <div class="chat-header-row">
+                                <span class="chat-name">Rahul Mehta</span>
+                                <span class="chat-tag-badge">Creator</span>
+                                <span class="chat-time">Today at 14:32</span>
                             </div>
-                            <p class="t-comment">"As a freelance UI/UX designer, paying full price for Adobe CC and Canva Pro was eating my profits. Lightning Deals saved me! Got the account setup within 10 minutes. Will renew again."</p>
-                            <div class="t-user">
-                                <div class="t-avatar bg-avatar-1">RM</div>
-                                <div>
-                                    <h4 class="t-name">Rahul Mehta</h4>
-                                    <span class="t-role">Freelance Designer</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Testimonial 2 -->
-                        <div class="glass-card testimonial-card">
-                            <div class="t-rating">
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                            </div>
-                            <p class="t-comment">"I was skeptical about TradingView premium subscriptions at first, but their support team explained the setup. It works flawlessly, indicators loading fine, and cost is literally 10% of retail."</p>
-                            <div class="t-user">
-                                <div class="t-avatar bg-avatar-2">SK</div>
-                                <div>
-                                    <h4 class="t-name">Siddharth Jain</h4>
-                                    <span class="t-role">Crypto Trader</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Testimonial 3 -->
-                        <div class="glass-card testimonial-card">
-                            <div class="t-rating">
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                            </div>
-                            <p class="t-comment">"Using LinkedIn Premium for my recruitment campaigns has been amazing. No issues, account is completely private, and response time from their WhatsApp admin is under 2 minutes."</p>
-                            <div class="t-user">
-                                <div class="t-avatar bg-avatar-3">SL</div>
-                                <div>
-                                    <h4 class="t-name">Sarah Lim</h4>
-                                    <span class="t-role">HR Lead</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Testimonial 4 -->
-                        <div class="glass-card testimonial-card">
-                            <div class="t-rating">
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                                <i data-lucide="star" class="fill-gold"></i>
-                            </div>
-                            <p class="t-comment">"Been buying Coursera Plus and Adobe licenses from Lightning Deals for over a year now. Every time a license expires, they renew or replace it instantly. Trustworthy service."</p>
-                            <div class="t-user">
-                                <div class="t-avatar bg-avatar-4">AA</div>
-                                <div>
-                                    <h4 class="t-name">Amir Al-Harbi</h4>
-                                    <span class="t-role">Computer Science Student</span>
-                                </div>
-                            </div>
+                            <p class="chat-msg-text">Yo, was super skeptical about the Canva Pro and Adobe CC invites, but my account got upgraded in like 10 mins. Activated directly on my registered email. Saved me 15k this month. Will definitely renew! 🙌</p>
                         </div>
                     </div>
 
-                    <!-- Carousel Dots Indicators -->
-                    <div class="carousel-indicators" id="carousel-dots">
-                        <!-- Populated by JS -->
+                    <!-- Testimonial 2: Telegram Style -->
+                    <div class="chat-testimonial-card glass-card">
+                        <div class="chat-avatar" style="background: rgba(138, 43, 226, 0.1); color: var(--clr-purple-light);">SJ</div>
+                        <div class="chat-msg-content">
+                            <div class="chat-header-row">
+                                <span class="chat-name">Siddharth Jain</span>
+                                <span class="chat-tag-badge">Trader</span>
+                                <span class="chat-time">18:05</span>
+                            </div>
+                            <p class="chat-msg-text">TradingView Premium is working perfectly. Second-based charts and custom indicators load instantly without any lag. The WhatsApp admin was super helpful with the payment setup.</p>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 3: Discord Style -->
+                    <div class="chat-testimonial-card glass-card">
+                        <div class="chat-avatar" style="background: rgba(34, 197, 94, 0.1); color: var(--clr-green);">SL</div>
+                        <div class="chat-msg-content">
+                            <div class="chat-header-row">
+                                <span class="chat-name">Sarah Lim</span>
+                                <span class="chat-tag-badge">Developer</span>
+                                <span class="chat-time">Yesterday at 20:15</span>
+                            </div>
+                            <p class="chat-msg-text">Got Cursor Pro and GitHub Copilot seats for a fraction of the cost. Everything works fine in VS Code, context indexing is active, and I can query Claude 3.5 without any limits. Absolute lifesaver for bootstrapping!</p>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 4: Telegram Style -->
+                    <div class="chat-testimonial-card glass-card">
+                        <div class="chat-avatar" style="background: rgba(255, 165, 0, 0.1); color: var(--clr-yellow);">AA</div>
+                        <div class="chat-msg-content">
+                            <div class="chat-header-row">
+                                <span class="chat-name">Amir Al-Harbi</span>
+                                <span class="chat-tag-badge">Student</span>
+                                <span class="chat-time">May 21</span>
+                            </div>
+                            <p class="chat-msg-text">Been using Notion Pro and MS Office 365 from Lightning Deals for over a year now. Every time a license expires, their team renews it instantly. Incredibly reliable service for students.</p>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 5: Telegram Style -->
+                    <div class="chat-testimonial-card glass-card">
+                        <div class="chat-avatar" style="background: rgba(34, 197, 94, 0.1); color: var(--clr-green);">PS</div>
+                        <div class="chat-msg-content">
+                            <div class="chat-header-row">
+                                <span class="chat-name">Priyanka Sharma</span>
+                                <span class="chat-tag-badge">Agency</span>
+                                <span class="chat-time">11:15</span>
+                            </div>
+                            <p class="chat-msg-text">We manage socials for 8 clients. Moving our Figma and Canva licenses to Lightning Deals cut our software overhead by ₹18k/month. I was worried about team invites breaking, but we've had zero downtimes in 5 months. Outstanding service! 🚀</p>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 6: Discord Style -->
+                    <div class="chat-testimonial-card glass-card">
+                        <div class="chat-avatar" style="background: rgba(0, 242, 254, 0.1); color: var(--clr-cyan);">VM</div>
+                        <div class="chat-msg-content">
+                            <div class="chat-header-row">
+                                <span class="chat-name">Vikram Malhotra</span>
+                                <span class="chat-tag-badge">Founder</span>
+                                <span class="chat-time">Yesterday at 18:40</span>
+                            </div>
+                            <p class="chat-msg-text">Absolute game-changer for bootstrapping founders. Got ChatGPT Plus slots, Cursor Pro for development, and TradingView for monitoring markets. The UPI scanning checkout was super smooth. Direct invite active on my main personal accounts.</p>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 7: Telegram Style -->
+                    <div class="chat-testimonial-card glass-card">
+                        <div class="chat-avatar" style="background: rgba(138, 43, 226, 0.1); color: var(--clr-purple-light);">AR</div>
+                        <div class="chat-msg-content">
+                            <div class="chat-header-row">
+                                <span class="chat-name">Ananya Rao</span>
+                                <span class="chat-tag-badge">Creator</span>
+                                <span class="chat-time">May 19</span>
+                            </div>
+                            <p class="chat-msg-text">Just activated Adobe Creative Cloud on my personal mail. Generative Fill, Lightroom, and Premiere Pro work flawlessly. Literally saved 90% of the cost. Highly recommend their prompt WhatsApp support, very professional team!</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -716,9 +987,7 @@
                                 <p>We acquire official licenses in bulk (enterprise subscriptions, developer packages, and region-specific volume licenses) which lets us distribute premium slots at huge discounts. We pass these savings directly to our customers.</p>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- FAQ 2 -->
+                    </div>                    <!-- FAQ 2 -->
                     <div class="faq-item glass-card">
                         <button class="faq-toggle" id="faq-q2">
                             <span>Is it safe and legal to use?</span>
@@ -726,7 +995,7 @@
                         </button>
                         <div class="faq-content">
                             <div class="faq-content-inner">
-                                <p>Yes, all accounts and access links are created officially. Depending on the service, you will either receive an invitation link to join an organization (e.g., Canva Pro) or a dedicated premium account login. Your personal projects and data remain completely private.</p>
+                                <p>Yes, all accounts and invites are official. The subscriptions are directly activated on your own personal account (e.g. Canva team invite, or Adobe CC license assignment), so there is no risk of password sharing and complete privacy is preserved. All your projects, designs, and files remain private and accessible only to you.</p>
                             </div>
                         </div>
                     </div>
@@ -867,10 +1136,7 @@
                             <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
                             <span>Invoices</span>
                         </button>
-                        <button class="dash-sidebar-btn" data-dash-panel="dash-panel-account">
-                            <i data-lucide="lock" style="width: 14px; height: 14px;"></i>
-                            <span>Security & API</span>
-                        </button>
+
                     </div>
 
                     <!-- Panel Content -->
@@ -997,31 +1263,27 @@
                         </div>
                     </div>
 
-                    <!-- Panel 4: Account Security -->
-                    <div class="dash-mock-panel" id="dash-panel-account">
-                        <h3 class="dash-panel-title">Developer Account Settings</h3>
-                        <p class="dash-panel-subtitle">Access your security integrations and set up two-factor authorization.</p>
 
-                        <div style="display: flex; flex-direction: column; gap: 1rem;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.8rem;">
-                                <div>
-                                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Two-Factor Authentication</div>
-                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Secure account credentials using mobile TOTP.</div>
-                                </div>
-                                <div style="color: var(--clr-green); font-size: 0.75rem; font-weight: 600;">ENABLED</div>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary);">Authorized Webhooks</div>
-                                    <div style="font-size: 0.7rem; color: var(--text-muted);">Receive JSON payloads on purchase updates.</div>
-                                </div>
-                                <button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;" onclick="alert('Demo feature: Add Webhook.')">Configure</button>
-                            </div>
-                        </div>
+                </div>
+            </div>
+        <!-- Section 10: Final CTA Section -->
+        <section id="final-cta" class="final-cta-section">
+            <div class="container">
+                <div class="glass-card final-cta-card">
+                    <h2 class="final-cta-title">Build Your Dream Workspace <br><span class="gradient-text">Without Enterprise Prices</span></h2>
+                    <p class="final-cta-subtitle">Join 10k+ founders, developers, students, and creators who save up to 90% on their software stacks every single month. Instant activation in minutes.</p>
+                    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                        <a href="#products" class="btn btn-primary btn-lg btn-glow">
+                            <span>Explore Stacks</span>
+                        </a>
+                        <a href="#bundles" class="btn btn-secondary btn-lg">
+                            <span>Browse Bundles</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </section>
+
     </main>
 
     <!-- Footer -->

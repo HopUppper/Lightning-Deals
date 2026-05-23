@@ -6518,5 +6518,626 @@ html, body {
     100% { background-position: 0 50%; }
 }
 
+/* ==========================================================================
+   PHASE 3: REDESIGN LAYOUT & COMPONENT STYLES
+   ========================================================================== */
+
+/* Logo Text Size Enlargement */
+.logo-text {
+    font-size: 1.55rem !important;
+}
+.logo-icon {
+    width: 32px !important;
+    height: 32px !important;
+}
+
+/* Perfect Layout Symmetry and Header Centering */
+.section-header {
+    text-align: center;
+    margin-bottom: 3.5rem;
+}
+.section-subtitle {
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 600px;
+}
+
+/* Spacing Gap Bug Fix */
+.search-filter-wrapper .category-filters {
+    margin-bottom: 0 !important;
+}
+
+/* Lightning strike effect anims */
+@keyframes lightning-flash {
+    0%, 100% {
+        filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.4)) brightness(1);
+    }
+    40% {
+        filter: drop-shadow(0 0 25px rgba(0, 242, 254, 0.95)) brightness(1.75);
+    }
+    45% {
+        filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.5)) brightness(1.2);
+    }
+    50% {
+        filter: drop-shadow(0 0 30px rgba(0, 242, 254, 1)) brightness(1.9);
+    }
+}
+.lightning-pulse {
+    animation: lightning-flash 0.45s ease-in-out;
+}
+
+@keyframes border-flash {
+    0%, 100% {
+        border-color: rgba(255, 255, 255, 0.05);
+        box-shadow: none;
+    }
+    40% {
+        border-color: rgba(0, 242, 254, 0.7);
+        box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+    }
+    50% {
+        border-color: rgba(138, 43, 226, 0.7);
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+    }
+}
+.card-lightning-pulse {
+    animation: border-flash 0.5s ease-in-out;
+}
+
+/* Monthly / Yearly Billing Toggle */
+.billing-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+.toggle-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: color var(--transition-fast);
+    cursor: pointer;
+}
+.toggle-label.active {
+    color: #fff;
+}
+.toggle-switch-container {
+    position: relative;
+    width: 52px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 99px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+.toggle-switch-slider {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: var(--clr-cyan);
+    border-radius: 50%;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 8px rgba(0, 242, 254, 0.4);
+}
+.toggle-switch-container.yearly .toggle-switch-slider {
+    transform: translateX(24px);
+    background: var(--clr-purple-light);
+    box-shadow: 0 0 8px rgba(179, 125, 255, 0.4);
+}
+.toggle-badge {
+    font-size: 0.65rem;
+    background: rgba(0, 242, 254, 0.1);
+    color: var(--clr-cyan);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    border: 1px solid rgba(0, 242, 254, 0.2);
+}
+
+/* Why Prices Are Lower Section */
+.why-lower-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.8rem;
+    margin-top: 2rem;
+}
+.why-lower-card {
+    padding: 2.2rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    transition: all var(--transition-normal);
+}
+.why-lower-card:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(0, 242, 254, 0.25);
+    transform: translateY(-4px);
+}
+.why-lower-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: rgba(0, 242, 254, 0.08);
+    color: var(--clr-cyan);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(0, 242, 254, 0.15);
+}
+.why-lower-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+.why-lower-card p {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Who This Is For Section */
+.who-for-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+.who-for-card {
+    padding: 1.8rem;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    transition: all var(--transition-normal);
+    display: flex;
+    gap: 1.25rem;
+}
+.who-for-card:hover {
+    border-color: rgba(138, 43, 226, 0.25);
+    background: rgba(255, 255, 255, 0.02);
+    transform: translateY(-3px);
+}
+.who-for-icon-wrapper {
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: rgba(138, 43, 226, 0.08);
+    color: var(--clr-purple-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(138, 43, 226, 0.15);
+}
+.who-for-details h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+}
+.who-for-details p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+}
+
+/* Bundles Grid and Cards */
+.bundles-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+.bundle-card {
+    background: rgba(10, 11, 15, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 20px;
+    padding: 2rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+.bundle-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(800px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(138, 43, 226, 0.06), transparent 40%);
+    pointer-events: none;
+    z-index: 1;
+}
+.bundle-card:hover {
+    border-color: rgba(0, 242, 254, 0.25);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 36px rgba(0, 242, 254, 0.06);
+}
+.bundle-card.bundle-featured {
+    border-color: rgba(0, 242, 254, 0.25);
+    background: linear-gradient(180deg, rgba(20, 28, 45, 0.55) 0%, rgba(7, 8, 11, 0.8) 100%);
+    box-shadow: 0 8px 32px rgba(0, 242, 254, 0.04);
+}
+.bundle-card.bundle-featured .bundle-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: var(--grad-primary);
+    color: #07080b;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 99px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.bundle-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+.bundle-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin-bottom: 1.5rem;
+}
+.bundle-price-row {
+    margin: 1.5rem 0;
+    display: flex;
+    align-items: baseline;
+}
+.bundle-price {
+    font-size: 2.1rem;
+    font-weight: 800;
+    color: var(--clr-cyan);
+}
+.bundle-retail {
+    text-decoration: line-through;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-left: 0.6rem;
+}
+.bundle-features {
+    list-style: none;
+    margin: 1.5rem 0 2rem 0;
+    flex-grow: 1;
+}
+.bundle-features li {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.bundle-features li i {
+    width: 14px;
+    height: 14px;
+    color: var(--clr-cyan);
+    flex-shrink: 0;
+}
+
+/* Price Comparison Table */
+.comparison-table-wrapper {
+    margin-top: 2.5rem;
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.01);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+.comparison-table-main {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.9rem;
+}
+.comparison-table-main th {
+    background: rgba(255, 255, 255, 0.02);
+    padding: 1.2rem 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.comparison-table-main td {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: var(--text-secondary);
+}
+.comparison-table-main tr:last-child td {
+    border-bottom: none;
+}
+.comparison-table-main tr:hover td {
+    background: rgba(255, 255, 255, 0.015);
+}
+.savings-pill {
+    background: rgba(34, 197, 94, 0.1);
+    color: var(--clr-green);
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid rgba(34, 197, 94, 0.15);
+}
+
+/* Sleek Social Chat testimonial bubble look (Discord/Telegram layout) */
+.chat-testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+.chat-testimonial-card {
+    background: rgba(20, 24, 33, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    gap: 14px;
+    transition: all var(--transition-normal);
+}
+.chat-testimonial-card:hover {
+    border-color: rgba(0, 242, 254, 0.2);
+    background: rgba(25, 30, 42, 0.6);
+    transform: translateY(-3px);
+}
+.chat-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(0, 242, 254, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--clr-cyan);
+    flex-shrink: 0;
+    border: 1px solid rgba(0, 242, 254, 0.2);
+}
+.chat-msg-content {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.chat-header-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.chat-name {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #fff;
+}
+.chat-time {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+.chat-msg-text {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+.chat-tag-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(138, 43, 226, 0.1);
+    color: var(--clr-purple-light);
+    font-weight: 700;
+    border: 1px solid rgba(138, 43, 226, 0.2);
+}
+
+/* Glowing Final CTA Section */
+.final-cta-section {
+    padding: 8rem 0;
+    background: radial-gradient(circle at 50% 50%, rgba(0, 242, 254, 0.05), transparent 70%);
+    position: relative;
+    overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.03);
+}
+.final-cta-card {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4.5rem 2.5rem;
+    text-align: center;
+    border-radius: 24px;
+    position: relative;
+}
+.final-cta-title {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin-bottom: 1.2rem;
+    color: #fff;
+}
+.final-cta-subtitle {
+    font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 580px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Footer circles size fix */
+.footer-socials a i, .footer-socials a svg {
+    width: 18px !important;
+    height: 18px !important;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+.footer-socials a:hover i, .footer-socials a:hover svg {
+    color: var(--clr-cyan);
+}
+
+/* Responsive fixes for new elements */
+@media (max-width: 992px) {
+    .why-lower-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .who-for-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .bundles-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .chat-testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 600px) {
+    .why-lower-grid {
+        grid-template-columns: 1fr;
+    }
+    .who-for-grid {
+        grid-template-columns: 1fr;
+    }
+    .bundles-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   PHASE 3: BILLING TOGGLE AND LIGHTNING ANIMATIONS Redesign
+   ========================================================================== */
+
+/* --- Billing Toggle Switcher --- */
+.billing-toggle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin: 2.5rem 0 1.5rem;
+    width: 100%;
+}
+.billing-toggle-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+    user-select: none;
+}
+.billing-toggle-label.active {
+    color: #ffffff;
+}
+.billing-switch-btn {
+    position: relative;
+    width: 48px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 99px;
+    cursor: pointer;
+    transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    padding: 0;
+    outline: none;
+}
+.billing-switch-btn:hover {
+    border-color: rgba(0, 242, 254, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+}
+.billing-switch-thumb {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, box-shadow 0.3s;
+}
+.billing-switch-btn.yearly {
+    background: rgba(0, 242, 254, 0.1);
+    border-color: rgba(0, 242, 254, 0.4);
+}
+.billing-switch-btn.yearly .billing-switch-thumb {
+    transform: translateX(24px);
+    background: var(--clr-cyan);
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+}
+.save-badge-toggle {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    margin-left: 6px;
+    display: inline-block;
+}
+
+/* --- Lightning Pulse Animations --- */
+@keyframes lightning-pulse-animation {
+    0% {
+        filter: drop-shadow(0 0 2px rgba(0, 242, 254, 0.4)) brightness(1);
+        transform: scale(1);
+    }
+    15% {
+        filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.9)) brightness(1.4);
+        transform: scale(1.1) rotate(5deg);
+    }
+    30% {
+        filter: drop-shadow(0 0 4px rgba(0, 242, 254, 0.5)) brightness(1.1);
+        transform: scale(0.95) rotate(-3deg);
+    }
+    45% {
+        filter: drop-shadow(0 0 15px rgba(0, 242, 254, 1)) brightness(1.6);
+        transform: scale(1.05) rotate(0deg);
+    }
+    60% {
+        filter: drop-shadow(0 0 2px rgba(0, 242, 254, 0.3)) brightness(1);
+        transform: scale(1);
+    }
+    100% {
+        filter: drop-shadow(0 0 2px rgba(0, 242, 254, 0.3)) brightness(1);
+        transform: scale(1);
+    }
+}
+
+.logo-icon.lightning-pulse {
+    animation: lightning-pulse-animation 0.6s ease-out;
+}
+
+@keyframes card-lightning-pulse-animation {
+    0% {
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: none;
+    }
+    20% {
+        border-color: rgba(0, 242, 254, 0.8);
+        box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+    }
+    40% {
+        border-color: rgba(138, 43, 226, 0.8);
+        box-shadow: 0 0 20px rgba(138, 43, 226, 0.3);
+    }
+    60% {
+        border-color: rgba(0, 242, 254, 0.6);
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+    }
+    100% {
+        border-color: rgba(255, 255, 255, 0.08);
+        box-shadow: none;
+    }
+}
+
+.product-card.card-lightning-pulse, .bundle-card.card-lightning-pulse {
+    animation: card-lightning-pulse-animation 0.7s ease-out;
+}
+
+
 
 
