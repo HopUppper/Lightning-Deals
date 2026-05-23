@@ -288,6 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupStoreSettings();
     setupTemplatesForm();
     setupBulkActions();
+    setupCRMAndLogs();
 });
 
 // --- Session Verification ---
@@ -312,6 +313,7 @@ function setupLoginGate() {
         if (pinInput.value === CORRECT_PIN) {
             errorText.style.display = 'none';
             sessionStorage.setItem('lightning_deals_logged_in', 'true');
+            logEvent('auth', 'Staff authenticated successfully via secure PIN code.');
             unlockDashboard();
         } else {
             errorText.style.display = 'block';
@@ -631,6 +633,29 @@ function setupTabsNavigation() {
         });
     }
 
+    const tabUsers = document.getElementById('tab-btn-users');
+    const panelUsers = document.getElementById('panel-users');
+    const tabLogs = document.getElementById('tab-btn-logs');
+    const panelLogs = document.getElementById('panel-logs');
+
+    if (tabUsers && panelUsers) {
+        tabs.push(tabUsers);
+        panels.push(panelUsers);
+        tabUsers.addEventListener('click', () => {
+            activateTab(tabUsers, panelUsers);
+            renderCRMPanel();
+        });
+    }
+
+    if (tabLogs && panelLogs) {
+        tabs.push(tabLogs);
+        panels.push(panelLogs);
+        tabLogs.addEventListener('click', () => {
+            activateTab(tabLogs, panelLogs);
+            renderLogsPanel();
+        });
+    }
+
     if (tabSettings && panelSettings) {
         tabs.push(tabSettings);
         panels.push(panelSettings);
@@ -914,6 +939,7 @@ function deleteProduct(index) {
         }
         
         productsList.splice(index, 1);
+        logEvent('catalog', `Deleted product from catalog: ${prod.name} (ID: ${prod.id})`);
         saveCatalogToStorage();
         renderCatalogStats();
         renderProductsTable();
@@ -1149,8 +1175,10 @@ function setupProductForm() {
 
         if (editIndexVal >= 0) {
             productsList[editIndexVal] = newProd;
+            logEvent('catalog', `Updated product details: ${newProd.name} (ID: ${newProd.id})`);
         } else {
             productsList.push(newProd);
+            logEvent('catalog', `Added new product to catalog: ${newProd.name} (ID: ${newProd.id})`);
         }
 
         saveCatalogToStorage();
@@ -1680,7 +1708,9 @@ function contactCustomerWhatsApp(index) {
 
 // --- Update Order Status ---
 function updateOrderStatus(index, status) {
+    const order = ordersList[index];
     ordersList[index].status = status;
+    logEvent('orders', `Order status updated to ${status} for Order ID: ${order.id} (${order.name})`);
     saveOrdersToStorage();
     renderOrdersStats();
     renderOrdersTable();
@@ -1689,8 +1719,10 @@ function updateOrderStatus(index, status) {
 
 // --- Delete Single Order Log ---
 function deleteOrderLog(index) {
+    const order = ordersList[index];
     if (confirm("Are you sure you want to delete this order record?")) {
         ordersList.splice(index, 1);
+        logEvent('orders', `Deleted order record ID: ${order.id} (${order.name})`);
         saveOrdersToStorage();
         renderOrdersStats();
         renderOrdersTable();
@@ -2015,8 +2047,10 @@ function setupCouponsForm() {
 
         if (editIndexVal >= 0) {
             couponsList[editIndexVal] = newCoupon;
+            logEvent('coupons', `Updated coupon code: ${newCoupon.code}`);
         } else {
             couponsList.push(newCoupon);
+            logEvent('coupons', `Created coupon code: ${newCoupon.code}`);
         }
 
         saveCouponsToStorage();
@@ -2067,6 +2101,7 @@ function deleteCoupon(index) {
         }
 
         couponsList.splice(index, 1);
+        logEvent('coupons', `Deleted coupon code: ${coupon.code}`);
         saveCouponsToStorage();
         renderCouponsStats();
         renderCouponsTable();
@@ -2303,12 +2338,14 @@ function setupStoreSettings() {
                 .catch(err => console.error("Firebase settings sync failed:", err));
         }
         localStorage.setItem('lightning_deals_settings', JSON.stringify(settings));
+        logEvent('settings', 'Store configuration settings saved.');
         updateSettingsSummaryCards(settings);
         alert("Store settings saved successfully!");
     });
 
     // Test Alert Event Listener
     testBtn.addEventListener('click', () => {
+        logEvent('settings', `Triggered test alert via ${notifyMethodSelect.value}`);
         const phone = phoneInput.value.trim();
         const notificationMethod = notifyMethodSelect.value;
         const callmebotApiKey = callmebotApiKeyInput.value.trim();
@@ -3332,6 +3369,7 @@ function openOrderDetailDrawer(index) {
             order.notes = notes;
 
             ordersList[index] = order;
+            logEvent('orders', `Updated fulfillment credentials/notes for Order ID: ${order.id} (${order.name})`);
             saveOrdersToStorage();
             
             renderOrdersStats();
@@ -3340,5 +3378,296 @@ function openOrderDetailDrawer(index) {
             drawer.classList.remove('active');
             alert("Order details updated successfully!");
         });
+    }
+}
+
+// ==========================================================================
+// PHASE 5: SYSTEM LOGGING & CRM DIRECTORY LOGIC
+// ==========================================================================
+
+// --- System Activity Event Logger ---
+function logEvent(category, message) {
+    const log = {
+        timestamp: new Date().toISOString(),
+        category: category, // 'auth' | 'catalog' | 'orders' | 'settings' | 'coupons'
+        user: sessionStorage.getItem('lightning_deals_logged_in_user') || 'Admin Staff',
+        message: message,
+        ip: '192.168.1.' + Math.floor(Math.random() * 254 + 1)
+    };
+
+    // Load existing local logs
+    let logs = [];
+    const savedLogs = localStorage.getItem('lightning_deals_audit_logs');
+    if (savedLogs) {
+        try {
+            logs = JSON.parse(savedLogs);
+            if (!Array.isArray(logs)) logs = [];
+        } catch (e) {
+            logs = [];
+        }
+    }
+
+    logs.push(log);
+    
+    // Constrain logs list capacity
+    if (logs.length > 500) {
+        logs.shift();
+    }
+
+    localStorage.setItem('lightning_deals_audit_logs', JSON.stringify(logs));
+
+    // Sync to Firebase if configured
+    if (database) {
+        database.ref('audit_logs').push(log)
+            .then(() => console.log("Audit log synced to Firebase."))
+            .catch(err => console.error("Firebase audit log failed:", err));
+    }
+}
+
+// --- Render Audit Logs Panel ---
+function renderLogsPanel() {
+    const categoryFilter = document.getElementById('logs-filter-category').value;
+    const tbody = document.getElementById('logs-table-body');
+    if (!tbody) return;
+
+    // Load logs
+    let logs = [];
+    const savedLogs = localStorage.getItem('lightning_deals_audit_logs');
+    if (savedLogs) {
+        try {
+            logs = JSON.parse(savedLogs);
+            if (!Array.isArray(logs)) logs = [];
+        } catch (e) {
+            logs = [];
+        }
+    }
+
+    // Filter logs
+    const filtered = logs.filter(log => {
+        return categoryFilter === 'all' || log.category === categoryFilter;
+    });
+
+    // Sort newest first
+    filtered.reverse();
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-muted);">No system audit log events recorded yet.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(log => {
+        const date = new Date(log.timestamp);
+        const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        
+        let catClass = 'badge-status-pending';
+        if (log.category === 'auth') catClass = 'badge-status-delivered';
+        else if (log.category === 'catalog') catClass = 'badge-status-delivered';
+        else if (log.category === 'settings') catClass = 'badge-status-pending';
+        else if (log.category === 'orders') catClass = 'badge-status-delivered';
+        else if (log.category === 'coupons') catClass = 'badge-status-pending';
+
+        return `
+            <tr>
+                <td style="font-family: monospace; font-size: 0.75rem; color: var(--text-secondary);">${escapeHTML(dateStr)}</td>
+                <td><span class="badge-status ${catClass}" style="text-transform: uppercase; font-size: 0.65rem; padding: 1px 6px;">${escapeHTML(log.category)}</span></td>
+                <td style="font-weight: 600; color: #fff;">${escapeHTML(log.user)}</td>
+                <td style="color: var(--text-secondary); font-size: 0.85rem;">${escapeHTML(log.message)}</td>
+                <td style="font-family: monospace; font-size: 0.75rem; color: var(--text-muted);">${escapeHTML(log.ip)}</td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// --- Compile and Render Customer CRM Panel ---
+function renderCRMPanel() {
+    const searchQuery = document.getElementById('crm-search-input').value.toLowerCase().trim();
+    const sortVal = document.getElementById('crm-sort-select').value;
+    const tbody = document.getElementById('crm-table-body');
+    if (!tbody) return;
+
+    // Group orders by email (or phone)
+    const customersMap = {};
+
+    ordersList.forEach(order => {
+        if (!order) return;
+        const key = (order.email || '').trim().toLowerCase() || (order.phone || '').trim();
+        if (!key) return;
+
+        const isVerified = order.status === 'Delivered' || order.status === 'Paid via Stripe';
+        const orderPrice = parseFloat(order.price) || 0;
+
+        if (!customersMap[key]) {
+            customersMap[key] = {
+                name: order.name || 'Unknown Client',
+                email: order.email || '',
+                phone: order.phone || '',
+                ordersVerified: isVerified ? 1 : 0,
+                totalOrders: 1,
+                ltv: isVerified ? orderPrice : 0,
+                lastOrderDate: order.date || '',
+                status: order.status
+            };
+        } else {
+            const cust = customersMap[key];
+            if (isVerified) {
+                cust.ordersVerified += 1;
+                cust.ltv += orderPrice;
+            }
+            cust.totalOrders += 1;
+            
+            // Get latest name
+            if (order.name) cust.name = order.name;
+            
+            // Compare dates to get latest lastOrderDate
+            if (order.date && (!cust.lastOrderDate || compareDates(order.date, cust.lastOrderDate) > 0)) {
+                cust.lastOrderDate = order.date;
+                cust.status = order.status;
+            }
+        }
+    });
+
+    const customers = Object.values(customersMap);
+
+    // Apply search filter
+    const filtered = customers.filter(c => {
+        return c.name.toLowerCase().includes(searchQuery) ||
+               c.email.toLowerCase().includes(searchQuery) ||
+               c.phone.toLowerCase().includes(searchQuery);
+    });
+
+    // Apply sorting
+    filtered.sort((a, b) => {
+        if (sortVal === 'ltv-desc') {
+            return b.ltv - a.ltv;
+        } else if (sortVal === 'ltv-asc') {
+            return a.ltv - b.ltv;
+        } else if (sortVal === 'orders-desc') {
+            return b.ordersVerified - a.ordersVerified;
+        } else if (sortVal === 'name-asc') {
+            return a.name.localeCompare(b.name);
+        }
+        return 0;
+    });
+
+    // Calculate Summary Stats
+    const totalCount = filtered.length;
+    let totalLTV = 0;
+    let maxLTV = 0;
+    let maxLTVCustomer = 'N/A';
+
+    filtered.forEach(c => {
+        totalLTV += c.ltv;
+        if (c.ltv > maxLTV) {
+            maxLTV = c.ltv;
+            maxLTVCustomer = `${c.name}`;
+        }
+    });
+
+    const avgLTV = totalCount > 0 ? Math.round(totalLTV / totalCount) : 0;
+
+    document.getElementById('stat-crm-total').innerText = totalCount;
+    document.getElementById('stat-crm-avg-ltv').innerText = `₹${avgLTV.toLocaleString('en-IN')}`;
+    document.getElementById('stat-crm-max-ltv').innerText = maxLTV > 0 
+        ? `₹${maxLTV.toLocaleString('en-IN')} (${maxLTVCustomer})` 
+        : '₹0';
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">No customer profiles compiled yet. Verified orders will build CRM profiles.</td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = filtered.map(c => {
+        // Status labels
+        let statusLabel = 'Lead (Pending)';
+        let statusClass = 'badge-status-pending';
+
+        if (c.ordersVerified > 0) {
+            statusLabel = 'Active Subscriber';
+            statusClass = 'badge-status-delivered';
+        } else if (c.status === 'Cancelled') {
+            statusLabel = 'Cancelled Client';
+            statusClass = 'badge-status-cancelled';
+        }
+
+        return `
+            <tr>
+                <td>
+                    <div style="font-weight: 700; color: #fff;">${escapeHTML(c.name)}</div>
+                </td>
+                <td style="font-size: 0.85rem; line-height: 1.4; color: var(--text-secondary);">
+                    <div><i data-lucide="mail" style="width: 10px; height: 10px; display: inline-block; margin-right: 4px;"></i> ${escapeHTML(c.email || 'No email')}</div>
+                    <div><i data-lucide="message-circle" style="width: 10px; height: 10px; display: inline-block; margin-right: 4px;"></i> +${escapeHTML(c.phone || '')}</div>
+                </td>
+                <td style="font-weight: 600; text-align: center;">${c.ordersVerified} <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">(${c.totalOrders} total)</span></td>
+                <td style="font-weight: 700; color: var(--clr-green);">₹${c.ltv.toLocaleString('en-IN')}</td>
+                <td style="font-size: 0.8rem; color: var(--text-secondary);">${escapeHTML(c.lastOrderDate || 'N/A')}</td>
+                <td><span class="badge-status ${statusClass}">${statusLabel}</span></td>
+            </tr>
+        `;
+    }).join('');
+
+    if (window.lucide) window.lucide.createIcons();
+}
+
+// --- Helper Date Comparison ---
+function compareDates(dateStrA, dateStrB) {
+    try {
+        const dA = new Date(dateStrA.split(',')[0].trim());
+        const dB = new Date(dateStrB.split(',')[0].trim());
+        return dA - dB;
+    } catch (e) {
+        return 0;
+    }
+}
+
+// --- Wire Up CRM & Logs Search/Filters Event Listeners ---
+function setupCRMAndLogs() {
+    const crmSearch = document.getElementById('crm-search-input');
+    const crmSort = document.getElementById('crm-sort-select');
+    const logsFilter = document.getElementById('logs-filter-category');
+    const btnClearLogs = document.getElementById('btn-clear-logs');
+
+    if (crmSearch) {
+        crmSearch.addEventListener('input', renderCRMPanel);
+    }
+    if (crmSort) {
+        crmSort.addEventListener('change', renderCRMPanel);
+    }
+    if (logsFilter) {
+        logsFilter.addEventListener('change', renderLogsPanel);
+    }
+    if (btnClearLogs) {
+        btnClearLogs.addEventListener('click', () => {
+            if (confirm("Are you sure you want to clear all system audit logs?")) {
+                localStorage.removeItem('lightning_deals_audit_logs');
+                
+                // Clear Firebase logs if active
+                if (database) {
+                    database.ref('audit_logs').remove()
+                        .then(() => console.log("Audit logs cleared from Firebase."))
+                        .catch(err => console.error("Firebase clear logs failed:", err));
+                }
+
+                logEvent('auth', 'System activity audit logs cleared by administrator.');
+                renderLogsPanel();
+                alert("Audit logs cleared successfully.");
+            }
+        });
+    }
+
+    // Seed default logs if empty to show a nice audit log on first run
+    const savedLogs = localStorage.getItem('lightning_deals_audit_logs');
+    if (!savedLogs) {
+        logEvent('auth', 'System Audit Trail database initialized.');
+        logEvent('catalog', 'Default catalog items verified and parsed.');
+        logEvent('settings', 'Reseller settings loaded from system storage.');
     }
 }

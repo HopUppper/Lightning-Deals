@@ -602,6 +602,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initSearchSuggestions();
     renderRecentlyViewed();
     updateWishlistUI();
+    setupLegalModal();
+    startLightningPulse();
 });
 
 // --- Setup Sticky Header ---
@@ -753,13 +755,24 @@ function applyStoreFilters() {
     }
 
     filtered.forEach(prod => {
-        // Calculate starting price
-        const minPlan = prod.plans && prod.plans.length > 0
-            ? prod.plans.reduce((min, p) => p.price < min.price ? p : min, prod.plans[0])
-            : null;
-        const minPrice = minPlan ? minPlan.price : 0;
-        const retailPrice = minPlan && minPlan.retail ? minPlan.retail : (prod.retailPrice || minPrice * 3);
-        const percentSaved = retailPrice > minPrice ? Math.round(((retailPrice - minPrice) / retailPrice) * 100) : 0;
+        // Determine selected plan based on billingCycle
+        let selectedPlan = null;
+        if (billingCycle === 'yearly') {
+            selectedPlan = prod.plans.find(p => p.label.toLowerCase().includes('12 month') || p.label.toLowerCase().includes('1 year'));
+            if (!selectedPlan) {
+                selectedPlan = prod.plans[prod.plans.length - 1]; // longest plan
+            }
+        } else {
+            selectedPlan = prod.plans.find(p => p.label.toLowerCase().includes('1 month'));
+            if (!selectedPlan) {
+                selectedPlan = prod.plans[0]; // shortest/first plan
+            }
+        }
+
+        const priceVal = selectedPlan ? selectedPlan.price : 0;
+        const retailVal = selectedPlan && selectedPlan.retail ? selectedPlan.retail : priceVal * 3;
+        const percentSaved = retailVal > priceVal ? Math.round(((retailVal - priceVal) / retailVal) * 100) : 0;
+        const planLabelText = selectedPlan ? selectedPlan.label : 'Plan';
 
         const card = document.createElement('div');
         card.className = 'glass-card product-card';
@@ -860,10 +873,10 @@ function applyStoreFilters() {
             ${compatibilityHTML}
             
             <div class="prod-price-area" style="margin-top: 1rem;">
-                <span class="prod-retail">Starting from</span>
+                <span class="prod-retail">${planLabelText}</span>
                 <div class="price-comp-row">
-                    <span class="prod-price-new">₹${minPrice.toLocaleString('en-IN')}</span>
-                    <span class="retail-crossed">₹${retailPrice.toLocaleString('en-IN')}</span>
+                    <span class="prod-price-new">₹${priceVal.toLocaleString('en-IN')}</span>
+                    <span class="retail-crossed">₹${retailVal.toLocaleString('en-IN')}</span>
                     ${percentSaved > 0 ? `<span class="savings-badge">Save ${percentSaved}%</span>` : ''}
                 </div>
             </div>
@@ -1906,7 +1919,6 @@ function setupConfigureModal() {
             tabPanels.forEach(p => p.classList.toggle('active', p.id === `tab-${targetTab}`));
         });
     });
-
     // Intercept "Get Access" button clicks to configure product before checkout
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.cta-purchase-trigger');
@@ -1917,7 +1929,13 @@ function setupConfigureModal() {
         if (!prod) return;
 
         selectedConfigureProduct = prod;
-        selectedConfigurePlanIndex = 0;
+        // Determine the target plan based on billingCycle
+        const targetPlan = billingCycle === 'yearly'
+            ? prod.plans.find(p => p.label.toLowerCase().includes('12 month') || p.label.toLowerCase().includes('1 year'))
+            : prod.plans.find(p => p.label.toLowerCase().includes('1 month'));
+        const planIdx = targetPlan ? prod.plans.indexOf(targetPlan) : 0;
+        selectedConfigurePlanIndex = planIdx >= 0 ? planIdx : 0;
+        
         if (qtyInput) qtyInput.value = 1;
 
         openConfigModal();
@@ -3688,7 +3706,178 @@ function setupDashboardMock() {
 
     // Run first render
     renderWorkspace();
-
     // Export renderer to window so it can be called externally
     window.refreshWorkspace = renderWorkspace;
+}
+
+// --- Store Global State Backing ---
+let billingCycle = 'monthly';
+
+// --- Detailed Legal Policy Data ---
+const legalPolicies = {
+    terms: `
+        <h3>1. Acceptance of Terms</h3>
+        <p>By accessing and purchasing subscription slot licenses from Lightning Deals ("the Platform"), you agree to be bound by these Terms of Service. If you do not agree, please refrain from using the platform.</p>
+        
+        <h3>2. License Distribution & Usage</h3>
+        <ul>
+            <li><strong>Bulk Licensing:</strong> We officially procure organizational enterprise, developer, and regional volume subscription licenses. We distribute spare seats or slots from these official plans to individual users.</li>
+            <li><strong>Slot Activation:</strong> Activation is done either via organization invite (e.g. joining a Canva Team) or through dedicated premium credentials. You agree to use these slots strictly for personal, educational, or standard freelance business purposes.</li>
+            <li><strong>Account Credential Safety:</strong> Shared credentials (if provided for a specific slot) are strictly confidential. Sharing these credentials with third parties or attempting to alter account credentials (passwords, emails, profiles) is strictly prohibited and will result in immediate termination without refund.</li>
+            <li><strong>No Modification:</strong> You must not modify the organizational structure, invite other users, or access billing sections of the parent organizations under which your slots are assigned.</li>
+        </ul>
+        
+        <h3>3. Support Service Levels (SLA)</h3>
+        <ul>
+            <li><strong>SLA Response Times:</strong> We provide 24/7 support via WhatsApp. Standard query response times are under 30 minutes, though resolving complex activation issues may take up to 4 hours in rare circumstances.</li>
+            <li><strong>Uptime and Continuity:</strong> While we guarantee active slots for the entire duration of your purchased plan, occasional backend organization updates by software vendors may cause temporary slot suspensions. In such cases, we pledge to assign a replacement slot within 24 hours.</li>
+        </ul>
+        
+        <h3>4. Disclaimer and Liability Limits</h3>
+        <p>Lightning Deals is an independent software reseller platform. We are not officially affiliated, authorized, or endorsed by Canva, Adobe, Google, OpenAI, TradingView, or any other software provider. All trademarks and brand names belong to their respective owners. Our liability is strictly limited to the value of the active slot purchase price.</p>
+    `,
+    refund: `
+        <h3>1. 7-Day Hassle-Free Refund Policy</h3>
+        <p>We stand behind the quality of our premium slots. You are fully eligible for a 100% refund within 7 days of your purchase if you experience any technical issues that prevent you from utilizing the subscription deal.</p>
+        
+        <h3>2. Eligibility Criteria for Refunds</h3>
+        <ul>
+            <li><strong>Technical Failures:</strong> If a license invite link fails to activate, or credentials do not work, and our technical support team is unable to resolve it or issue a replacement slot within 24 hours.</li>
+            <li><strong>Double Payments:</strong> Accidental duplicate checkouts for the same product plan are automatically eligible for immediate refunds.</li>
+            <li><strong>Change of Mind:</strong> Due to the digital nature of instant licenses and invites, change-of-mind refunds are eligible only if the invite link has NOT been clicked or the credentials have NOT been logged into.</li>
+        </ul>
+        
+        <h3>3. Exclusion and Non-Refundable Scenarios</h3>
+        <ul>
+            <li><strong>Account Misuse:</strong> If your slot access is revoked due to violating our Terms of Service (e.g., trying to change admin passwords, sharing Canva team invite links with outside users, or reselling slots).</li>
+            <li><strong>External Platform Changes:</strong> If a major software vendor updates their global terms of service in a way that deprecates team features, we will transition you to a comparable service or issue a pro-rata store credit, but cash refunds are not available after the 7-day initial window.</li>
+        </ul>
+        
+        <h3>4. How to Request a Refund</h3>
+        <p>To request a refund, please message our support desk on WhatsApp (+91 7695956938) or email support@lightning-deals.com with your Order ID (e.g., LD-12345) and a screenshot of the issue. Approved refunds are processed back to your original payment method (UPI / Cards) within 3-5 business days.</p>
+    `,
+    privacy: `
+        <h3>1. Information We Collect</h3>
+        <p>We respect your digital privacy. To facilitate instant license activations and deliveries, we collect the following minimal data points:</p>
+        <ul>
+            <li><strong>Contact Details:</strong> Your Name, Email Address, and WhatsApp Mobile Number provided during the checkout page.</li>
+            <li><strong>Order Data:</strong> Your purchased products, selected durations, transaction records, and payment screenshots uploaded for manual verification.</li>
+            <li><strong>System Logs:</strong> IP address, browser user-agent, and local system timezone for fraud prevention and security verification.</li>
+        </ul>
+        
+        <h3>2. How We Use Your Information</h3>
+        <ul>
+            <li><strong>License Provisioning:</strong> To send organization invitation emails (e.g., Canva Pro, Adobe CC invitation) directly to your personal accounts.</li>
+            <li><strong>Support Communications:</strong> To contact you via WhatsApp for order delivery updates, slot renewals, or troubleshooting.</li>
+            <li><strong>Security and Auditing:</strong> The system logs track changes to prevent unauthorized catalog editing, system PIN brute-forcing, and license abuse.</li>
+        </ul>
+        
+        <h3>3. Data Sharing and Protection</h3>
+        <ul>
+            <li><strong>No Selling of Data:</strong> We never sell, lease, or rent customer personal information to third-party advertisers or data brokers.</li>
+            <li><strong>Third-Party Processors:</strong> Data is shared only with secure service providers essential to operations (e.g., Firebase real-time database, cloud hosting, WhatsApp Business API).</li>
+            <li><strong>Enterprise Encryption:</strong> All sensitive database connections are encrypted over secure TLS protocols and restricted using strict read/write database rules.</li>
+        </ul>
+        
+        <h3>4. Cookies and Local Storage</h3>
+        <p>We use browser local storage to save your cart details, wishlist items, and session tokens to ensure a smooth browsing experience. You can clear this data at any time via your browser settings.</p>
+    `
+};
+
+// --- Legal Policy Modal Controller ---
+function setupLegalModal() {
+    const modal = document.getElementById('legal-modal');
+    const modalTitle = document.getElementById('legal-modal-title');
+    const modalContent = document.getElementById('legal-modal-content');
+    const closeBtn = document.getElementById('close-legal-modal-btn');
+    const closeBtnFooter = document.getElementById('btn-close-legal');
+    
+    if (!modal || !modalTitle || !modalContent) return;
+
+    function openPolicy(type) {
+        let titleText = "";
+        let bodyText = "";
+        
+        if (type === 'terms') {
+            titleText = "Terms of Service";
+            bodyText = legalPolicies.terms;
+        } else if (type === 'refund') {
+            titleText = "Refund Policy";
+            bodyText = legalPolicies.refund;
+        } else if (type === 'privacy') {
+            titleText = "Privacy Policy";
+            bodyText = legalPolicies.privacy;
+        }
+        
+        modalTitle.textContent = titleText;
+        modalContent.innerHTML = bodyText;
+        
+        modal.classList.add('active');
+        document.body.classList.add('modal-open');
+        
+        // re-initialize lucide icons inside modal if needed
+        if (window.lucide) window.lucide.createIcons();
+    }
+    
+    function closePolicy() {
+        modal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+    }
+
+    // Attach click events to links
+    const linkTerms = document.getElementById('link-terms');
+    const linkRefund = document.getElementById('link-refund');
+    const linkPrivacy = document.getElementById('link-privacy');
+    
+    if (linkTerms) {
+        linkTerms.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPolicy('terms');
+        });
+    }
+    if (linkRefund) {
+        linkRefund.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPolicy('refund');
+        });
+    }
+    if (linkPrivacy) {
+        linkPrivacy.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPolicy('privacy');
+        });
+    }
+
+    // Attach close actions
+    if (closeBtn) closeBtn.addEventListener('click', closePolicy);
+    if (closeBtnFooter) closeBtnFooter.addEventListener('click', closePolicy);
+    
+    // Close on overlay click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closePolicy();
+        }
+    });
+}
+
+// --- Periodic Lightning Pulse animation ---
+function startLightningPulse() {
+    setInterval(() => {
+        // Find 1-2 random product cards or logo or glow blobs
+        const cards = document.querySelectorAll('.product-card');
+        const logoIcon = document.querySelector('.logo-icon');
+        
+        // 50% chance to flash the logo icon
+        if (logoIcon && Math.random() > 0.5) {
+            logoIcon.classList.add('lightning-pulse');
+            setTimeout(() => logoIcon.classList.remove('lightning-pulse'), 500);
+        }
+
+        // Pick a random card and flash its border
+        if (cards.length > 0) {
+            const randomCard = cards[Math.floor(Math.random() * cards.length)];
+            randomCard.classList.add('card-lightning-pulse');
+            setTimeout(() => randomCard.classList.remove('card-lightning-pulse'), 500);
+        }
+    }, 6000); // Trigger every 6 seconds for a subtle effect
 }

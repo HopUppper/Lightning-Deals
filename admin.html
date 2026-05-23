@@ -88,11 +88,17 @@
                 <button class="admin-tab-btn" id="tab-btn-analytics" data-target="panel-analytics">
                     <i data-lucide="bar-chart-2"></i> <span>Analytics Dashboard</span>
                 </button>
+                <button class="admin-tab-btn" id="tab-btn-users" data-target="panel-users">
+                    <i data-lucide="users"></i> <span>Customer CRM</span>
+                </button>
                 <button class="admin-tab-btn" id="tab-btn-templates" data-target="panel-templates">
                     <i data-lucide="copy"></i> <span>Copy Reseller Templates</span>
                 </button>
                 <button class="admin-tab-btn" id="tab-btn-coupons" data-target="panel-coupons">
                     <i data-lucide="ticket"></i> <span>Manage Coupons</span>
+                </button>
+                <button class="admin-tab-btn" id="tab-btn-logs" data-target="panel-logs">
+                    <i data-lucide="shield-alert"></i> <span>System Audit Logs</span>
                 </button>
                 <button class="admin-tab-btn" id="tab-btn-settings" data-target="panel-settings">
                     <i data-lucide="settings"></i> <span>Store Settings</span>
@@ -782,6 +788,113 @@
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PANEL 5: CUSTOMER CRM ================= -->
+            <div class="admin-panel" id="panel-users">
+                <!-- Summary Stats -->
+                <section class="admin-stats-grid margin-bottom-lg">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper blue-glow"><i data-lucide="users"></i></div>
+                        <div>
+                            <h4 class="stat-label">Total Customers</h4>
+                            <p class="stat-value" id="stat-crm-total">0</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper green-glow"><i data-lucide="indian-rupee"></i></div>
+                        <div>
+                            <h4 class="stat-label">Average LTV</h4>
+                            <p class="stat-value" id="stat-crm-avg-ltv">₹0</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper purple-glow"><i data-lucide="award"></i></div>
+                        <div>
+                            <h4 class="stat-label">Highest LTV</h4>
+                            <p class="stat-value" id="stat-crm-max-ltv" style="font-size: 1.15rem; line-height: 1.6;">₹0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="glass-card table-section-card">
+                    <div class="table-card-header margin-bottom-md" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h3 class="table-card-title">Customer Profile Directory</h3>
+                            <span class="sub-label">Consolidated list of customers tracking orders and lifetime value.</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <input type="text" id="crm-search-input" placeholder="Search customer name/contact..." 
+                                   style="padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); color: white; font-size: 0.8rem; outline: none; width: 220px;">
+                            <select id="crm-sort-select" style="padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: white; font-size: 0.8rem; outline: none;">
+                                <option value="ltv-desc">LTV: High to Low</option>
+                                <option value="ltv-asc">LTV: Low to High</option>
+                                <option value="orders-desc">Orders: High to Low</option>
+                                <option value="name-asc">Name: A to Z</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="dash-table-wrapper" style="overflow-x: auto; width: 100%;">
+                        <table class="admin-table" id="crm-table-main" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th>Customer Identifier</th>
+                                    <th>Contact Details</th>
+                                    <th>Orders Verified</th>
+                                    <th>Lifetime Value (LTV)</th>
+                                    <th>Last Order Date</th>
+                                    <th>Customer Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="crm-table-body">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PANEL 6: SYSTEM AUDIT LOGS ================= -->
+            <div class="admin-panel" id="panel-logs">
+                <div class="glass-card table-section-card">
+                    <div class="table-card-header margin-bottom-md" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div>
+                            <h3 class="table-card-title"><i data-lucide="shield-check" style="vertical-align: middle; color: var(--clr-cyan); margin-right: 6px;"></i> System Activity Audit Trail</h3>
+                            <span class="sub-label">Security logs tracking administrative actions, authentications, catalog edits, and settings modifications.</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <select id="logs-filter-category" style="padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: white; font-size: 0.8rem; outline: none;">
+                                <option value="all">All Categories</option>
+                                <option value="auth">Auth & Session</option>
+                                <option value="catalog">Catalog Edits</option>
+                                <option value="orders">Order Audits</option>
+                                <option value="settings">Settings Tweaks</option>
+                                <option value="coupons">Coupon Adjustments</option>
+                            </select>
+                            <button class="btn btn-secondary btn-sm" id="btn-clear-logs" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #ef4444; padding: 0.5rem 1rem;">
+                                <i data-lucide="trash-2" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: middle;"></i> Clear Logs
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="dash-table-wrapper" style="overflow-x: auto; width: 100%;">
+                        <table class="admin-table" id="logs-table-main" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 180px;">Timestamp</th>
+                                    <th style="width: 120px;">Category</th>
+                                    <th style="width: 120px;">Staff User</th>
+                                    <th>Administrative Action / Message</th>
+                                    <th style="width: 140px;">IP Address</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logs-table-body">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

@@ -16,6 +16,9 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+    <!-- Background Lightning Overlay -->
+    <div class="lightning-flash-overlay"></div>
+
     <div class="bg-orbs-container">
         <div class="orb orb-cyan"></div>
         <div class="orb orb-purple"></div>
@@ -46,7 +49,6 @@
             <nav class="desktop-nav" id="desktop-navigation">
                 <a href="#" class="nav-link active">Home</a>
                 <a href="#products" class="nav-link">Products</a>
-                <a href="#roadmap-dashboard" class="nav-link workspace-trigger">My Workspace</a>
                 <a href="#why-choose-us" class="nav-link">Why Us</a>
                 <a href="#how-it-works" class="nav-link">How It Works</a>
                 <a href="#testimonials" class="nav-link">Reviews</a>
@@ -79,7 +81,6 @@
         <div class="mobile-nav" id="mobile-navigation">
             <a href="#" class="mobile-nav-link">Home</a>
             <a href="#products" class="mobile-nav-link">Products</a>
-            <a href="#roadmap-dashboard" class="mobile-nav-link workspace-trigger">My Workspace</a>
             <a href="#why-choose-us" class="mobile-nav-link">Why Us</a>
             <a href="#how-it-works" class="mobile-nav-link">How It Works</a>
             <a href="#testimonials" class="mobile-nav-link">Reviews</a>
@@ -471,18 +472,6 @@
                     </div>
                 </div>
 
-                <!-- Billing Cycle Toggle Switcher -->
-                <div class="billing-toggle-container">
-                    <span class="billing-toggle-label active" id="billing-toggle-monthly">Monthly Billing</span>
-                    <button class="billing-switch-btn" id="billing-toggle-switcher" role="switch" aria-checked="false" aria-label="Toggle billing cycle">
-                        <span class="billing-switch-thumb"></span>
-                    </button>
-                    <span class="billing-toggle-label" id="billing-toggle-yearly">
-                        Yearly Billing
-                        <span class="save-badge-toggle">Save up to 40%</span>
-                    </span>
-                </div>
-
                 <!-- Products Grid -->
                 <div class="products-grid" id="store-products-grid">
                     <!-- Dynamically populated from JS -->
@@ -618,161 +607,6 @@
                             <p>Experiment with advanced models, plugins, code assistants, and graphics generators on a flexible subscription budget.</p>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 6: Bundles Section -->
-        <section id="bundles" class="why-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
-            <div class="container">
-                <div class="section-header text-center">
-                    <h2 class="section-title">Save Extra With <span class="gradient-text">Our Stack Bundles</span></h2>
-                    <p class="section-subtitle">Curated collections of premium software stacks. One simple yearly payment, massive cumulative savings.</p>
-                </div>
-
-                <div class="bundles-grid">
-                    <!-- Bundle 1: AI Founder Stack -->
-                    <div class="bundle-card glass-card bundle-featured">
-                        <div class="bundle-badge">Most Popular</div>
-                        <div>
-                            <h3 class="bundle-title">AI Founder Stack</h3>
-                            <p class="bundle-desc">Essential AI and business tools to build and market your startup runway.</p>
-                            <div class="bundle-price-row">
-                                <span class="bundle-price">₹4,999</span>
-                                <span class="bundle-retail">₹1,04,000</span>
-                            </div>
-                            <ul class="bundle-features">
-                                <li><i data-lucide="check"></i> ChatGPT Plus (12 Mo)</li>
-                                <li><i data-lucide="check"></i> Cursor Pro (12 Mo)</li>
-                                <li><i data-lucide="check"></i> Notion Pro (12 Mo)</li>
-                                <li><i data-lucide="check"></i> LinkedIn Premium (12 Mo)</li>
-                            </ul>
-                        </div>
-                        <button class="btn btn-primary w-100 btn-glow cta-bundle-purchase-trigger" data-bundle-id="bundle-ai-founder" style="margin-top: auto;">
-                            <span>Buy Founder Stack</span>
-                        </button>
-                    </div>
-
-                    <!-- Bundle 2: Creator Stack -->
-                    <div class="bundle-card glass-card">
-                        <div>
-                            <h3 class="bundle-title">Creator Stack</h3>
-                            <p class="bundle-desc">Everything needed for visual asset production, copywriting, and media channels.</p>
-                            <div class="bundle-price-row">
-                                <span class="bundle-price">₹3,499</span>
-                                <span class="bundle-retail">₹84,000</span>
-                            </div>
-                            <ul class="bundle-features">
-                                <li><i data-lucide="check"></i> Adobe Creative Cloud (12 Mo)</li>
-                                <li><i data-lucide="check"></i> Canva Pro Invite (12 Mo)</li>
-                                <li><i data-lucide="check"></i> Spotify Premium (12 Mo)</li>
-                            </ul>
-                        </div>
-                        <button class="btn btn-secondary w-100 cta-bundle-purchase-trigger" data-bundle-id="bundle-creator" style="margin-top: auto;">
-                            <span>Buy Creator Stack</span>
-                        </button>
-                    </div>
-
-                    <!-- Bundle 3: Developer Stack -->
-                    <div class="bundle-card glass-card">
-                        <div>
-                            <h3 class="bundle-title">Developer Stack</h3>
-                            <p class="bundle-desc">AI autocomplete coding workspace helpers and database documentation hubs.</p>
-                            <div class="bundle-price-row">
-                                <span class="bundle-price">₹5,999</span>
-                                <span class="bundle-retail">₹52,000</span>
-                            </div>
-                            <ul class="bundle-features">
-                                <li><i data-lucide="check"></i> Cursor Pro (12 Mo)</li>
-                                <li><i data-lucide="check"></i> GitHub Copilot (12 Mo)</li>
-                                <li><i data-lucide="check"></i> Notion Pro (12 Mo)</li>
-                            </ul>
-                        </div>
-                        <button class="btn btn-secondary w-100 cta-bundle-purchase-trigger" data-bundle-id="bundle-developer" style="margin-top: auto;">
-                            <span>Buy Developer Stack</span>
-                        </button>
-                    </div>
-
-                    <!-- Bundle 4: Student Stack -->
-                    <div class="bundle-card glass-card">
-                        <div>
-                            <h3 class="bundle-title">Student Stack</h3>
-                            <p class="bundle-desc">Basic design capabilities and essential office document authoring packs.</p>
-                            <div class="bundle-price-row">
-                                <span class="bundle-price">₹1,999</span>
-                                <span class="bundle-retail">₹44,000</span>
-                            </div>
-                            <ul class="bundle-features">
-                                <li><i data-lucide="check"></i> Canva Pro Invite (12 Mo)</li>
-                                <li><i data-lucide="check"></i> Notion Pro (12 Mo)</li>
-                                <li><i data-lucide="check"></i> MS Office 365 (12 Mo)</li>
-                            </ul>
-                        </div>
-                        <button class="btn btn-secondary w-100 cta-bundle-purchase-trigger" data-bundle-id="bundle-student" style="margin-top: auto;">
-                            <span>Buy Student Stack</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 7: Price Comparison Table -->
-        <section id="price-comparison" class="why-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
-            <div class="container">
-                <div class="section-header text-center">
-                    <h2 class="section-title">Compare What <span class="gradient-text">You Save</span></h2>
-                    <p class="section-subtitle">See how our low-overhead slots compare with standard commercial retail software pricing.</p>
-                </div>
-
-                <div class="comparison-table-wrapper">
-                    <table class="comparison-table-main">
-                        <thead>
-                            <tr>
-                                <th>Premium Product</th>
-                                <th>Official Retail Cost / Mo</th>
-                                <th>Lightning Deals Cost / Mo</th>
-                                <th>Your Lifetime Savings</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="font-weight: 700; color: #fff;">ChatGPT Plus</td>
-                                <td>₹1,999 / mo</td>
-                                <td style="color: var(--clr-cyan); font-weight: 700;">₹599 / mo</td>
-                                <td><span class="savings-pill">Save 70%</span></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 700; color: #fff;">Canva Pro Team Invite</td>
-                                <td>₹1,499 / mo</td>
-                                <td style="color: var(--clr-cyan); font-weight: 700;">₹499 / mo</td>
-                                <td><span class="savings-pill">Save 66%</span></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 700; color: #fff;">Adobe Creative Cloud</td>
-                                <td>₹8,999 / mo</td>
-                                <td style="color: var(--clr-cyan); font-weight: 700;">₹999 / mo</td>
-                                <td><span class="savings-pill">Save 89%</span></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 700; color: #fff;">Cursor Pro AI Editor</td>
-                                <td>₹1,999 / mo</td>
-                                <td style="color: var(--clr-cyan); font-weight: 700;">₹599 / mo</td>
-                                <td><span class="savings-pill">Save 70%</span></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 700; color: #fff;">TradingView Premium</td>
-                                <td>₹5,990 / mo</td>
-                                <td style="color: var(--clr-cyan); font-weight: 700;">₹899 / mo</td>
-                                <td><span class="savings-pill">Save 85%</span></td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight: 700; color: #fff;">LinkedIn Premium Business</td>
-                                <td>₹5,999 / mo</td>
-                                <td style="color: var(--clr-cyan); font-weight: 700;">₹799 / mo</td>
-                                <td><span class="savings-pill">Save 86%</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </section>
@@ -1087,185 +921,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Architectural Roadmap & Dashboard Preview Section -->
-        <section class="roadmap-dashboard-section container" id="roadmap-dashboard" style="margin-top: 5rem; padding-bottom: 5rem;">
-            <div class="section-header text-center">
-                <div class="hero-badge" style="margin: 0 auto 1.5rem;">
-                    <i data-lucide="package" class="icon-sparkle"></i>
-                    <span>My Stack Workspace</span>
-                </div>
-                <h2 class="section-title" style="margin-bottom: 0.75rem;">Your Stack <span class="gradient-text">Workspace</span></h2>
-                <p class="section-subtitle" style="margin-bottom: 1.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-                    Easily access your active subscription licenses, view activation credentials, track renewals, earn referral payouts, and download invoices.
-                </p>
-
-                <!-- Order Sync / Retrieve Form -->
-                <div class="order-sync-search-container" style="max-width: 500px; margin: 0 auto 2.5rem; padding: 1.25rem; border-radius: 12px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-                    <h4 style="font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                        <i data-lucide="refresh-cw" style="width: 12px; height: 12px; color: var(--clr-cyan);"></i>
-                        Retrieve / Sync Purchases Across Devices
-                    </h4>
-                    <form id="order-sync-search-form" style="display: flex; gap: 0.5rem; width: 100%;">
-                        <div style="position: relative; flex-grow: 1;">
-                            <i data-lucide="search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; color: var(--text-muted);"></i>
-                            <input type="text" id="order-sync-search-input" placeholder="Enter Email, WhatsApp, or Order ID (LD-...)" 
-                                   style="width: 100%; padding: 0.65rem 1rem 0.65rem 2.25rem; border-radius: 8px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-primary); font-size: 0.85rem; transition: all 0.3s; font-family: inherit;" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary" id="btn-order-sync-submit" style="padding: 0.65rem 1.25rem; border-radius: 8px; font-size: 0.85rem; white-space: nowrap;">
-                            <span>Sync Stacks</span>
-                        </button>
-                    </form>
-                    <div id="order-sync-status-msg" style="margin-top: 0.75rem; font-size: 0.8rem; border-radius: 6px; padding: 0.5rem; display: none;"></div>
-                </div>
-            </div>
-
-            <div class="dashboard-preview-card">
-                <div class="dash-mock-layout">
-                    <!-- Sidebar -->
-                    <div class="dash-mock-sidebar">
-                        <button class="dash-sidebar-btn active" data-dash-panel="dash-panel-licenses">
-                            <i data-lucide="package" style="width: 14px; height: 14px;"></i>
-                            <span>My Stacks</span>
-                        </button>
-                        <button class="dash-sidebar-btn" data-dash-panel="dash-panel-referrals">
-                            <i data-lucide="share-2" style="width: 14px; height: 14px;"></i>
-                            <span>Rewards & Ref</span>
-                        </button>
-                        <button class="dash-sidebar-btn" data-dash-panel="dash-panel-invoices">
-                            <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
-                            <span>Invoices</span>
-                        </button>
-
-                    </div>
-
-                    <!-- Panel Content -->
-                    <!-- Panel 1: Licenses -->
-                    <div class="dash-mock-panel active" id="dash-panel-licenses">
-                        <h3 class="dash-panel-title">Active Stack Subscriptions</h3>
-                        <p class="dash-panel-subtitle">Manage credentials and monitor renewal dates for your active workspace tools.</p>
-                        
-                        <div class="dash-grid-stats">
-                            <div class="dash-stat-box">
-                                <span class="dash-stat-label">Active Stacks</span>
-                                <span class="dash-stat-value">3 Stacks</span>
-                            </div>
-                            <div class="dash-stat-box">
-                                <span class="dash-stat-label">Next Renewal</span>
-                                <span class="dash-stat-value" style="color: var(--clr-cyan);">June 15, 2026</span>
-                            </div>
-                            <div class="dash-stat-box">
-                                <span class="dash-stat-label">Total Saved</span>
-                                <span class="dash-stat-value" style="color: var(--clr-green);">₹38,400</span>
-                            </div>
-                        </div>
-
-                        <div style="overflow-x: auto;">
-                            <table class="dash-table">
-                                <thead>
-                                    <tr>
-                                        <th>Tool Stack</th>
-                                        <th>Validity</th>
-                                        <th>Renew Date</th>
-                                        <th>Status</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td style="font-weight: 600;">ChatGPT Plus</td>
-                                        <td>12 Months</td>
-                                        <td>May 10, 2027</td>
-                                        <td><span class="dash-badge-status active">Active</span></td>
-                                        <td><button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;" onclick="alert('Demo feature: Credentials will show here.')">Show Login</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-weight: 600;">Cursor Pro</td>
-                                        <td>6 Months</td>
-                                        <td>Nov 22, 2026</td>
-                                        <td><span class="dash-badge-status active">Active</span></td>
-                                        <td><button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;" onclick="alert('Demo feature: Credentials will show here.')">Show Login</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-weight: 600;">Adobe Creative Cloud</td>
-                                        <td>1 Month</td>
-                                        <td>June 15, 2026</td>
-                                        <td><span class="dash-badge-status pending">Expiring Soon</span></td>
-                                        <td><a href="#products" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem; color: white;">Renew Deal</a></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Panel 2: Referrals -->
-                    <div class="dash-mock-panel" id="dash-panel-referrals">
-                        <h3 class="dash-panel-title">Founders Referral Program</h3>
-                        <p class="dash-panel-subtitle">Share your startup stack link and earn 15% recurring lifetime payout on every order.</p>
-
-                        <div class="dash-grid-stats">
-                            <div class="dash-stat-box">
-                                <span class="dash-stat-label">Referral Link Clicks</span>
-                                <span class="dash-stat-value">342 Clicks</span>
-                            </div>
-                            <div class="dash-stat-box">
-                                <span class="dash-stat-label">Conversions</span>
-                                <span class="dash-stat-value">28 Signups</span>
-                            </div>
-                            <div class="dash-stat-box">
-                                <span class="dash-stat-label">Payout Earned</span>
-                                <span class="dash-stat-value" style="color: var(--clr-green);">₹8,490.50</span>
-                            </div>
-                        </div>
-
-                        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 1rem;">
-                            <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem; font-weight: 600;">Your Referral URL</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" value="https://lightning-deals.com/ref/founder10" readonly style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 0.5rem; color: var(--text-primary); font-family: monospace; font-size: 0.8rem; flex: 1;">
-                                <button class="btn btn-secondary btn-sm" style="padding: 0 1rem;" onclick="navigator.clipboard.writeText('https://lightning-deals.com/ref/founder10'); alert('Referral link copied to clipboard!')">Copy</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Panel 3: Invoices -->
-                    <div class="dash-mock-panel" id="dash-panel-invoices">
-                        <h3 class="dash-panel-title">Invoices & Billing Statements</h3>
-                        <p class="dash-panel-subtitle">Download official receipts and tax invoices for accounting write-offs.</p>
-
-                        <div style="overflow-x: auto;">
-                            <table class="dash-table">
-                                <thead>
-                                    <tr>
-                                        <th>Invoice ID</th>
-                                        <th>Date</th>
-                                        <th>Description</th>
-                                        <th>Amount</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td style="font-family: monospace;">INV-2026-0041</td>
-                                        <td>May 22, 2026</td>
-                                        <td>ChatGPT Plus (12 Months)</td>
-                                        <td>₹4,999</td>
-                                        <td><button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;" onclick="alert('Demo feature: Invoice PDF downloading.')"><i data-lucide="download" style="width: 10px; height: 10px; display: inline; margin-right: 4px;"></i> PDF</button></td>
-                                    </tr>
-                                    <tr>
-                                        <td style="font-family: monospace;">INV-2026-0028</td>
-                                        <td>April 15, 2026</td>
-                                        <td>Adobe CC (1 Month) + Spotify Invite</td>
-                                        <td>₹1,148</td>
-                                        <td><button class="btn btn-secondary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;" onclick="alert('Demo feature: Invoice PDF downloading.')"><i data-lucide="download" style="width: 10px; height: 10px; display: inline; margin-right: 4px;"></i> PDF</button></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-
-                </div>
-            </div>
         <!-- Section 10: Final CTA Section -->
         <section id="final-cta" class="final-cta-section">
             <div class="container">
@@ -1276,8 +931,8 @@
                         <a href="#products" class="btn btn-primary btn-lg btn-glow">
                             <span>Explore Stacks</span>
                         </a>
-                        <a href="#bundles" class="btn btn-secondary btn-lg">
-                            <span>Browse Bundles</span>
+                        <a href="#contact" class="btn btn-secondary btn-lg">
+                            <span>Contact Support</span>
                         </a>
                     </div>
                 </div>
@@ -1320,9 +975,9 @@
 
             <div class="footer-links-group">
                 <h4 class="footer-links-title">Legals</h4>
-                <a href="#" class="footer-link">Terms of Service</a>
-                <a href="#" class="footer-link">Refund Policy</a>
-                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link" id="link-terms">Terms of Service</a>
+                <a href="#" class="footer-link" id="link-refund">Refund Policy</a>
+                <a href="#" class="footer-link" id="link-privacy">Privacy Policy</a>
                 <a href="admin.html" class="footer-link admin-lock-link"><i data-lucide="lock"></i> Staff Dashboard</a>
             </div>
         </div>
@@ -1804,6 +1459,37 @@
             </button>
             <img id="receipt-lightbox-img" src="" alt="Payment Receipt Screenshot" style="max-width: 100%; max-height: 75vh; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 24px 48px rgba(0,0,0,0.8);">
             <div id="receipt-lightbox-details" style="color: var(--text-muted); font-size: 0.8rem; margin-top: 12px; font-family: monospace; text-align: center;"></div>
+        </div>
+    </div>
+
+    <!-- Legal Policy Modal -->
+    <div class="modal-overlay" id="legal-modal" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title" style="z-index: 100000;">
+        <div class="modal-card glass-card" style="max-width: 700px; width: 100%;">
+            <!-- Close Button -->
+            <button class="modal-close-btn" id="close-legal-modal-btn" aria-label="Close dialog">
+                <i data-lucide="x"></i>
+            </button>
+            
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <div class="modal-logo-wrapper" style="background: rgba(0, 242, 254, 0.1); color: var(--clr-cyan); width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 10px;"><i data-lucide="file-text" style="width: 20px; height: 20px;"></i></div>
+                <div>
+                    <h3 class="modal-title" id="legal-modal-title" style="font-size: 1.25rem;">Policy Title</h3>
+                    <span class="modal-subtitle">Last updated: May 2026</span>
+                </div>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="modal-body" id="legal-modal-content" style="max-height: 55vh; overflow-y: auto; padding: 1.5rem 0.5rem; color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); margin-top: 1rem; margin-bottom: 1rem;">
+                <!-- Populated dynamically by JS -->
+            </div>
+            
+            <!-- Modal Footer -->
+            <div style="display: flex; justify-content: flex-end;">
+                <button class="btn btn-primary btn-sm" id="btn-close-legal" style="padding: 0.6rem 1.5rem;">
+                    Got it, close
+                </button>
+            </div>
         </div>
     </div>
 
