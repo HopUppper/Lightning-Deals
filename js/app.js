@@ -1730,7 +1730,7 @@ function setupPurchaseModal() {
             btnRazorpayCheckout.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 16px; height: 16px; display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; vertical-align: middle;"></span> Processing...`;
 
             // Call secure API to construct Razorpay transaction order
-            fetch('api/create-order.php', {
+            fetch('/.netlify/functions/create-order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1815,7 +1815,7 @@ function setupPurchaseModal() {
             btnRazorpayCheckout.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 16px; height: 16px; display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; vertical-align: middle;"></span> Verifying Signature...`;
         }
 
-        fetch('api/verify-payment.php', {
+        fetch('/.netlify/functions/verify-payment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

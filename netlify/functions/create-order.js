@@ -1,8 +1,36 @@
-const crypto = require('crypto');
+const https = require('https');
 
 // Razorpay Live API Credentials loaded securely from Netlify environment variables
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID;
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
+
+// Helper function to perform secure HTTPS requests using Node's native module
+function httpsRequest(options, postData) {
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      let body = '';
+      res.on('data', (chunk) => {
+        body += chunk;
+      });
+      res.on('end', () => {
+        resolve({
+          statusCode: res.statusCode,
+          headers: res.headers,
+          body: body
+        });
+      });
+    });
+
+    req.on('error', (err) => {
+      reject(err);
+    });
+
+    if (postData) {
+      req.write(postData);
+    }
+    req.end();
+  });
+}
 
 exports.handler = async (event, context) => {
   // CORS Headers
@@ -27,6 +55,14 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    if (!event.body) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Missing request body.' })
+      };
+    }
+
     const input = JSON.parse(event.body);
     if (!input || !input.amount || !input.receipt) {
       return {
@@ -39,32 +75,46 @@ exports.handler = async (event, context) => {
     const amount = parseInt(input.amount);
     const receipt = input.receipt.replace(/[^A-Za-z0-9_\-]/g, '');
 
+    if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) {
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Razorpay keys are not configured in Netlify environment variables.' })
+      };
+    }
+
     // Razorpay basic authorization token (Base64 key:secret)
     const auth = Buffer.from(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`).toString('base64');
 
-    const response = await fetch('https://api.razorpay.com/v1/orders', {
+    const postData = JSON.stringify({
+      amount: amount,
+      currency: 'INR',
+      receipt: receipt,
+      payment_capture: 1
+    });
+
+    const options = {
+      hostname: 'api.razorpay.com',
+      port: 443,
+      path: '/v1/orders',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${auth}`
-      },
-      body: JSON.stringify({
-        amount: amount,
-        currency: 'INR',
-        receipt: receipt,
-        payment_capture: 1
-      })
-    });
+        'Authorization': `Basic ${auth}`,
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
 
-    const data = await response.json();
+    const result = await httpsRequest(options, postData);
+    const responseBody = JSON.parse(result.body);
 
-    if (!response.ok) {
+    if (result.statusCode !== 200 && result.statusCode !== 201) {
       return {
-        statusCode: response.status,
+        statusCode: result.statusCode,
         headers,
         body: JSON.stringify({
           error: 'Razorpay API rejected order creation',
-          details: data
+          details: responseBody
         })
       };
     }
@@ -72,7 +122,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify(data)
+      body: JSON.stringify(responseBody)
     };
   } catch (error) {
     console.error('Error in create-order Netlify function:', error);
