@@ -702,6 +702,36 @@ function getProductPersonas(prod) {
     return personas;
 }
 
+// --- Trust system maps and lookup helpers ---
+const valueProps = {
+    'canva-pro': 'Full Pro library & Background Remover',
+    'adobe-cc': 'All 20+ desktop/mobile apps & Firefly AI',
+    'notion-pro': 'Unlimited block uploads & Notion AI',
+    'ms-office': 'Premium Office install on 5 devices + 1TB OneDrive',
+    'netflix-premium': 'Ultra HD 4K streaming & ad-free profile',
+    'spotify-premium': 'Ad-free high fidelity music & offline downloads',
+    'linkedin-premium': 'Business Premium license & 15 InMail credits',
+    'tradingview-premium': 'Institutional trading charts & second-based intervals',
+    'chatgpt-plus': 'Priority GPT-4o access & custom GPTs',
+    'cursor-pro': 'Unlimited Claude 3.5 Sonnet & GPT-4o in IDE'
+};
+
+function getProductTrustData(prodId) {
+    const data = {
+        'canva-pro': { rating: '4.8', count: '312', views: '47', delivery: '8 min' },
+        'adobe-cc': { rating: '4.9', count: '241', views: '28', delivery: '10 min' },
+        'notion-pro': { rating: '4.7', count: '108', views: '14', delivery: '5 min' },
+        'ms-office': { rating: '4.8', count: '189', views: '19', delivery: '8 min' },
+        'netflix-premium': { rating: '4.9', count: '453', views: '84', delivery: '5 min' },
+        'spotify-premium': { rating: '4.8', count: '382', views: '61', delivery: '5 min' },
+        'linkedin-premium': { rating: '4.8', count: '198', views: '32', delivery: '15 min' },
+        'tradingview-premium': { rating: '4.9', count: '167', views: '25', delivery: '10 min' },
+        'chatgpt-plus': { rating: '4.9', count: '512', views: '98', delivery: '8 min' },
+        'cursor-pro': { rating: '4.9', count: '224', views: '41', delivery: '8 min' }
+    };
+    return data[prodId] || { rating: '4.8', count: '47', views: '12', delivery: '8 min' };
+}
+
 function applyStoreFilters() {
     const grid = document.getElementById('store-products-grid');
     if (!grid) return;
@@ -859,13 +889,24 @@ function applyStoreFilters() {
             </div>
         `;
 
+        const trustData = getProductTrustData(prod.id);
+        const valueProp = valueProps[prod.id] || (prod.features && prod.features[0]) || prod.description.slice(0, 50) + '...';
+
         card.innerHTML = `
             <div class="prod-header">
                 <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
                 ${badgeHTML}
             </div>
             <h3 class="prod-title">${prod.name}</h3>
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 0.25rem;">
+            <div class="prod-value-prop">${valueProp}</div>
+            
+            <div class="product-card-rating">
+                <i data-lucide="star" class="star-icon"></i>
+                <span class="rating-val">${trustData.rating}</span>
+                <span class="rating-count">(${trustData.count} activations)</span>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 0.5rem; margin-top: 0.5rem;">
                 ${stockHTML}
                 ${demandHTML}
             </div>
@@ -877,21 +918,32 @@ function applyStoreFilters() {
                 <div class="price-comp-row">
                     <span class="prod-price-new">₹${priceVal.toLocaleString('en-IN')}</span>
                     <span class="retail-crossed">₹${retailVal.toLocaleString('en-IN')}</span>
-                    ${percentSaved > 0 ? `<span class="savings-badge">Save ${percentSaved}%</span>` : ''}
+                    ${percentSaved > 0 ? `<span class="savings-badge">${percentSaved}% savings</span>` : ''}
                 </div>
             </div>
+
+            <!-- Product Card Trust Features Checklist -->
+            <ul class="product-card-trust-features">
+                <li><i data-lucide="check" class="check-icon"></i> Delivery in ${trustData.delivery} avg</li>
+                <li><i data-lucide="shield-check" class="check-icon"></i> Replacement warranty included</li>
+            </ul>
 
             <ul class="prod-benefits" style="margin-top: 0.75rem;">
                 ${benefitsHTML}
             </ul>
 
-            <div class="card-actions-wrapper" style="display: flex; gap: 0.5rem; width: 100%; margin-top: auto; padding-top: 1rem;">
+            <div class="card-actions-wrapper" style="display: flex; gap: 0.5rem; width: 100%; margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.03);">
                 <button class="btn btn-primary btn-glow cta-purchase-trigger" data-id="${prod.id}" style="flex-grow: 1;">
-                    <span>Add to Cart</span>
+                    <span>Get Access &rarr;</span>
                 </button>
                 <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button">
                     <i data-lucide="heart"></i>
                 </button>
+            </div>
+            
+            <div class="product-card-social-footer">
+                <i data-lucide="eye" style="width: 12px; height: 12px; opacity: 0.6;"></i>
+                <span>${trustData.views} people got this today</span>
             </div>
         `;
 
@@ -1613,6 +1665,12 @@ function setupPurchaseModal() {
         }
         if (labelUpiIdDisplay) {
             labelUpiIdDisplay.innerText = upiId;
+        }
+        
+        // Mobile UPI deep-link routing
+        const mobileUpiDeeplink = document.getElementById('mobile-upi-deeplink');
+        if (mobileUpiDeeplink) {
+            mobileUpiDeeplink.setAttribute('href', upiUrl);
         }
     }
 

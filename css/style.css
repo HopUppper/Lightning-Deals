@@ -7260,6 +7260,237 @@ html, body {
     }
 }
 
+/* ==========================================================================
+   CRO & UX OVERHAUL: TRUST SYSTEMS & MOBILE RECONCILIATIONS
+   ========================================================================== */
+
+/* Announcement Bar Style */
+.announcement-bar {
+    background: linear-gradient(90deg, #0A0A0B, #1A1A1D, #0A0A0B);
+    border-bottom: 1px solid rgba(245, 200, 66, 0.15);
+    color: #F0EFEA;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-align: center;
+    padding: 8px 16px;
+    position: relative;
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: 0.03em;
+}
+.announcement-bar span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Skeleton Card Styling */
+.skeleton-card {
+    padding: 24px;
+    background: rgba(26, 26, 29, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    overflow: hidden;
+}
+.skeleton-card .skeleton-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.skeleton-card .skeleton-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.03);
+    position: relative;
+}
+.skeleton-card .skeleton-circle::after,
+.skeleton-card .skeleton-badge::after,
+.skeleton-card .skeleton-line-long::after,
+.skeleton-card .skeleton-line-medium::after,
+.skeleton-card .skeleton-line-short::after,
+.skeleton-card .skeleton-line-price::after,
+.skeleton-card .skeleton-button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+    transform: translateX(-100%);
+    animation: skeletonShimmer 1.6s infinite;
+}
+@keyframes skeletonShimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+.skeleton-card .skeleton-badge {
+    width: 80px;
+    height: 24px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    position: relative;
+    overflow: hidden;
+}
+.skeleton-card .skeleton-line-long {
+    width: 100%;
+    height: 16px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    position: relative;
+    overflow: hidden;
+}
+.skeleton-card .skeleton-line-medium {
+    width: 70%;
+    height: 14px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    position: relative;
+    overflow: hidden;
+}
+.skeleton-card .skeleton-price-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+}
+.skeleton-card .skeleton-line-short {
+    width: 30%;
+    height: 12px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    position: relative;
+    overflow: hidden;
+}
+.skeleton-card .skeleton-line-price {
+    width: 50%;
+    height: 28px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    position: relative;
+    overflow: hidden;
+}
+.skeleton-card .skeleton-button {
+    width: 100%;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    margin-top: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Force unblurry proof images */
+.proof-img {
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+/* Hide old sky flash lighting overlay */
+.lightning-flash-overlay {
+    display: none !important;
+}
+
+/* Product Card Trust Features Styling */
+.prod-value-prop {
+    font-size: 0.8rem;
+    color: var(--clr-cyan);
+    font-weight: 500;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+
+.product-card-rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.76rem;
+    color: #fff;
+    margin-bottom: 8px;
+}
+.product-card-rating .star-icon {
+    width: 13px;
+    height: 13px;
+    fill: #F5C842;
+    color: #F5C842;
+}
+.product-card-rating .rating-val {
+    font-weight: 700;
+    color: #F5C842;
+}
+.product-card-rating .rating-count {
+    color: var(--text-muted);
+}
+
+.product-card-trust-features {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding: 0;
+    list-style: none;
+}
+.product-card-trust-features li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+}
+.product-card-trust-features li .check-icon {
+    width: 14px;
+    height: 14px;
+    color: var(--clr-green);
+}
+
+.product-card-social-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 10px;
+    opacity: 0.8;
+}
+
+/* Mobile UPI & Desktop payment routing instructions */
+@media (max-width: 768px) {
+    .desktop-only-instruction {
+        display: none !important;
+    }
+    #mobile-upi-pay-wrapper {
+        display: block !important;
+    }
+    .upi-qr-wrapper, .upi-id-copy-box {
+        display: none !important;
+    }
+}
+@media (min-width: 769px) {
+    .desktop-only-instruction {
+        display: block !important;
+    }
+    #mobile-upi-pay-wrapper {
+        display: none !important;
+    }
+    .upi-qr-wrapper, .upi-id-copy-box {
+        display: flex !important;
+    }
+}
+
 
 
 

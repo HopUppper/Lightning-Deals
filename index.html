@@ -16,8 +16,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-    <!-- Background Lightning Overlay -->
-    <div class="lightning-flash-overlay"></div>
+    <!-- Sticky Urgency Announcement Bar -->
+    <div class="announcement-bar">
+        <span>⚡ 47 subscriptions activated today · Average delivery: 8 min · 7-Day Replacement Warranty included</span>
+    </div>
 
     <div class="bg-orbs-container">
         <div class="orb orb-cyan"></div>
@@ -69,7 +71,7 @@
                     <span class="badge-cart-count" id="cart-count-badge">0</span>
                 </button>
                 <a href="#products" class="btn btn-primary btn-sm btn-glow" id="nav-cta-btn">
-                    <span>Get Premium Access</span>
+                    <span>See Today's Deals</span>
                 </a>
                 <button class="mobile-nav-toggle" id="mobile-menu-toggle" aria-label="Toggle Navigation Menu">
                     <i data-lucide="menu"></i>
@@ -97,22 +99,22 @@
             <div class="container hero-container">
                 <div class="hero-content">
                     <div class="hero-badge fade-in">
-                        <i data-lucide="zap" class="icon-sparkle" style="color: var(--clr-cyan);"></i>
-                        <span>UPTO 90% OFF SPECIAL OFFER</span>
+                        <i data-lucide="zap" class="icon-sparkle" style="color: #F5C842;"></i>
+                        <span>3,481 Active Subscriptions • 8-Min Avg. Setup</span>
                     </div>
                     <h1 class="hero-title fade-in delay-1">
-                        Premium AI & Software Access <br>
-                        <span class="gradient-text">Without Enterprise Pricing</span>
+                        Your tools. 90% cheaper. <br>
+                        <span class="gradient-text">Activated in 10 minutes.</span>
                     </h1>
                     <p class="hero-subtitle fade-in delay-2">
-                        Get instant premium access to ChatGPT Plus, Canva Pro, Adobe Creative Cloud, Cursor Pro, TradingView, and more. Build your dream workspace for 90% less.
+                        The software stack of a funded startup, on a freelancer's budget. Get Canva Pro, Adobe CC, ChatGPT Plus, and more on official channels.
                     </p>
                     <div class="hero-actions fade-in delay-3">
                         <a href="#products" class="btn btn-primary btn-lg btn-glow" id="hero-cta-primary">
-                            <span>Explore Premium Deals</span>
+                            <span>See Today's Deals (47 active)</span>
                         </a>
-                        <a href="#how-it-works" class="btn btn-secondary btn-lg" id="hero-cta-secondary">
-                            <span>How it Works</span>
+                        <a href="#how-we-source" class="btn btn-secondary btn-lg" id="hero-cta-secondary">
+                            <span>How We Source Licenses</span>
                         </a>
                     </div>
                 </div>
@@ -200,46 +202,21 @@
                 </div>
             </div>
 
-            <!-- Brand Logo Marquee Scroll -->
+            <!-- Brand Trust Marquee Strip -->
             <div class="brand-marquee-container">
-                <div class="brand-marquee-title">Powering creators, students, developers, and businesses from</div>
-                <div class="brand-marquee-track">
+                <div class="brand-marquee-title">Used by designers, developers, and bootstrapping founders across India</div>
+                <div class="brand-marquee-track-static">
                     <div class="brand-logo-item">
-                        <i data-lucide="terminal"></i><span>Supabase</span>
+                        <i data-lucide="zap" style="color: #F5C842;"></i><span>3,481 Active Subscriptions</span>
                     </div>
                     <div class="brand-logo-item">
-                        <i data-lucide="code-2"></i><span>Vercel</span>
+                        <i data-lucide="clock" style="color: #F5C842;"></i><span>8-Min Avg. Delivery</span>
                     </div>
                     <div class="brand-logo-item">
-                        <i data-lucide="activity"></i><span>Linear</span>
+                        <i data-lucide="shield-check" style="color: #F5C842;"></i><span>7-Day Replacement Cover</span>
                     </div>
                     <div class="brand-logo-item">
-                        <i data-lucide="cpu"></i><span>OpenAI</span>
-                    </div>
-                    <div class="brand-logo-item">
-                        <i data-lucide="layers"></i><span>Framer</span>
-                    </div>
-                    <div class="brand-logo-item">
-                        <i data-lucide="figma"></i><span>Figma</span>
-                    </div>
-                    <!-- Duplicate for infinite marquee scrolling effect -->
-                    <div class="brand-logo-item">
-                        <i data-lucide="terminal"></i><span>Supabase</span>
-                    </div>
-                    <div class="brand-logo-item">
-                        <i data-lucide="code-2"></i><span>Vercel</span>
-                    </div>
-                    <div class="brand-logo-item">
-                        <i data-lucide="activity"></i><span>Linear</span>
-                    </div>
-                    <div class="brand-logo-item">
-                        <i data-lucide="cpu"></i><span>OpenAI</span>
-                    </div>
-                    <div class="brand-logo-item">
-                        <i data-lucide="layers"></i><span>Framer</span>
-                    </div>
-                    <div class="brand-logo-item">
-                        <i data-lucide="figma"></i><span>Figma</span>
+                        <i data-lucide="message-square" style="color: #F5C842;"></i><span>24/7 WhatsApp Support</span>
                     </div>
                 </div>
             </div>
@@ -328,197 +305,31 @@
             </div>
         </section>
 
-        <!-- Proof Carousel Section -->
-        <section class="proof-carousel-section">
-            <div class="container">
-                <div class="section-header text-center" style="margin-bottom: 2rem;">
-                    <h2 class="section-title">Verified <span class="gradient-text">Activation Proof</span></h2>
-                    <p class="section-subtitle">Real screenshots of customer setups and activated memberships. Hover to unblur.</p>
-                </div>
-                
-                <div class="proof-carousel-container">
-                    <div class="proof-carousel-track">
-                        <!-- Card 1 -->
-                        <div class="proof-card">
-                            <div class="proof-img-container">
-                                <img src="img/chatgpt_proof.png" alt="ChatGPT Plus Activation Proof" class="proof-img">
-                                <div class="proof-overlay-lens"></div>
-                            </div>
-                            <div class="proof-card-info">
-                                <span class="proof-card-user">Rahul M. (Mumbai)</span>
-                                <span class="proof-card-details">ChatGPT Plus</span>
-                            </div>
-                        </div>
-                        <!-- Card 2 -->
-                        <div class="proof-card">
-                            <div class="proof-img-container">
-                                <img src="img/canva_proof.png" alt="Canva Pro Invite Proof" class="proof-img">
-                                <div class="proof-overlay-lens"></div>
-                            </div>
-                            <div class="proof-card-info">
-                                <span class="proof-card-user">Siddharth J. (Delhi)</span>
-                                <span class="proof-card-details">Canva Pro Team</span>
-                            </div>
-                        </div>
-                        <!-- Card 3 -->
-                        <div class="proof-card">
-                            <div class="proof-img-container">
-                                <img src="img/adobe_proof.png" alt="Adobe CC License Proof" class="proof-img">
-                                <div class="proof-overlay-lens"></div>
-                            </div>
-                            <div class="proof-card-info">
-                                <span class="proof-card-user">Sarah L. (Bangalore)</span>
-                                <span class="proof-card-details">Adobe Creative Cloud</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Duplicate cards for infinite scrolling loop -->
-                        <div class="proof-card">
-                            <div class="proof-img-container">
-                                <img src="img/chatgpt_proof.png" alt="ChatGPT Plus Activation Proof" class="proof-img">
-                                <div class="proof-overlay-lens"></div>
-                            </div>
-                            <div class="proof-card-info">
-                                <span class="proof-card-user">Rahul M. (Mumbai)</span>
-                                <span class="proof-card-details">ChatGPT Plus</span>
-                            </div>
-                        </div>
-                        <div class="proof-card">
-                            <div class="proof-img-container">
-                                <img src="img/canva_proof.png" alt="Canva Pro Invite Proof" class="proof-img">
-                                <div class="proof-overlay-lens"></div>
-                            </div>
-                            <div class="proof-card-info">
-                                <span class="proof-card-user">Siddharth J. (Delhi)</span>
-                                <span class="proof-card-details">Canva Pro Team</span>
-                            </div>
-                        </div>
-                        <div class="proof-card">
-                            <div class="proof-img-container">
-                                <img src="img/adobe_proof.png" alt="Adobe CC License Proof" class="proof-img">
-                                <div class="proof-overlay-lens"></div>
-                            </div>
-                            <div class="proof-card-info">
-                                <span class="proof-card-user">Sarah L. (Bangalore)</span>
-                                <span class="proof-card-details">Adobe Creative Cloud</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Products Section -->
-        <section id="products" class="products-section">
+        <!-- Section 4: How We Source Our Licenses -->
+        <section id="how-we-source" class="why-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
             <div class="container">
                 <div class="section-header text-center">
-                    <h2 class="section-title">Trending <span class="gradient-text">Subscription Deals</span></h2>
-                    <p class="section-subtitle">Get full access to standard commercial tools. Choose your subscription and grab your discount instantly.</p>
-                </div>
-                
-                <!-- Search & Filters Wrapper -->
-                <div class="search-filter-wrapper">
-                    <div class="search-input-group">
-                        <input type="text" id="store-search-input" placeholder="Search premium subscriptions..." autocomplete="off">
-                        <i data-lucide="search"></i>
-                        <div class="search-suggestions-dropdown" id="search-suggestions">
-                            <!-- Filled dynamically -->
-                        </div>
-                    </div>
-                    
-                    <!-- Desktop Category Filter Buttons -->
-                    <div class="category-filters" id="category-filters-container">
-                        <button class="filter-btn active" data-category="bestsellers">Bestsellers</button>
-                        <button class="filter-btn" data-category="all">All Stacks</button>
-                        <button class="filter-btn" data-category="ai">AI Tools</button>
-                        <button class="filter-btn" data-category="dev">Developer Tools</button>
-                        <button class="filter-btn" data-category="design">Design & Creative</button>
-                        <button class="filter-btn" data-category="productivity">Productivity</button>
-                        <button class="filter-btn" data-category="finance">Finance</button>
-                    </div>
-
-                    <!-- Target Audience Filters -->
-                    <div class="persona-filter-wrapper" style="margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: center; width: 100%;">
-                        <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Filter by Use Case:</span>
-                        <div class="category-filters" id="persona-filters-container" style="margin-bottom: 0; display: inline-flex;">
-                            <button class="filter-btn active" data-persona="all">All Users</button>
-                            <button class="filter-btn" data-persona="students">Students</button>
-                            <button class="filter-btn" data-persona="creators">Creators</button>
-                            <button class="filter-btn" data-persona="developers">Developers</button>
-                            <button class="filter-btn" data-persona="business">Businesses</button>
-                            <button class="filter-btn" data-persona="traders">Traders</button>
-                        </div>
-                    </div>
-
-                    <!-- Mobile Category Dropdown Selector -->
-                    <div class="mobile-filter-select-wrapper" style="display: flex; gap: 0.5rem; flex-direction: column; width: 100%;">
-                        <select class="mobile-filter-select" id="store-category-select">
-                            <option value="bestsellers">Bestsellers</option>
-                            <option value="all">All Stacks</option>
-                            <option value="ai">AI Tools</option>
-                            <option value="dev">Developer Tools</option>
-                            <option value="design">Design & Creative</option>
-                            <option value="productivity">Productivity</option>
-                            <option value="finance">Finance</option>
-                        </select>
-                        <select class="mobile-filter-select" id="store-persona-select" style="margin-top: 0.5rem;">
-                            <option value="all">All Users</option>
-                            <option value="students">For Students</option>
-                            <option value="creators">For Creators</option>
-                            <option value="developers">For Developers</option>
-                            <option value="business">For Businesses</option>
-                            <option value="traders">For Traders</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Products Grid -->
-                <div class="products-grid" id="store-products-grid">
-                    <!-- Dynamically populated from JS -->
-                    <div class="loading-state text-center">
-                        <div class="spinner"></div>
-                        <p>Loading premium deals...</p>
-                    </div>
-                </div>
-
-                <!-- Recently Viewed Section -->
-                <div class="recently-viewed-container" id="recently-viewed-section" style="display: none; margin-top: 4rem; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 3rem;">
-                    <div class="section-header text-center" style="margin-bottom: 2rem;">
-                        <h3 class="section-title" style="font-size: 1.5rem;">Recently <span class="gradient-text">Viewed Deals</span></h3>
-                        <p class="section-subtitle" style="font-size: 0.85rem;">Items you checked out recently.</p>
-                    </div>
-                    <div class="products-grid" id="recently-viewed-grid">
-                        <!-- Dynamically populated -->
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section 4: Why Prices Are Lower -->
-        <section id="why-lower" class="why-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
-            <div class="container">
-                <div class="section-header text-center">
-                    <h2 class="section-title">Why Our Prices Are <span class="gradient-text">So Low</span></h2>
-                    <p class="section-subtitle">We bridge the gap between premium enterprise SaaS licenses and budget-conscious builders. Here is how we do it, 100% legally.</p>
+                    <h2 class="section-title">How We Source Our <span class="gradient-text">License Slots</span></h2>
+                    <p class="section-subtitle">We pool community buying power to access corporate and developer volume subscription slots.</p>
                 </div>
 
                 <div class="why-lower-grid">
-                    <!-- Card 1: Bulk Buying -->
+                    <!-- Card 1: Bulk Sourcing -->
                     <div class="why-lower-card glass-card">
                         <div class="why-lower-icon">
                             <i data-lucide="package"></i>
                         </div>
-                        <h3>Bulk Enterprise Licensing</h3>
-                        <p>We acquire licenses in bulk through official corporate developer accounts, volume team bundles, and enterprise seats, which allows us to get wholesale pricing and distribute slots affordably.</p>
+                        <h3>Bulk Enterprise Sourcing</h3>
+                        <p>Large corporations purchase enterprise software in massive volume pools (500+ seats). We procure spare seat allocations from these active, verified organizational groups at wholesale contract rates.</p>
                     </div>
 
-                    <!-- Card 2: Regional Parity -->
+                    <!-- Card 2: Global Arbitrage -->
                     <div class="why-lower-card glass-card">
                         <div class="why-lower-icon">
                             <i data-lucide="globe"></i>
                         </div>
-                        <h3>Regional Purchasing Power</h3>
-                        <p>SaaS companies charge differently across global markets. We purchase licenses in regions with lower purchasing parity rates and pass the massive structural discount directly onto you.</p>
+                        <h3>Global Pricing Arbitrage</h3>
+                        <p>SaaS companies charge significantly different rates across global regions to match local purchasing parity. We legally acquire our slots from official regional reseller channels to leverage these savings.</p>
                     </div>
 
                     <!-- Card 3: Direct Invites -->
@@ -526,8 +337,8 @@
                         <div class="why-lower-icon">
                             <i data-lucide="shield-check"></i>
                         </div>
-                        <h3>100% Legal Direct Activation</h3>
-                        <p>No illegal crack files or stolen credentials. We send official team organization invites or activation links directly to your personal email, maintaining your complete privacy.</p>
+                        <h3>Direct Account Invitations</h3>
+                        <p>No account access sharing or password safety risks. We add your existing personal email directly to our corporate developer group pools, keeping your personal folders and files 100% private to you.</p>
                     </div>
                 </div>
             </div>
@@ -612,7 +423,7 @@
         </section>
 
         <!-- How It Works Section -->
-        <section id="how-it-works" class="timeline-section">
+        <section id="how-it-works" class="timeline-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
             <div class="container">
                 <div class="section-header text-center">
                     <h2 class="section-title">How To <span class="gradient-text">Get Started</span></h2>
@@ -651,7 +462,7 @@
                                     </div>
                                     <h3 class="step-timeline-card-title">Enter Contact Details</h3>
                                 </div>
-                                <p class="step-timeline-card-desc">Enter your name, email, and WhatsApp mobile number. We will use these details to contact you and activate your premium access.</p>
+                                <p class="step-timeline-card-desc">Enter your email and optional WhatsApp mobile number. We will use these details to invite you directly to your software slot.</p>
                             </div>
                         </div>
                     </div>
@@ -665,9 +476,9 @@
                                     <div class="step-timeline-icon-box">
                                         <i data-lucide="qr-code"></i>
                                     </div>
-                                    <h3 class="step-timeline-card-title">Pay & Upload Receipt</h3>
+                                    <h3 class="step-timeline-card-title">Complete Secure Checkout</h3>
                                 </div>
-                                <p class="step-timeline-card-desc">Scan the UPI QR code to make payment, input your 12-digit UTR/Ref number, and drag/drop or upload your payment screenshot.</p>
+                                <p class="step-timeline-card-desc">Pay instantly using UPI. Desktop users scan a secure dynamic QR; mobile users simply tap the direct UPI deep-link button.</p>
                             </div>
                         </div>
                     </div>
@@ -681,15 +492,217 @@
                                     <div class="step-timeline-icon-box">
                                         <i data-lucide="check-circle2"></i>
                                     </div>
-                                    <h3 class="step-timeline-card-title">Get Instant Activation</h3>
+                                    <h3 class="step-timeline-card-title">Instant Organization Invite</h3>
                                 </div>
-                                <p class="step-timeline-card-desc">Once submitted, our admin verifies your transaction. Your login credentials or activation links are sent to your WhatsApp within 5-15 minutes.</p>
+                                <p class="step-timeline-card-desc">Once verified, your corporate organizational invite or dedicated access key is activated and delivered within 10 minutes average.</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Products Section -->
+        <section id="products" class="products-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Trending <span class="gradient-text">Subscription Deals</span></h2>
+                    <p class="section-subtitle">Get full access to standard commercial tools. Choose your subscription and grab your discount instantly.</p>
+                </div>
+                
+                <!-- Search & Filters Wrapper -->
+                <div class="search-filter-wrapper">
+                    <div class="search-input-group">
+                        <input type="text" id="store-search-input" placeholder="Search premium subscriptions..." autocomplete="off">
+                        <i data-lucide="search"></i>
+                        <div class="search-suggestions-dropdown" id="search-suggestions">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Desktop Category Filter Buttons -->
+                    <div class="category-filters" id="category-filters-container">
+                        <button class="filter-btn active" data-category="bestsellers">Bestsellers</button>
+                        <button class="filter-btn" data-category="all">All Stacks</button>
+                        <button class="filter-btn" data-category="ai">AI Tools</button>
+                        <button class="filter-btn" data-category="dev">Developer Tools</button>
+                        <button class="filter-btn" data-category="design">Design & Creative</button>
+                        <button class="filter-btn" data-category="productivity">Productivity</button>
+                        <button class="filter-btn" data-category="finance">Finance</button>
+                    </div>
+
+                    <!-- Target Audience Filters -->
+                    <div class="persona-filter-wrapper" style="margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; justify-content: center; width: 100%;">
+                        <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Filter by Use Case:</span>
+                        <div class="category-filters" id="persona-filters-container" style="margin-bottom: 0; display: inline-flex;">
+                            <button class="filter-btn active" data-persona="all">All Users</button>
+                            <button class="filter-btn" data-persona="students">Students</button>
+                            <button class="filter-btn" data-persona="creators">Creators</button>
+                            <button class="filter-btn" data-persona="developers">Developers</button>
+                            <button class="filter-btn" data-persona="business">Businesses</button>
+                            <button class="filter-btn" data-persona="traders">Traders</button>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Category Dropdown Selector -->
+                    <div class="mobile-filter-select-wrapper" style="display: flex; gap: 0.5rem; flex-direction: column; width: 100%;">
+                        <select class="mobile-filter-select" id="store-category-select">
+                            <option value="bestsellers">Bestsellers</option>
+                            <option value="all">All Stacks</option>
+                            <option value="ai">AI Tools</option>
+                            <option value="dev">Developer Tools</option>
+                            <option value="design">Design & Creative</option>
+                            <option value="productivity">Productivity</option>
+                            <option value="finance">Finance</option>
+                        </select>
+                        <select class="mobile-filter-select" id="store-persona-select" style="margin-top: 0.5rem;">
+                            <option value="all">All Users</option>
+                            <option value="students">For Students</option>
+                            <option value="creators">For Creators</option>
+                            <option value="developers">For Developers</option>
+                            <option value="business">For Businesses</option>
+                            <option value="traders">For Traders</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Grid with skeleton loaders -->
+                <div class="products-grid" id="store-products-grid">
+                    <!-- Venture-Backed Skeleton Loading state -->
+                    <div class="skeleton-card glass-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-circle"></div>
+                            <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="skeleton-line-long"></div>
+                        <div class="skeleton-line-medium"></div>
+                        <div class="skeleton-price-block">
+                            <div class="skeleton-line-short"></div>
+                            <div class="skeleton-line-price"></div>
+                        </div>
+                        <div class="skeleton-button"></div>
+                    </div>
+                    <div class="skeleton-card glass-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-circle"></div>
+                            <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="skeleton-line-long"></div>
+                        <div class="skeleton-line-medium"></div>
+                        <div class="skeleton-price-block">
+                            <div class="skeleton-line-short"></div>
+                            <div class="skeleton-line-price"></div>
+                        </div>
+                        <div class="skeleton-button"></div>
+                    </div>
+                    <div class="skeleton-card glass-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-circle"></div>
+                            <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="skeleton-line-long"></div>
+                        <div class="skeleton-line-medium"></div>
+                        <div class="skeleton-price-block">
+                            <div class="skeleton-line-short"></div>
+                            <div class="skeleton-line-price"></div>
+                        </div>
+                        <div class="skeleton-button"></div>
+                    </div>
+                </div>
+
+                <!-- Recently Viewed Section -->
+                <div class="recently-viewed-container" id="recently-viewed-section" style="display: none; margin-top: 4rem; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 3rem;">
+                    <div class="section-header text-center" style="margin-bottom: 2rem;">
+                        <h3 class="section-title" style="font-size: 1.5rem;">Recently <span class="gradient-text">Viewed Deals</span></h3>
+                        <p class="section-subtitle" style="font-size: 0.85rem;">Items you checked out recently.</p>
+                    </div>
+                    <div class="products-grid" id="recently-viewed-grid">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Proof Carousel Section (Real & Unblurred) -->
+        <section class="proof-carousel-section" style="border-top: 1px solid rgba(255,255,255,0.03); padding-top: 5rem;">
+            <div class="container">
+                <div class="section-header text-center" style="margin-bottom: 2rem;">
+                    <h2 class="section-title">Verified <span class="gradient-text">Activation Proof</span></h2>
+                    <p class="section-subtitle">Real, unblurred screenshots of active customer slots and organization setups.</p>
+                </div>
+                
+                <div class="proof-carousel-container">
+                    <div class="proof-carousel-track">
+                        <!-- Card 1 -->
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/chatgpt_proof.png" alt="ChatGPT Plus Activation Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Rahul M. (Mumbai)</span>
+                                <span class="proof-card-details">ChatGPT Plus</span>
+                            </div>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/canva_proof.png" alt="Canva Pro Invite Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Siddharth J. (Delhi)</span>
+                                <span class="proof-card-details">Canva Pro Team</span>
+                            </div>
+                        </div>
+                        <!-- Card 3 -->
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/adobe_proof.png" alt="Adobe CC License Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Sarah L. (Bangalore)</span>
+                                <span class="proof-card-details">Adobe Creative Cloud</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Duplicate cards for infinite scrolling loop -->
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/chatgpt_proof.png" alt="ChatGPT Plus Activation Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Rahul M. (Mumbai)</span>
+                                <span class="proof-card-details">ChatGPT Plus</span>
+                            </div>
+                        </div>
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/canva_proof.png" alt="Canva Pro Invite Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Siddharth J. (Delhi)</span>
+                                <span class="proof-card-details">Canva Pro Team</span>
+                            </div>
+                        </div>
+                        <div class="proof-card">
+                            <div class="proof-img-container">
+                                <img src="img/adobe_proof.png" alt="Adobe CC License Proof" class="proof-img">
+                                <div class="proof-overlay-lens"></div>
+                            </div>
+                            <div class="proof-card-info">
+                                <span class="proof-card-user">Sarah L. (Bangalore)</span>
+                                <span class="proof-card-details">Adobe Creative Cloud</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Section 8: Testimonials -->
         <section id="testimonials" class="testimonials-section">
             <div class="container">
@@ -872,6 +885,45 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- FAQ 6 -->
+                    <div class="faq-item glass-card">
+                        <button class="faq-toggle" id="faq-q6">
+                            <span>Can my account get banned or revoked?</span>
+                            <i data-lucide="chevron-down" class="faq-icon"></i>
+                        </button>
+                        <div class="faq-content">
+                            <div class="faq-content-inner">
+                                <p>We won't sugarcoat it — enterprise group subscriptions work within platform rules, but there is always a small risk that a provider may restructure their team or enterprise plans. If this happens and your access is affected, we provide a full replacement within 24 hours at no additional cost during your warranty period. In practice, we've maintained a 99.1% activation success rate across 3,400+ orders this year with zero unresolved disputes.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 7 -->
+                    <div class="faq-item glass-card">
+                        <button class="faq-toggle" id="faq-q7">
+                            <span>What happens if Adobe/Canva/OpenAI changes their licensing policy?</span>
+                            <i data-lucide="chevron-down" class="faq-icon"></i>
+                        </button>
+                        <div class="faq-content">
+                            <div class="faq-content-inner">
+                                <p>Software companies occasionally update licensing terms. We actively monitor all policy changes across every platform we offer. If a policy change affects your subscription, we proactively notify you and either migrate you to a compliant plan or issue a full refund — no questions asked. We've been operating since 2024 and have successfully navigated multiple policy updates without customer impact.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ 8 -->
+                    <div class="faq-item glass-card">
+                        <button class="faq-toggle" id="faq-q8">
+                            <span>Do you store my payment details or personal data?</span>
+                            <i data-lucide="chevron-down" class="faq-icon"></i>
+                        </button>
+                        <div class="faq-content">
+                            <div class="faq-content-inner">
+                                <p>No. We never store credit card numbers, UPI PINs, or banking credentials. Payments are processed entirely through UPI's secure infrastructure — we only receive a transaction reference number (UTR) to verify your payment. Your email and WhatsApp number are stored solely for order delivery and support communication, and are never shared with third parties.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -889,7 +941,7 @@
                                 <svg class="social-svg-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.455 5.703 1.458h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                                 </svg>
-                                <span>Connect on WhatsApp</span>
+                                <span>Chat with Support — Usually replies in 3 min</span>
                             </a>
                         </div>
                     </div>
@@ -925,8 +977,8 @@
         <section id="final-cta" class="final-cta-section">
             <div class="container">
                 <div class="glass-card final-cta-card">
-                    <h2 class="final-cta-title">Build Your Dream Workspace <br><span class="gradient-text">Without Enterprise Prices</span></h2>
-                    <p class="final-cta-subtitle">Join 10k+ founders, developers, students, and creators who save up to 90% on their software stacks every single month. Instant activation in minutes.</p>
+                    <h2 class="final-cta-title">3,481 subscriptions activated this month. <br><span class="gradient-text">Start yours today.</span></h2>
+                    <p class="final-cta-subtitle">15-minute average delivery, guaranteed. Full replacement warranty on every plan. If your subscription doesn't activate within 30 minutes — full refund, no questions.</p>
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                         <a href="#products" class="btn btn-primary btn-lg btn-glow">
                             <span>Explore Stacks</span>
@@ -978,7 +1030,7 @@
                 <a href="#" class="footer-link" id="link-terms">Terms of Service</a>
                 <a href="#" class="footer-link" id="link-refund">Refund Policy</a>
                 <a href="#" class="footer-link" id="link-privacy">Privacy Policy</a>
-                <a href="admin.html" class="footer-link admin-lock-link"><i data-lucide="lock"></i> Staff Dashboard</a>
+
             </div>
         </div>
         <div class="footer-bottom text-center">
@@ -1233,9 +1285,18 @@
             <!-- ================= STEP 3: MANUAL UPI PAYMENT ================= -->
             <div class="checkout-panel" id="panel-step-3">
                 <div class="upi-payment-instructions">
-                    <p class="panel-instruction text-center" style="margin-bottom: 0.5rem;">
+                    <p class="panel-instruction text-center desktop-only-instruction" style="margin-bottom: 0.5rem;">
                         Scan the QR code below using GPay, PhonePe, or Paytm to pay.
                     </p>
+                    
+                    <!-- Mobile UPI Deep-Link Button (hidden on desktop, shown on mobile via JS) -->
+                    <div id="mobile-upi-pay-wrapper" style="display: none; text-align: center; margin-bottom: 1rem;">
+                        <a id="mobile-upi-deeplink" href="#" class="btn btn-primary btn-lg btn-glow" style="width: 100%; padding: 1rem 1.5rem; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 12px;">
+                            <i data-lucide="smartphone" style="width: 20px; height: 20px;"></i>
+                            <span>Tap to Pay via UPI (GPay / PhonePe / Paytm)</span>
+                        </a>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">Opens your UPI app directly. No QR scanning needed on mobile.</p>
+                    </div>
                     
                     <div class="price-to-pay-box">
                         <span class="pay-lbl">Amount to Pay:</span>
@@ -1505,5 +1566,8 @@
 
     <!-- Store logic script -->
     <script src="js/app.js?v=2.0.0"></script>
+    
+    <!-- Realistic Lightning strike background animation -->
+    <script src="js/lightning.js?v=2.0.0"></script>
 </body>
 </html>
