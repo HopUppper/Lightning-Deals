@@ -282,7 +282,7 @@ const DEFAULT_PRODUCTS = [
 const DEFAULT_SETTINGS = {
     phone: "917695956938", // Reseller WhatsApp Phone Number (with country code, no +)
     upiId: "sidhjain9002-1@okhdfcbank", // Reseller UPI ID
-    razorpayKeyId: "rzp_live_ShEwZq0c7pipun", // Public Key ID for Razorpay Gateway
+    razorpayKeyId: "", // Public Key ID for Razorpay Gateway
     notificationMethod: "disabled",
     callmebotApiKey: "",
     discordWebhookUrl: "",

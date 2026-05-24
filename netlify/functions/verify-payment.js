@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
-// Razorpay Live API Credentials
-const RAZORPAY_KEY_SECRET = 'fg5k1n9Kzn2iJeP6lByW3GDT';
+// Razorpay Live API Credentials loaded securely from Netlify environment variables
+const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET;
 
 exports.handler = async (event, context) => {
   // CORS Headers

@@ -2218,7 +2218,7 @@ function setupStoreSettings() {
         const DEFAULT_SETTINGS = {
             phone: "917695956938",
             upiId: "sidhjain9002-1@okhdfcbank",
-            razorpayKeyId: "rzp_live_ShEwZq0c7pipun",
+            razorpayKeyId: "",
             notificationMethod: "disabled",
             callmebotApiKey: "",
             discordWebhookUrl: "",
