@@ -1282,32 +1282,85 @@
                 </div>
             </div>
 
-            <!-- ================= STEP 3: PAYMENT GATEWAY ================= -->
+            <!-- ================= STEP 3: MANUAL UPI PAYMENT ================= -->
             <div class="checkout-panel" id="panel-step-3">
-                <div class="price-to-pay-box">
-                    <span class="pay-lbl">Amount to Pay:</span>
-                    <span class="pay-amount" id="modal-pay-amount-label">₹0</span>
-                </div>
+                <div class="upi-payment-instructions">
+                    <p class="panel-instruction text-center desktop-only-instruction" style="margin-bottom: 0.5rem;">
+                        Scan the QR code below using GPay, PhonePe, or Paytm to pay.
+                    </p>
+                    
+                    <!-- Mobile UPI Deep-Link Button (hidden on desktop, shown on mobile via JS) -->
+                    <div id="mobile-upi-pay-wrapper" style="display: none; text-align: center; margin-bottom: 1rem;">
+                        <a id="mobile-upi-deeplink" href="#" class="btn btn-primary btn-lg btn-glow" style="width: 100%; padding: 1rem 1.5rem; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 12px;">
+                            <i data-lucide="smartphone" style="width: 20px; height: 20px;"></i>
+                            <span>Tap to Pay via UPI (GPay / PhonePe / Paytm)</span>
+                        </a>
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem;">Opens your UPI app directly. No QR scanning needed on mobile.</p>
+                    </div>
+                    
+                    <div class="price-to-pay-box">
+                        <span class="pay-lbl">Amount to Pay:</span>
+                        <span class="pay-amount" id="modal-pay-amount-label">₹0</span>
+                    </div>
 
-                <!-- Primary Option: Secure Razorpay Gateway Checkout -->
-                <div id="razorpay-checkout-wrapper" style="text-align: center; margin-bottom: 1rem; margin-top: 1.5rem;">
-                    <p class="panel-instruction text-center" style="margin-bottom: 1.25rem;">
-                        Pay instantly and securely using GPay, PhonePe, UPI, Credit/Debit Cards, Netbanking, or Wallets.
-                      </p>
-                    <button type="button" class="btn btn-primary btn-lg btn-glow" id="btn-razorpay-checkout" style="width: 100%; padding: 1.1rem 1.5rem; font-size: 1rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 12px;">
-                        <i data-lucide="shield-check" style="width: 20px; height: 20px;"></i>
-                        <span>Pay Securely with Razorpay</span>
-                    </button>
-                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                        <i data-lucide="zap" style="width: 12px; height: 12px; color: var(--clr-cyan);"></i>
-                        <span>Instant Order Activation · Zero Manual Proof Required</span>
+                    <div class="upi-qr-wrapper">
+                        <div class="upi-qr-spinner" id="qr-loading-spinner"></div>
+                        <img class="upi-qr-image loading" id="modal-upi-qr" src="" alt="UPI Payment QR Code" onload="document.getElementById('qr-loading-spinner').style.display='none'; this.classList.remove('loading');">
+                    </div>
+
+                    <div class="upi-id-copy-box">
+                        <span class="upi-id-lbl" id="modal-upi-id-display">sidhjain9002-1@okhdfcbank</span>
+                        <button class="btn-copy-upi" id="btn-copy-upi-id" title="Copy UPI ID" type="button">
+                            <i data-lucide="copy" style="width: 14px; height: 14px; margin-right: 4px;"></i> <span style="font-size: 0.75rem;">Copy</span>
+                        </button>
+                    </div>
+
+                    <!-- WhatsApp support indicator directly in payment instructions panel -->
+                    <div class="checkout-support-helper" style="display: flex; align-items: center; justify-content: center; gap: 8px; margin: 1.25rem 0 1rem; padding: 0.6rem; background: rgba(34, 197, 94, 0.05); border: 1px solid rgba(34, 197, 94, 0.15); border-radius: 8px;">
+                        <i data-lucide="message-square" style="width: 14px; height: 14px; color: var(--clr-green);"></i>
+                        <span style="font-size: 0.75rem; color: var(--text-secondary);">Payment Issue? <a href="https://wa.me/917695956938?text=I'm%20having%20trouble%20paying%20on%20the%20checkout%20page" target="_blank" style="color: var(--clr-cyan); text-decoration: underline; font-weight: 600;">Chat on WhatsApp for Help</a></span>
+                    </div>
+
+                    <p class="panel-instruction text-center" style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 1rem;">
+                        After payment, please enter your 12-digit UPI UTR / Transaction ID below to confirm.
                     </p>
                 </div>
 
-                <!-- Back button for Razorpay pane -->
-                <div id="razorpay-back-wrapper" class="modal-footer" style="padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 1.5rem;">
-                    <button class="btn btn-secondary w-100" id="btn-back-to-details">
-                        <i data-lucide="arrow-left" style="width: 16px; height: 16px; margin-right: 6px;"></i> <span>Back to Details</span>
+                <form id="checkout-payment-form" onsubmit="return false;">
+                    <div class="form-group">
+                        <label for="checkout-utr">UPI Ref No. / Transaction ID (UTR) *</label>
+                        <input type="text" id="checkout-utr" placeholder="e.g. 612345678901" maxlength="12" minlength="12" required style="letter-spacing: 0.1em; text-align: center;">
+                        <small class="form-tip text-center">Must be a 12-digit number from your payment receipt.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Payment Screenshot *</label>
+                        <input type="file" id="checkout-screenshot" accept="image/*" style="display: none;">
+                        <div class="screenshot-upload-container" id="screenshot-dropzone">
+                            <i data-lucide="upload-cloud" class="screenshot-upload-icon"></i>
+                            <div class="screenshot-upload-text">Drag & drop or click to upload receipt</div>
+                            <div class="screenshot-upload-hint">Supported formats: JPG, PNG, WEBP (Max 5MB)</div>
+                        </div>
+                        
+                        <div class="screenshot-preview-wrapper" id="screenshot-preview-container">
+                            <img src="" alt="Preview" class="screenshot-preview-img" id="screenshot-preview-img">
+                            <div class="screenshot-preview-info">
+                                <div class="screenshot-preview-name" id="screenshot-preview-name">receipt.jpg</div>
+                                <div class="screenshot-preview-size" id="screenshot-preview-size">0 KB</div>
+                            </div>
+                            <button type="button" class="screenshot-preview-remove" id="btn-remove-screenshot" aria-label="Remove screenshot">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="modal-footer-dual">
+                    <button class="btn btn-secondary" id="btn-back-to-details">
+                        <i data-lucide="arrow-left" style="width: 16px; height: 16px; margin-right: 6px;"></i> <span>Back</span>
+                    </button>
+                    <button class="btn btn-primary btn-glow" id="btn-submit-order">
+                        <span>Submit & Confirm</span> <i data-lucide="check-circle" style="width: 16px; height: 16px; margin-left: 6px;"></i>
                     </button>
                 </div>
             </div>
@@ -1503,9 +1556,6 @@
 
     <!-- Toast Notification Container -->
     <div id="toast-container"></div>
-
-    <!-- Razorpay Payment Gateway SDK -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
     <!-- Firebase SDK (Compat versions for traditional script-tag usage) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>

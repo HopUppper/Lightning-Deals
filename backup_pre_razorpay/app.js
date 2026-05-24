@@ -282,7 +282,6 @@ const DEFAULT_PRODUCTS = [
 const DEFAULT_SETTINGS = {
     phone: "917695956938", // Reseller WhatsApp Phone Number (with country code, no +)
     upiId: "sidhjain9002-1@okhdfcbank", // Reseller UPI ID
-    razorpayKeyId: "rzp_live_ShEwZq0c7pipun", // Public Key ID for Razorpay Gateway
     notificationMethod: "disabled",
     callmebotApiKey: "",
     discordWebhookUrl: "",
@@ -1673,256 +1672,6 @@ function setupPurchaseModal() {
         if (mobileUpiDeeplink) {
             mobileUpiDeeplink.setAttribute('href', upiUrl);
         }
-
-        // --- Razorpay Toggle visibility depending on configuration ---
-        const razorpayKeyId = CONTACT_SETTINGS.razorpayKeyId ? CONTACT_SETTINGS.razorpayKeyId.trim() : "";
-        const rzpCheckoutWrapper = document.getElementById('razorpay-checkout-wrapper');
-        const rzpBackWrapper = document.getElementById('razorpay-back-wrapper');
-        const manualUpiContainer = document.getElementById('manual-upi-container');
-
-        if (razorpayKeyId) {
-            if (rzpCheckoutWrapper) rzpCheckoutWrapper.style.display = 'block';
-            if (rzpBackWrapper) rzpBackWrapper.style.display = 'block';
-            if (manualUpiContainer) manualUpiContainer.style.display = 'none';
-        } else {
-            if (rzpCheckoutWrapper) rzpCheckoutWrapper.style.display = 'none';
-            if (rzpBackWrapper) rzpBackWrapper.style.display = 'none';
-            if (manualUpiContainer) manualUpiContainer.style.display = 'block';
-        }
-    }
-
-    // Razorpay Fallback Toggle Handler
-    const btnToggleManualUpi = document.getElementById('btn-toggle-manual-upi');
-    if (btnToggleManualUpi) {
-        btnToggleManualUpi.addEventListener('click', () => {
-            const rzpCheckoutWrapper = document.getElementById('razorpay-checkout-wrapper');
-            const rzpBackWrapper = document.getElementById('razorpay-back-wrapper');
-            const manualUpiContainer = document.getElementById('manual-upi-container');
-            
-            if (rzpCheckoutWrapper) rzpCheckoutWrapper.style.display = 'none';
-            if (rzpBackWrapper) rzpBackWrapper.style.display = 'none';
-            if (manualUpiContainer) manualUpiContainer.style.display = 'block';
-        });
-    }
-
-    // Razorpay Checkout Button Handler
-    const btnRazorpayCheckout = document.getElementById('btn-razorpay-checkout');
-    if (btnRazorpayCheckout) {
-        btnRazorpayCheckout.addEventListener('click', () => {
-            const nameVal = inputName.value.trim();
-            const emailVal = inputEmail.value.trim();
-            const phoneVal = inputPhone.value.trim();
-
-            // Calculate final totals
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            let discount = 0;
-            if (appliedCoupon) {
-                if (appliedCoupon.type === 'percentage') {
-                    discount = Math.round(subtotal * (appliedCoupon.value / 100));
-                } else if (appliedCoupon.type === 'flat') {
-                    discount = appliedCoupon.value;
-                }
-                discount = Math.min(discount, subtotal);
-            }
-            const finalPrice = subtotal - discount;
-
-            btnRazorpayCheckout.disabled = true;
-            btnRazorpayCheckout.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 16px; height: 16px; display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; vertical-align: middle;"></span> Processing...`;
-
-            // Call secure API to construct Razorpay transaction order
-            fetch('api/create-order.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    amount: finalPrice * 100, // in paise
-                    receipt: 'rcpt_' + Date.now() + Math.floor(Math.random() * 100)
-                })
-            })
-            .then(res => {
-                if (!res.ok) {
-                    return res.json().then(errData => {
-                        throw new Error(errData.error || 'Server error creating order');
-                    });
-                }
-                return res.json();
-            })
-            .then(orderData => {
-                // Initialize Razorpay official window prefilled with step 2 customer inputs
-                const options = {
-                    "key": CONTACT_SETTINGS.razorpayKeyId,
-                    "amount": orderData.amount,
-                    "currency": "INR",
-                    "name": "Lightning Deals",
-                    "description": cart.map(item => `${item.name} (${item.qty}x)`).join(', ').substring(0, 255),
-                    "image": "img/favicon.png",
-                    "order_id": orderData.id,
-                    "handler": function (response) {
-                        verifyRazorpayPayment(response, orderData, finalPrice, subtotal, discount);
-                    },
-                    "prefill": {
-                        "name": nameVal,
-                        "email": emailVal,
-                        "contact": phoneVal
-                    },
-                    "theme": {
-                        "color": "#00f2fe"
-                    },
-                    "modal": {
-                        "ondismiss": function() {
-                            btnRazorpayCheckout.disabled = false;
-                            btnRazorpayCheckout.innerHTML = `<i data-lucide="shield-check" style="width: 20px; height: 20px;"></i> <span>Pay Securely with Razorpay</span>`;
-                            if (window.lucide) window.lucide.createIcons();
-                            showToast("Payment window closed.", "info");
-                        }
-                    }
-                };
-
-                const rzp = new Razorpay(options);
-                rzp.on('payment.failed', function (failedResponse) {
-                    btnRazorpayCheckout.disabled = false;
-                    btnRazorpayCheckout.innerHTML = `<i data-lucide="shield-check" style="width: 20px; height: 20px;"></i> <span>Pay Securely with Razorpay</span>`;
-                    if (window.lucide) window.lucide.createIcons();
-                    alert("Payment failed: " + failedResponse.error.description);
-                });
-                rzp.open();
-            })
-            .catch(err => {
-                console.error("Razorpay Order cURL Exception:", err);
-                btnRazorpayCheckout.disabled = false;
-                btnRazorpayCheckout.innerHTML = `<i data-lucide="shield-check" style="width: 20px; height: 20px;"></i> <span>Pay Securely with Razorpay</span>`;
-                if (window.lucide) window.lucide.createIcons();
-                alert("Could not initialize payment gateway: " + err.message);
-            });
-        });
-    }
-
-    // Razorpay Secure Backend Verification Trigger
-    function verifyRazorpayPayment(response, orderData, finalPrice, subtotal, discount) {
-        const nameVal = inputName.value.trim();
-        const emailVal = inputEmail.value.trim();
-        const phoneVal = inputPhone.value.trim();
-
-        // Format phone number
-        const cleanPhone = phoneVal.replace(/[\s\-\+\(\)]/g, '');
-        let formattedCustomerPhone = cleanPhone;
-        if (formattedCustomerPhone.length === 10) {
-            formattedCustomerPhone = '91' + formattedCustomerPhone;
-        }
-
-        if (btnRazorpayCheckout) {
-            btnRazorpayCheckout.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 16px; height: 16px; display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; vertical-align: middle;"></span> Verifying Signature...`;
-        }
-
-        fetch('api/verify-payment.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature
-            })
-        })
-        .then(res => {
-            if (!res.ok) {
-                return res.json().then(errData => {
-                    throw new Error(errData.error || 'Signature verification failed');
-                });
-            }
-            return res.json();
-        })
-        .then(verifyData => {
-            if (verifyData.success) {
-                // Construct complete customer order log
-                const order = {
-                    id: "LD-" + Date.now() + Math.floor(Math.random() * 100),
-                    product: cart.map(item => `${item.name} (${item.qty}x)`).join(', '),
-                    plan: cart.map(item => item.planLabel).join(', '),
-                    price: finalPrice, 
-                    subtotal: subtotal,
-                    discount: discount,
-                    coupon: appliedCoupon ? appliedCoupon.code : "",
-                    items: cart.map(item => ({
-                        productId: item.productId,
-                        name: item.name,
-                        planLabel: item.planLabel,
-                        price: item.price,
-                        retail: item.retail,
-                        qty: item.qty
-                    })),
-                    name: nameVal,
-                    email: emailVal,
-                    phone: formattedCustomerPhone,
-                    utr: response.razorpay_payment_id, // Save transaction ID as UTR reference
-                    screenshot: "razorpay_verified", // Set special secure flag bypassing manual uploads
-                    date: new Date().toLocaleString('en-IN'),
-                    status: "Paid", // Auto-mark paid
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_payment_id: response.razorpay_payment_id
-                };
-
-                // Sync order object to Firebase
-                if (database) {
-                    database.ref('orders/' + order.id).set(order)
-                        .then(() => {
-                            console.log("Order saved to Firebase Realtime Database:", order.id);
-                            listenToCustomerOrders();
-                        })
-                        .catch(err => {
-                            console.error("Firebase database order write failed:", err);
-                        });
-                }
-
-                // Append local reseller order history
-                const orders = safeGetLocalStorage('lightning_deals_orders', []);
-                orders.unshift(order);
-                try {
-                    localStorage.setItem('lightning_deals_orders', JSON.stringify(orders));
-                } catch (e) {
-                    console.error("Local Storage Write Error:", e);
-                }
-
-                // Populate success pane UI elements
-                const successOrderIdEl = document.getElementById('success-order-id');
-                const successOrderTotalEl = document.getElementById('success-order-total');
-                const successOrderUtrEl = document.getElementById('success-order-utr');
-
-                if (successOrderIdEl) successOrderIdEl.innerText = order.id;
-                if (successOrderTotalEl) successOrderTotalEl.innerText = `₹${order.price.toLocaleString('en-IN')}`;
-                if (successOrderUtrEl) successOrderUtrEl.innerText = order.utr;
-
-                // Load Success Step panel
-                showStep(4);
-
-                // Disseminate alerting logs
-                try {
-                    sendOrderNotification(order);
-                } catch (err) {
-                    console.error("Failed to send order notification:", err);
-                }
-
-                // Flush checkout shopping cart
-                cart = [];
-                localStorage.removeItem('lightning_deals_cart');
-                updateCartBadge();
-
-                showToast("Payment completed and verified successfully!", "success");
-            } else {
-                throw new Error("Invalid signature token check response.");
-            }
-        })
-        .catch(err => {
-            console.error("Signature HMAC verification fail:", err);
-            if (btnRazorpayCheckout) {
-                btnRazorpayCheckout.disabled = false;
-                btnRazorpayCheckout.innerHTML = `<i data-lucide="shield-check" style="width: 20px; height: 20px;"></i> <span>Pay Securely with Razorpay</span>`;
-                if (window.lucide) window.lucide.createIcons();
-            }
-            alert("⚠️ Payment verification check failed: " + err.message + "\n\nIf money was deducted, click 'Having trouble? Pay via manual UPI reference upload' and input reference details manually, or contact support.");
-        });
     }
 
     // Modal Step transitions
@@ -1962,49 +1711,42 @@ function setupPurchaseModal() {
 
     if (btnNextToPayment) {
         btnNextToPayment.addEventListener('click', () => {
-            // Validate fields
-            const nameVal = inputName.value.trim();
-            const emailVal = inputEmail.value.trim();
-            const phoneVal = inputPhone.value.trim();
+        // Validate fields
+        const nameVal = inputName.value.trim();
+        const emailVal = inputEmail.value.trim();
+        const phoneVal = inputPhone.value.trim();
 
-            if (nameVal.length < 2) {
-                alert('Please enter your full name (minimum 2 characters).');
-                inputName.focus();
-                return;
-            }
+        if (nameVal.length < 2) {
+            alert('Please enter your full name (minimum 2 characters).');
+            inputName.focus();
+            return;
+        }
 
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(emailVal)) {
-                alert('Please enter a valid email address.');
-                inputEmail.focus();
-                return;
-            }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailVal)) {
+            alert('Please enter a valid email address.');
+            inputEmail.focus();
+            return;
+        }
 
-            // Clean and validate WhatsApp Phone
-            const cleanPhone = phoneVal.replace(/[\s\-\+\(\)]/g, '');
-            if (cleanPhone.length < 10) {
-                alert('Please enter a valid WhatsApp phone number (minimum 10 digits).');
-                inputPhone.focus();
-                return;
-            }
+        // Clean and validate WhatsApp Phone
+        const cleanPhone = phoneVal.replace(/[\s\-\+\(\)]/g, '');
+        if (cleanPhone.length < 10) {
+            alert('Please enter a valid WhatsApp phone number (minimum 10 digits).');
+            inputPhone.focus();
+            return;
+        }
 
-            // Setup dynamic UPI QR code & check settings
-            setupPaymentQR();
+        // Setup dynamic UPI QR code
+        setupPaymentQR();
 
-            // Go to payment screen
-            showStep(3);
-        });
+        // Go to payment screen
+        showStep(3);
+    });
     }
 
     if (btnBackToDetails) {
         btnBackToDetails.addEventListener('click', () => {
-            showStep(2);
-        });
-    }
-
-    const btnBackToDetailsManual = document.getElementById('btn-back-to-details-manual');
-    if (btnBackToDetailsManual) {
-        btnBackToDetailsManual.addEventListener('click', () => {
             showStep(2);
         });
     }

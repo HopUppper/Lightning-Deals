@@ -2195,6 +2195,7 @@ function healFeatures(rawFeatures) {
 function setupStoreSettings() {
     const phoneInput = document.getElementById('settings-phone');
     const upiInput = document.getElementById('settings-upi');
+    const razorpayKeyInput = document.getElementById('settings-razorpay-key');
     const notifyMethodSelect = document.getElementById('settings-notify-method');
     const saveBtn = document.getElementById('btn-save-settings');
     const testBtn = document.getElementById('btn-test-notification');
@@ -2217,6 +2218,7 @@ function setupStoreSettings() {
         const DEFAULT_SETTINGS = {
             phone: "917695956938",
             upiId: "sidhjain9002-1@okhdfcbank",
+            razorpayKeyId: "rzp_live_ShEwZq0c7pipun",
             notificationMethod: "disabled",
             callmebotApiKey: "",
             discordWebhookUrl: "",
@@ -2242,6 +2244,7 @@ function setupStoreSettings() {
         // Fill form fields
         phoneInput.value = settings.phone;
         upiInput.value = settings.upiId;
+        if (razorpayKeyInput) razorpayKeyInput.value = settings.razorpayKeyId || "";
         notifyMethodSelect.value = settings.notificationMethod;
         callmebotApiKeyInput.value = settings.callmebotApiKey || "";
         discordWebhookInput.value = settings.discordWebhookUrl || "";
@@ -2287,6 +2290,7 @@ function setupStoreSettings() {
     saveBtn.addEventListener('click', () => {
         const phone = phoneInput.value.trim();
         const upiId = upiInput.value.trim();
+        const razorpayKeyId = razorpayKeyInput ? razorpayKeyInput.value.trim() : "";
         const notificationMethod = notifyMethodSelect.value;
         const callmebotApiKey = callmebotApiKeyInput.value.trim();
         const discordWebhookUrl = discordWebhookInput.value.trim();
@@ -2325,6 +2329,7 @@ function setupStoreSettings() {
         const settings = {
             phone,
             upiId,
+            razorpayKeyId,
             notificationMethod,
             callmebotApiKey,
             discordWebhookUrl,
