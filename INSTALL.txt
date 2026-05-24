@@ -1,0 +1,212 @@
+================================================================
+  LIGHTNINGDEALS — WEBSITE PATCH INSTALLATION GUIDE
+  5 files, 4 steps, ~15 minutes total
+================================================================
+
+FILES IN THIS PACKAGE:
+  ld-patch.css   → Design improvements (fonts, spacing, trust badges, etc.)
+  ld-patch.js    → All behavioral fixes (admin link removal, mobile UPI, etc.)
+  terms.html     → Real Terms of Service page
+  privacy.html   → Real Privacy Policy page
+  refund.html    → Real Refund Policy page
+  INSTALL.txt    → This file
+
+================================================================
+STEP 1 — UPLOAD ALL 5 FILES TO YOUR SERVER ROOT
+================================================================
+
+Upload all 5 files (.css, .js, and 3 .html files) to the ROOT
+of your website. This is the same folder where your main
+index.html lives.
+
+After uploading, these URLs should work:
+  ✓ https://lightningdeals.online/ld-patch.css
+  ✓ https://lightningdeals.online/ld-patch.js
+  ✓ https://lightningdeals.online/terms.html
+  ✓ https://lightningdeals.online/privacy.html
+  ✓ https://lightningdeals.online/refund.html
+
+HOW TO UPLOAD (if you use cPanel / File Manager):
+  1. Log into your hosting control panel
+  2. Open File Manager
+  3. Navigate to public_html (or www) folder
+  4. Click "Upload" and select all 5 files
+  5. Done ✓
+
+================================================================
+STEP 2 — ADD THE CSS LINK TO YOUR HTML <head>
+================================================================
+
+Open your main HTML file (usually index.html).
+Find the closing </head> tag.
+Add this line JUST BEFORE </head>:
+
+    <link rel="stylesheet" href="/ld-patch.css">
+
+Example — it should look like this:
+    ...your existing css links...
+    <link rel="stylesheet" href="/ld-patch.css">   ← ADD THIS
+  </head>
+
+================================================================
+STEP 3 — ADD THE JAVASCRIPT JUST BEFORE </body>
+================================================================
+
+In the SAME HTML file, find the closing </body> tag at the
+very bottom of the file.
+Add this line JUST BEFORE </body>:
+
+    <script src="/ld-patch.js"></script>
+
+Example — it should look like this:
+    ...your existing scripts...
+    <script src="/ld-patch.js"></script>   ← ADD THIS
+  </body>
+</html>
+
+================================================================
+STEP 4 — DO THESE 3 MANUAL EDITS IN YOUR HTML FILE
+================================================================
+
+These cannot be done automatically and need a direct edit
+in your index.html. They are the most important fixes.
+
+--- MANUAL FIX A: Remove the admin link from footer ---
+
+Search for this text in your HTML file:
+    Staff Dashboard
+
+Delete the entire line containing "Staff Dashboard" and
+its surrounding <a> or <li> tag.
+
+Before (delete this):
+    <li><a href="https://lightningdeals.online/admin">Staff Dashboard</a></li>
+
+After (just remove the whole line — nothing replaces it):
+    (line deleted)
+
+
+--- MANUAL FIX B: Fix the legal links in footer ---
+
+Search for:
+    href="#">Terms of Service
+
+Replace with:
+    href="/terms.html">Terms of Service
+
+Search for:
+    href="#">Refund Policy
+
+Replace with:
+    href="/refund.html">Refund Policy
+
+Search for:
+    href="#">Privacy Policy
+
+Replace with:
+    href="/privacy.html">Privacy Policy
+
+
+--- MANUAL FIX C: Add DM Sans + Syne fonts in <head> ---
+
+Find your <head> tag and add this as the FIRST line inside it:
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+================================================================
+VERIFICATION — CHECK EVERYTHING WORKS
+================================================================
+
+After completing all 4 steps, open your website and check:
+
+  □ A yellow announcement bar appears at the very top of the page
+  □ The vendor logos (Supabase/Vercel/Figma) are replaced with a
+    trust stats bar showing "3,481 subscriptions activated"
+  □ Proof images are no longer blurred — they show immediately
+  □ On mobile: the product filter tabs scroll sideways without wrapping
+  □ A "recently bought" toast notification appears after ~8 seconds
+  □ Footer has NO "Staff Dashboard" link
+  □ Footer legal links go to real pages (not #)
+  □ https://lightningdeals.online/terms.html loads correctly
+  □ https://lightningdeals.online/privacy.html loads correctly
+  □ https://lightningdeals.online/refund.html loads correctly
+  □ On mobile: checkout payment step shows a "Pay via UPI App" button
+    instead of the QR code
+
+================================================================
+WHAT EACH PATCH FILE DOES (SUMMARY)
+================================================================
+
+ld-patch.css fixes:
+  • Adds Syne (headings) + DM Sans (body) fonts
+  • Removes blur from proof images via CSS
+  • Hides admin links as a CSS backup
+  • Makes mobile filter tabs horizontally scrollable
+  • Adds styles for: announcement bar, trust strip, guarantee badge,
+    mobile UPI button, verified badge, social proof toast
+  • Improves: testimonial cards, product cards, CTA buttons,
+    FAQ spacing, WhatsApp float button
+  • Hides QR code on mobile screens
+
+ld-patch.js fixes:
+  01. Removes /admin link from footer
+  02. Fixes broken legal page links (# → real URLs)
+  03. Adds yellow announcement bar at top of page
+  04. Replaces vendor logos with real trust statistics strip
+  05. Improves hero copy ("UPTO 90% OFF" → trust-focused badge)
+  06. Updates CTA button text to be more specific
+  07. Adds guarantee badge below primary CTA
+  08. Removes blur from proof images + adds "✓ Verified" badge
+  09. Hides "Recently Viewed" section when empty
+  10. Mobile UPI fix: shows direct pay button instead of QR
+  11. Adds 3 new FAQ questions (hard trust questions)
+  12. Adds ★★★★★ stars to all testimonial cards
+  13. Improves "How It Works" step 3 copy
+  14. Removes defensive "100% Legal" framing
+  15. Adds scroll-triggered animations for stats
+  16. Fixes mobile filter tab overflow
+  17. Social proof toast: "Arjun M. from Mumbai just activated..."
+  18. Updates WhatsApp button text to show response time
+  19. Adds "Build My Stack on WhatsApp" CTA to who-it's-for section
+  20. Improves checkout: adds UTR helper text + security note
+
+================================================================
+WHAT TO DO NEXT (BEYOND THIS PATCH)
+================================================================
+
+These require more time/developer help but are high priority:
+
+  1. INTEGRATE RAZORPAY (most impactful for revenue):
+     Sign up at razorpay.com → get approval → replace manual UPI
+     checkout with Razorpay payment link or embedded checkout.
+     This single change will likely double your conversion rate.
+
+  2. CREATE A REAL LOGO:
+     Hire on Fiverr (search "lightning bolt logo dark theme").
+     Budget: ₹2,000–5,000. Update favicon and og:image too.
+
+  3. SET UP GOOGLE BUSINESS PROFILE:
+     Go to business.google.com → create profile → ask 10
+     customers to leave Google Reviews. Embed the widget.
+
+  4. ADD REAL CUSTOMER PHOTOS TO TESTIMONIALS:
+     Ask customers on WhatsApp for a profile photo permission.
+     Even a blurred/avatared photo adds credibility vs initials.
+
+  5. REMOVE "Powering creators from Supabase, Vercel..." text:
+     The ld-patch.js replaces the logo marquee, but also
+     manually delete that heading text from your HTML.
+
+================================================================
+SUPPORT
+================================================================
+
+If something doesn't look right after installing, check:
+  • Did you add the CSS in <head> and JS before </body>?
+  • Are the files uploaded to the correct folder (public_html)?
+  • Try clearing your browser cache (Ctrl+Shift+R / Cmd+Shift+R)
+  • Open browser DevTools (F12) → Console tab → look for errors
+
+================================================================

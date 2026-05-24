@@ -1,0 +1,342 @@
+/* ============================================================
+   LightningDeals — Drop-in Patch CSS
+   Upload this file to your server root, then add this line
+   INSIDE your <head> tag (after your existing CSS):
+   <link rel="stylesheet" href="/ld-patch.css">
+   ============================================================ */
+
+/* ── Google Fonts: Syne (headings) + DM Sans (body) ── */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* ── CSS Variables: Design Tokens ── */
+:root {
+  --ld-accent: #F5C842;
+  --ld-accent-dim: rgba(245, 200, 66, 0.12);
+  --ld-accent-border: rgba(245, 200, 66, 0.3);
+  --ld-green: #22C55E;
+  --ld-green-dim: rgba(34, 197, 94, 0.1);
+  --ld-red: #EF4444;
+  --ld-surface: rgba(255,255,255,0.04);
+  --ld-border: rgba(255,255,255,0.08);
+  --ld-text: #F0EFEA;
+  --ld-muted: #888780;
+  --ld-radius: 12px;
+  --ld-radius-sm: 8px;
+}
+
+/* ── Announcement Bar (injected by JS) ── */
+#ld-announcement-bar {
+  background: var(--ld-accent);
+  color: #000;
+  text-align: center;
+  padding: 9px 1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  position: relative;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+#ld-announcement-bar span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#ld-announcement-bar .ld-sep {
+  opacity: 0.35;
+  font-size: 10px;
+}
+
+/* ── Trust Strip (injected by JS, replaces vendor logos) ── */
+#ld-trust-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 20px 2rem;
+  background: var(--ld-surface);
+  border-top: 1px solid var(--ld-border);
+  border-bottom: 1px solid var(--ld-border);
+  flex-wrap: wrap;
+}
+.ld-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: var(--ld-muted);
+}
+.ld-trust-item strong {
+  color: var(--ld-text);
+  font-weight: 500;
+}
+.ld-trust-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ld-green);
+  flex-shrink: 0;
+  box-shadow: 0 0 6px var(--ld-green);
+  animation: ld-pulse 2s infinite;
+}
+@keyframes ld-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── Guarantee Badge (injected near CTAs) ── */
+.ld-guarantee-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--ld-green-dim);
+  border: 1px solid rgba(34,197,94,0.25);
+  color: #86EFAC;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  margin-top: 12px;
+  font-weight: 500;
+}
+.ld-guarantee-badge::before {
+  content: '✓';
+  font-weight: 700;
+}
+
+/* ── Mobile UPI Button (injected on payment step) ── */
+#ld-upi-mobile-btn {
+  display: none;
+  width: 100%;
+  padding: 16px;
+  background: var(--ld-accent);
+  color: #000;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--ld-radius);
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  margin-bottom: 12px;
+}
+@media (max-width: 768px) {
+  #ld-upi-mobile-btn { display: block; }
+  .ld-qr-hide-mobile { display: none !important; }
+}
+
+/* ── Typography Upgrades ── */
+h1, h2, h3, h4 {
+  font-family: 'Syne', sans-serif !important;
+  letter-spacing: -0.02em;
+}
+body, p, li, span, input, button, select, textarea, label {
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Hero Headline Improvements ── */
+section[id="hero"] h1,
+.hero h1,
+[class*="hero"] h1 {
+  line-height: 1.1 !important;
+  letter-spacing: -0.03em !important;
+}
+
+/* ── Proof Section: Remove Blur ── */
+[class*="proof"] img,
+[class*="activation-proof"] img,
+.proof-card img,
+.proof img {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+/* Remove hover-to-unblur behavior */
+[class*="proof"]:hover img,
+.proof-card:hover img {
+  filter: none !important;
+}
+
+/* ── Hide Empty "Recently Viewed" Section ── */
+#ld-recently-viewed-empty,
+.recently-viewed:empty,
+[class*="recently-viewed"] {
+  /* JS will handle hiding when empty */
+}
+
+/* ── Testimonials: Visual Upgrade ── */
+[class*="testimonial"] .testimonial-card,
+[class*="review"] .review-card {
+  border-radius: var(--ld-radius) !important;
+  border: 1px solid var(--ld-border) !important;
+  transition: border-color 0.2s !important;
+}
+[class*="testimonial"] .testimonial-card:hover,
+[class*="review"] .review-card:hover {
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+/* ── Product Cards: Upgrade ── */
+[class*="product-card"],
+[class*="deal-card"] {
+  border-radius: var(--ld-radius) !important;
+  transition: transform 0.2s, box-shadow 0.2s !important;
+}
+[class*="product-card"]:hover,
+[class*="deal-card"]:hover {
+  transform: translateY(-2px) !important;
+}
+
+/* ── CTA Buttons: Subtle Pulse on Primary ── */
+[class*="btn-primary"],
+[class*="cta-btn"],
+[class*="add-to-cart"] {
+  position: relative;
+  overflow: hidden;
+}
+[class*="btn-primary"]::after,
+[class*="cta-btn"]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.08);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+[class*="btn-primary"]:hover::after,
+[class*="cta-btn"]:hover::after {
+  opacity: 1;
+}
+
+/* ── FAQ: Improved Spacing ── */
+[class*="faq"] [class*="question"],
+[class*="faq"] summary {
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  padding: 16px 0 !important;
+}
+
+/* ── Footer: Hide Admin Link ── */
+/* Also handled by JS, this is a CSS backup */
+a[href*="/admin"],
+a[href*="admin"] {
+  display: none !important;
+}
+
+/* ── Legal Links: Style Them Properly ── */
+footer a[href$="terms"],
+footer a[href$="privacy"],
+footer a[href$="refund"],
+footer a[href="/terms.html"],
+footer a[href="/privacy.html"],
+footer a[href="/refund.html"] {
+  color: var(--ld-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+footer a[href$="terms"]:hover,
+footer a[href$="privacy"]:hover,
+footer a[href$="refund"]:hover {
+  color: var(--ld-text);
+}
+
+/* ── Mobile Filter Tabs: Scrollable ── */
+@media (max-width: 768px) {
+  [class*="filter-tabs"],
+  [class*="category-tabs"],
+  [class*="tab-row"] {
+    overflow-x: auto !important;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  [class*="filter-tabs"]::-webkit-scrollbar,
+  [class*="category-tabs"]::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── Checkout: Mobile UPI Section ── */
+@media (max-width: 768px) {
+  [class*="qr-code"],
+  [class*="qr-container"],
+  .payment-qr {
+    display: none;
+  }
+  .ld-mobile-upi-notice {
+    display: block !important;
+  }
+}
+.ld-mobile-upi-notice {
+  display: none;
+  background: var(--ld-accent-dim);
+  border: 1px solid var(--ld-accent-border);
+  border-radius: var(--ld-radius-sm);
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+/* ── Order Confirmation: Reduce Anxiety ── */
+[class*="order-success"],
+[class*="order-submitted"],
+[class*="confirmation"] {
+  text-align: center;
+}
+
+/* ── Stats Bar: Visual Upgrade ── */
+[class*="stats"],
+[class*="metrics"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+}
+
+/* ── Scrollbar: Minimal ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* ── Section Spacing: More Breathable ── */
+section {
+  scroll-margin-top: 80px;
+}
+
+/* ── New: Verified Badge on Proof Images ── */
+.ld-proof-verified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--ld-green-dim);
+  border: 1px solid rgba(34,197,94,0.25);
+  color: #86EFAC;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  margin-top: 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ── WhatsApp Float Button: Improved ── */
+[class*="whatsapp-float"],
+[class*="wa-float"] {
+  border-radius: 50px !important;
+  padding: 12px 20px !important;
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  bottom: 24px !important;
+  right: 24px !important;
+}
