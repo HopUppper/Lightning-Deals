@@ -1,0 +1,14 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/api/create-order.php"
+  to = "/.netlify/functions/create-order"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/verify-payment.php"
+  to = "/.netlify/functions/verify-payment"
+  status = 200
+  force = true
