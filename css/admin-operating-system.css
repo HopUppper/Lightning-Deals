@@ -1215,50 +1215,48 @@ body.admin-body {
     height: 18px;
 }
 
-/* Quick Actions Button Grid */
+/* Quick Actions Button Grid Overrides */
 .quick-actions-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 10px !important;
+    width: 100% !important;
 }
 
 .quick-action-btn {
-    background-color: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--clr-border);
-    border-radius: 8px;
-    color: var(--clr-text-secondary);
-    padding: 0.85rem 0.5rem;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    transition: all 0.15s ease;
-    text-align: center;
+    background-color: rgba(255, 255, 255, 0.02) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 10px !important;
+    color: var(--clr-text-secondary) !important;
+    padding: 1.25rem 0.5rem !important;
+    cursor: pointer !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    transition: all 0.2s ease !important;
+    text-align: center !important;
 }
 
 .quick-action-btn i {
-    width: 20px;
-    height: 20px;
-    color: var(--clr-text-muted);
-    transition: color 0.15s ease;
+    width: 22px !important;
+    height: 22px !important;
+    color: var(--clr-accent) !important;
+    margin-bottom: 4px !important;
 }
 
 .quick-action-btn span {
-    font-size: 0.75rem;
-    font-weight: 500;
+    font-size: 0.76rem !important;
+    font-weight: 600 !important;
+    color: var(--clr-text-primary) !important;
 }
 
 .quick-action-btn:hover {
-    background-color: rgba(0, 242, 254, 0.05);
-    border-color: rgba(0, 242, 254, 0.2);
-    color: #fff;
-    transform: translateY(-2px);
-}
-
-.quick-action-btn:hover i {
-    color: var(--clr-accent);
+    background-color: rgba(0, 242, 254, 0.08) !important;
+    border-color: rgba(0, 242, 254, 0.3) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 8px 24px rgba(0, 242, 254, 0.1) !important;
 }
 
 /* Live Activity Feed */
@@ -1448,6 +1446,34 @@ body.admin-body {
 .mobile-sidebar-toggle-btn:hover {
     background-color: var(--clr-bg-panel-hover);
     color: #fff;
+}
+
+/* Store Settings Section Grouping */
+.settings-form-section {
+    background: rgba(255, 255, 255, 0.01) !important;
+    border: 1px solid var(--clr-border) !important;
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.settings-section-title {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 0.92rem !important;
+    font-weight: 600 !important;
+    color: var(--clr-accent) !important;
+    margin: 0 0 1.25rem 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    padding-bottom: 0.5rem !important;
+}
+
+.settings-section-title i {
+    width: 16px !important;
+    height: 16px !important;
+    color: var(--clr-accent) !important;
 }
 
 @media (max-width: 1024px) {

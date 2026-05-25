@@ -279,15 +279,27 @@ const DEFAULT_PRODUCTS = [
 ];
 
 // WhatsApp/Payment Settings
+// WhatsApp/Payment Settings
 const DEFAULT_SETTINGS = {
-    phone: "917695956938", // Reseller WhatsApp Phone Number (with country code, no +)
-    upiId: "sidhjain9002-1@okhdfcbank", // Reseller UPI ID
-    razorpayKeyId: "", // Public Key ID for Razorpay Gateway
+    storeName: "Lightning Deals",
+    supportEmail: "support@lightning-deals.online",
+    announcement: "⚡ 47 subscriptions activated today · Average delivery: 8 min · 7-Day Replacement Warranty included",
+    currency: "₹",
+    checkoutTip: "disabled",
+    upiId: "sidhjain9002-1@okhdfcbank",
+    upiName: "Sidh Jain",
+    razorpayKeyId: "",
+    upiFallback: "enabled",
     notificationMethod: "disabled",
     callmebotApiKey: "",
     discordWebhookUrl: "",
     telegramBotToken: "",
-    telegramChatId: ""
+    telegramChatId: "",
+    autoReminders: "enabled",
+    autoFollowups: "disabled",
+    fulfillmentWebhook: "",
+    phone: "917695956938",
+    taxRate: 0
 };
 
 let CONTACT_SETTINGS = { ...DEFAULT_SETTINGS };
@@ -309,6 +321,71 @@ function isDbConnected() {
     return database !== null;
 }
 
+// Dynamically propagate branding and configurations to the Storefront DOM
+function applyStoreSettingsToDOM() {
+    const settings = CONTACT_SETTINGS;
+    if (!settings) return;
+
+    // Head Title Tag
+    if (settings.storeName) {
+        document.title = `${settings.storeName} | Premium Digital Subscriptions up to 90% Off`;
+    }
+
+    // Logo text elements
+    const logoTextEls = document.querySelectorAll('.logo-text');
+    if (logoTextEls.length > 0 && settings.storeName) {
+        const parts = settings.storeName.split(' ');
+        const displayHTML = parts.length > 1 
+            ? `${parts[0]}<span class="logo-highlight">${parts.slice(1).join(' ')}</span>`
+            : settings.storeName;
+        logoTextEls.forEach(el => {
+            el.innerHTML = displayHTML;
+        });
+    }
+
+    // Announcement bar text
+    const announcementEls = document.querySelectorAll('.announcement-bar span');
+    if (announcementEls.length > 0 && settings.announcement) {
+        announcementEls.forEach(el => {
+            el.innerText = settings.announcement;
+        });
+    }
+
+    // Footer Copyright and reselling disclaimer branding text
+    const footerCopyrightEl = document.querySelector('footer p');
+    if (footerCopyrightEl && settings.storeName) {
+        const currentYear = new Date().getFullYear();
+        footerCopyrightEl.innerHTML = `&copy; ${currentYear} ${settings.storeName}. All rights reserved. We are an independent software reseller platform.`;
+    }
+    
+    // Who Is For Section title
+    const sectionTitleEl = document.querySelector('#who-is-for .section-title');
+    if (sectionTitleEl && settings.storeName) {
+        sectionTitleEl.innerHTML = `Who is ${settings.storeName} <span class="gradient-text">Designed For?</span>`;
+    }
+
+    // Dynamic support email updates in the footer / contacts
+    const supportEmailEl = document.getElementById('support-email-link');
+    if (supportEmailEl && settings.supportEmail) {
+        supportEmailEl.href = `mailto:${settings.supportEmail}`;
+        supportEmailEl.innerText = settings.supportEmail;
+    }
+
+    // Update WhatsApp links target
+    const directWaBtn = document.getElementById('contact-wa-direct');
+    if (directWaBtn && settings.phone) {
+        directWaBtn.href = `https://wa.me/${settings.phone}?text=Hello%20${encodeURIComponent(settings.storeName || "Store")}%20I%20have%20an%20inquiry`;
+    }
+    const floatingWaBtn = document.querySelector('.wa-floating-btn');
+    if (floatingWaBtn && settings.phone) {
+        floatingWaBtn.href = `https://wa.me/${settings.phone}?text=Hi,%20I'm%20interested%20in%20a%20subscription!`;
+    }
+    const footerWaLink = document.querySelector('a[aria-label="WhatsApp"]');
+    if (footerWaLink && settings.phone) {
+        footerWaLink.href = `https://wa.me/${settings.phone}`;
+    }
+}
+
 function loadSettings() {
     const saved = localStorage.getItem('lightning_deals_settings');
     if (saved) {
@@ -316,6 +393,7 @@ function loadSettings() {
             const parsed = JSON.parse(saved);
             if (parsed && typeof parsed === 'object') {
                 CONTACT_SETTINGS = { ...DEFAULT_SETTINGS, ...parsed };
+                applyStoreSettingsToDOM();
             }
         } catch (e) {
             console.error("Error parsing settings:", e);
@@ -331,10 +409,12 @@ function syncSettings(callback) {
             if (val) {
                 CONTACT_SETTINGS = { ...DEFAULT_SETTINGS, ...val };
                 localStorage.setItem('lightning_deals_settings', JSON.stringify(CONTACT_SETTINGS));
+                applyStoreSettingsToDOM();
             } else {
                 database.ref('settings').set(DEFAULT_SETTINGS);
                 CONTACT_SETTINGS = { ...DEFAULT_SETTINGS };
                 localStorage.setItem('lightning_deals_settings', JSON.stringify(CONTACT_SETTINGS));
+                applyStoreSettingsToDOM();
             }
             if (callback) callback();
         }, (error) => {
@@ -893,13 +973,30 @@ function applyStoreFilters() {
         const trustData = getProductTrustData(prod.id);
         const valueProp = valueProps[prod.id] || (prod.features && prod.features[0]) || prod.description.slice(0, 50) + '...';
 
+        // Parse valueProp into aesthetic bullet points (shortened to 3-4 items if split is found)
+        let valuePropHTML = '';
+        if (valueProp) {
+            const vpItems = valueProp.split(/[,;|•\-\+]/).map(s => s.trim()).filter(s => s.length > 0);
+            if (vpItems.length > 1) {
+                // Shorten to 3-4 most important details
+                const topItems = vpItems.slice(0, 4);
+                valuePropHTML = `<ul class="prod-bullet-value-props">`;
+                topItems.forEach(item => {
+                    valuePropHTML += `<li><span class="bullet-dot"></span><span>${item}</span></li>`;
+                });
+                valuePropHTML += `</ul>`;
+            } else {
+                valuePropHTML = `<div class="prod-value-prop">${valueProp}</div>`;
+            }
+        }
+
         card.innerHTML = `
             <div class="prod-header">
                 <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
                 ${badgeHTML}
             </div>
             <h3 class="prod-title">${prod.name}</h3>
-            <div class="prod-value-prop">${valueProp}</div>
+            ${valuePropHTML}
             
             <div class="product-card-rating">
                 <i data-lucide="star" class="star-icon"></i>
@@ -1491,8 +1588,9 @@ function setupPurchaseModal() {
 
         if (!subtotalEl || !finalPriceEl) return;
 
+        const currencySymbol = CONTACT_SETTINGS.currency || '₹';
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        subtotalEl.innerText = `₹${subtotal.toLocaleString('en-IN')}`;
+        subtotalEl.innerText = `${currencySymbol}${subtotal.toLocaleString('en-IN')}`;
 
         // Validate coupon minOrder
         if (appliedCoupon) {
@@ -1503,7 +1601,7 @@ function setupPurchaseModal() {
                 if (couponInput) couponInput.value = '';
                 if (couponStatusMsg) {
                     couponStatusMsg.className = 'coupon-status-text error';
-                    couponStatusMsg.innerText = `Coupon ${oldCouponCode} removed (min order ₹${oldCouponCode ? getCouponMinOrder(oldCouponCode) : 0} not met)`;
+                    couponStatusMsg.innerText = `Coupon ${oldCouponCode} removed (min order ${currencySymbol}${oldCouponCode ? getCouponMinOrder(oldCouponCode) : 0} not met)`;
                 }
                 
                 showToast(`Coupon ${oldCouponCode} removed: minimum order requirement not met.`, 'error');
@@ -1520,16 +1618,47 @@ function setupPurchaseModal() {
             discount = Math.min(discount, subtotal);
         }
 
-        const total = subtotal - discount;
+        const totalAfterDiscount = subtotal - discount;
+
+        // Calculate tax/processing fee surcharge
+        let processingFee = 0;
+        const taxRate = parseFloat(CONTACT_SETTINGS.taxRate) || 0;
+        if (taxRate > 0) {
+            processingFee = Math.round(totalAfterDiscount * (taxRate / 100));
+        }
+
+        const finalTotal = totalAfterDiscount + processingFee;
 
         if (appliedCoupon) {
             if (discountRow) discountRow.style.display = 'flex';
-            if (discountEl) discountEl.innerText = `-₹${discount.toLocaleString('en-IN')}`;
+            if (discountEl) discountEl.innerText = `-${currencySymbol}${discount.toLocaleString('en-IN')}`;
         } else {
             if (discountRow) discountRow.style.display = 'none';
         }
 
-        finalPriceEl.innerText = `₹${total.toLocaleString('en-IN')}`;
+        // Dynamically manage dynamic processing fee row
+        let feeRow = document.getElementById('modal-fee-row');
+        if (taxRate > 0) {
+            if (!feeRow) {
+                feeRow = document.createElement('div');
+                feeRow.id = 'modal-fee-row';
+                feeRow.className = 'ps-row';
+                feeRow.innerHTML = `
+                    <span class="ps-lbl">Gateway Processing Fee (${taxRate}%):</span>
+                    <span class="ps-val-fee" id="modal-fee-amount" style="color: var(--text-muted);">₹0</span>
+                `;
+                if (discountRow) {
+                    discountRow.parentNode.insertBefore(feeRow, discountRow.nextSibling);
+                }
+            }
+            feeRow.style.display = 'flex';
+            const feeValEl = document.getElementById('modal-fee-amount');
+            if (feeValEl) feeValEl.innerText = `${currencySymbol}${processingFee.toLocaleString('en-IN')}`;
+        } else if (feeRow) {
+            feeRow.style.display = 'none';
+        }
+
+        finalPriceEl.innerText = `${currencySymbol}${finalTotal.toLocaleString('en-IN')}`;
     }
 
     function getCouponMinOrder(code) {

@@ -7429,6 +7429,34 @@ html, body {
     opacity: 0.9;
 }
 
+.prod-bullet-value-props {
+    list-style: none;
+    padding: 0;
+    margin: 6px 0 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.prod-bullet-value-props li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    color: var(--clr-cyan);
+    font-weight: 500;
+    line-height: 1.25;
+}
+
+.prod-bullet-value-props li .bullet-dot {
+    width: 4px;
+    height: 4px;
+    background-color: var(--clr-cyan);
+    border-radius: 50%;
+    opacity: 0.75;
+    flex-shrink: 0;
+}
+
 .product-card-rating {
     display: flex;
     align-items: center;

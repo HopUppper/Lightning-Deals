@@ -977,83 +977,173 @@
                     <div class="glass-card admin-form-card" style="padding: 2rem;">
                         <div class="form-card-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 1rem; margin-bottom: 1.5rem;">
                             <h3 class="form-card-title"><i data-lucide="sliders" style="vertical-align: middle; margin-right: 6px;"></i> Store Configuration</h3>
-                            <span class="sub-label" style="display: block; margin-top: 0.25rem;">Configure reseller payment accounts, WhatsApp number, and push notifications.</span>
+                            <span class="sub-label" style="display: block; margin-top: 0.25rem;">Configure reseller payment accounts, automations, custom branding, and checkout tools.</span>
                         </div>
                         
                         <form id="settings-form" onsubmit="return false;">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="settings-phone">Reseller WhatsApp Number (with country code, no +) *</label>
-                                    <input type="text" id="settings-phone" placeholder="e.g. 917695956938" required>
-                                    <small class="form-tip">This is the number customers see/contact, and where you'll receive notifications.</small>
-                                </div>
-                                <div class="form-group">
-                                    <label for="settings-upi">Reseller UPI ID *</label>
-                                    <input type="text" id="settings-upi" placeholder="e.g. yourname@upi" required>
-                                    <small class="form-tip">Customers will scan the QR code pointing to this UPI address.</small>
-                                </div>
-                            </div>
-
-                            <div class="form-row" style="margin-top: 1rem;">
-                                <div class="form-group">
-                                    <label for="settings-razorpay-key">Razorpay Key ID (Public Key ID)</label>
-                                    <input type="text" id="settings-razorpay-key" placeholder="e.g. rzp_test_...">
-                                    <small class="form-tip">Your public Razorpay Key ID from the Razorpay dashboard. Leave blank to disable Razorpay Checkout and use manual UPI only. <strong>Never expose your Secret Key here!</strong></small>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="settings-notify-method">Order Notification Method</label>
-                                <select id="settings-notify-method">
-                                    <option value="disabled">Disabled (Default)</option>
-                                    <option value="callmebot">CallMeBot WhatsApp (Free WhatsApp Alerts)</option>
-                                    <option value="discord">Discord Webhook (Free Instant Push Alerts)</option>
-                                    <option value="telegram">Telegram Bot (Custom bot notifications)</option>
-                                </select>
-                                <small class="form-tip">Choose how you want to be notified instantly on your phone when a customer completes an order.</small>
-                            </div>
-
-                            <!-- CallMeBot Specific Fields -->
-                            <div class="settings-notify-fields" id="fields-callmebot" style="display: none;">
-                                <div class="form-group">
-                                    <label for="settings-callmebot-apikey">CallMeBot API Key *</label>
-                                    <input type="text" id="settings-callmebot-apikey" placeholder="Paste your CallMeBot WhatsApp API Key">
-                                    <div class="form-tip" style="line-height: 1.4; margin-top: 0.5rem;">
-                                        <strong>How to get it:</strong>
-                                        <ol style="margin-left: 1.25rem; margin-top: 0.25rem; font-size: 0.75rem;">
-                                            <li>Save the contact <strong>+34 644 66 32 62</strong> in your phone as "CallMeBot".</li>
-                                            <li>Send a WhatsApp message: <code>I allow callmebot to send me messages</code> to this contact.</li>
-                                            <li>Wait for the reply containing your API Key and paste it here.</li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Discord Specific Fields -->
-                            <div class="settings-notify-fields" id="fields-discord" style="display: none;">
-                                <div class="form-group">
-                                    <label for="settings-discord-webhook">Discord Webhook URL *</label>
-                                    <input type="url" id="settings-discord-webhook" placeholder="https://discord.com/api/webhooks/...">
-                                    <small class="form-tip">Create a Webhook in Discord (Integration -> Webhooks in channel settings) and paste the URL here. The Discord App on your phone will notify you immediately.</small>
-                                </div>
-                            </div>
-
-                            <!-- Telegram Specific Fields -->
-                            <div class="settings-notify-fields" id="fields-telegram" style="display: none;">
+                            <!-- SECTION 1: GENERAL BRANDING -->
+                            <div class="settings-form-section">
+                                <h4 class="settings-section-title"><i data-lucide="layout"></i> General Branding & Localization</h4>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="settings-telegram-token">Telegram Bot Token *</label>
-                                        <input type="text" id="settings-telegram-token" placeholder="e.g. 123456789:ABCdefGhI...">
+                                        <label for="settings-store-name">Store Display Name *</label>
+                                        <input type="text" id="settings-store-name" placeholder="e.g. Lightning Deals" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="settings-telegram-chatid">Telegram Chat ID *</label>
-                                        <input type="text" id="settings-telegram-chatid" placeholder="e.g. 987654321">
+                                        <label for="settings-support-email">Customer Support Email *</label>
+                                        <input type="email" id="settings-support-email" placeholder="e.g. support@lightning-deals.online" required>
                                     </div>
                                 </div>
-                                <small class="form-tip">Create a Telegram bot via @BotFather, retrieve the token, then start a chat with the bot (or add it to a group) and get your Chat ID (using e.g. @userinfobot).</small>
+                                <div class="form-group" style="margin-top: 1rem;">
+                                    <label for="settings-announcement">Storefront Announcement Strip Text *</label>
+                                    <input type="text" id="settings-announcement" placeholder="e.g. ⚡ 47 subscriptions activated today · Average delivery: 8 min" required>
+                                    <small class="form-tip">This scrolls in real time across the top announcement bar of the storefront.</small>
+                                </div>
+                                <div class="form-row" style="margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label for="settings-currency">Base Currency Symbol</label>
+                                        <select id="settings-currency">
+                                            <option value="₹">₹ (INR - Indian Rupee)</option>
+                                            <option value="$">$ (USD - US Dollar)</option>
+                                            <option value="€">€ (EUR - Euro)</option>
+                                            <option value="£">£ (GBP - British Pound)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="settings-checkout-tip">Allow Checkout Tips / Donation</label>
+                                        <select id="settings-checkout-tip">
+                                            <option value="disabled">Disabled (Clean checkout)</option>
+                                            <option value="enabled">Enabled (Adds optional tips at checkout)</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                            <!-- SECTION 2: PAYMENT GATEWAYS -->
+                            <div class="settings-form-section" style="margin-top: 2rem;">
+                                <h4 class="settings-section-title"><i data-lucide="credit-card"></i> Payment Processing Gateways</h4>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="settings-upi">Reseller UPI ID (Manual Scan) *</label>
+                                        <input type="text" id="settings-upi" placeholder="e.g. yourname@upi" required>
+                                        <small class="form-tip">UPI address for manual payment QR codes.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="settings-upi-name">UPI Payee Receiver Name *</label>
+                                        <input type="text" id="settings-upi-name" placeholder="e.g. Sidh Jain" required>
+                                        <small class="form-tip">Real name of the receiver to configure deep-links.</small>
+                                    </div>
+                                </div>
+                                <div class="form-row" style="margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label for="settings-razorpay-key">Razorpay Key ID (Public Client Key)</label>
+                                        <input type="text" id="settings-razorpay-key" placeholder="e.g. rzp_live_...">
+                                        <small class="form-tip">Your public Razorpay Key ID. Leave blank to disable Razorpay checkout and route all users to UPI scan only.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="settings-upi-fallback">Manual UPI Payment Fallback</label>
+                                        <select id="settings-upi-fallback">
+                                            <option value="enabled">Enabled (Allow manual QR code upload if payment fails)</option>
+                                            <option value="disabled">Disabled (Only allow direct card/Razorpay checkout)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SECTION 3: AUTOMATIONS & WEBHOOKS -->
+                            <div class="settings-form-section" style="margin-top: 2rem;">
+                                <h4 class="settings-section-title"><i data-lucide="bell"></i> Automation & Notifications Settings</h4>
+                                <div class="form-group">
+                                    <label for="settings-notify-method">Order Notification Channel</label>
+                                    <select id="settings-notify-method">
+                                        <option value="disabled">Disabled (Default)</option>
+                                        <option value="callmebot">CallMeBot WhatsApp (Free WhatsApp Alerts)</option>
+                                        <option value="discord">Discord Webhook (Free Instant Push Alerts)</option>
+                                        <option value="telegram">Telegram Bot (Custom bot notifications)</option>
+                                    </select>
+                                    <small class="form-tip">Choose how you want to be notified instantly on your phone when an order completes.</small>
+                                </div>
+
+                                <!-- CallMeBot Specific Fields -->
+                                <div class="settings-notify-fields" id="fields-callmebot" style="display: none; margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label for="settings-callmebot-apikey">CallMeBot API Key *</label>
+                                        <input type="text" id="settings-callmebot-apikey" placeholder="Paste your CallMeBot WhatsApp API Key">
+                                        <div class="form-tip" style="line-height: 1.4; margin-top: 0.5rem;">
+                                            <strong>How to get it:</strong>
+                                            <ol style="margin-left: 1.25rem; margin-top: 0.25rem; font-size: 0.75rem;">
+                                                <li>Save the contact <strong>+34 644 66 32 62</strong> in your phone as "CallMeBot".</li>
+                                                <li>Send a WhatsApp message: <code>I allow callmebot to send me messages</code> to this contact.</li>
+                                                <li>Wait for the reply containing your API Key and paste it here.</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Discord Specific Fields -->
+                                <div class="settings-notify-fields" id="fields-discord" style="display: none; margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label for="settings-discord-webhook">Discord Webhook URL *</label>
+                                        <input type="url" id="settings-discord-webhook" placeholder="https://discord.com/api/webhooks/...">
+                                        <small class="form-tip">Create a Webhook in Discord and paste the URL here. The Discord App on your phone will notify you immediately.</small>
+                                    </div>
+                                </div>
+
+                                <!-- Telegram Specific Fields -->
+                                <div class="settings-notify-fields" id="fields-telegram" style="display: none; margin-top: 1rem;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="settings-telegram-token">Telegram Bot Token *</label>
+                                            <input type="text" id="settings-telegram-token" placeholder="e.g. 123456789:ABCdefGhI...">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="settings-telegram-chatid">Telegram Chat ID *</label>
+                                            <input type="text" id="settings-telegram-chatid" placeholder="e.g. 987654321">
+                                        </div>
+                                    </div>
+                                    <small class="form-tip">Create a Telegram bot via @BotFather, start it, and fetch your chat ID using @userinfobot.</small>
+                                </div>
+
+                                <div class="form-row" style="margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label for="settings-auto-reminders">Plan Expiry WhatsApp Reminders</label>
+                                        <select id="settings-auto-reminders">
+                                            <option value="enabled">Enabled (Auto WhatsApp triggers 3 days before expiry)</option>
+                                            <option value="disabled">Disabled</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="settings-auto-followups">Abandoned Cart Auto Follow-up</label>
+                                        <select id="settings-auto-followups">
+                                            <option value="disabled">Disabled</option>
+                                            <option value="30m">Send after 30 Minutes</option>
+                                            <option value="1h">Send after 1 Hour</option>
+                                            <option value="2h">Send after 2 Hours</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-top: 1rem;">
+                                    <label for="settings-fulfillment-webhook">Auto-Delivery Fulfillment Webhook URL</label>
+                                    <input type="url" id="settings-fulfillment-webhook" placeholder="https://api.yourdomain.com/fulfillment">
+                                    <small class="form-tip">The system will fire an automated POST webhook trigger upon payment confirmation for automated activations.</small>
+                                </div>
+
+                                <div class="form-row" style="margin-top: 1rem;">
+                                    <div class="form-group">
+                                        <label for="settings-phone">Notification WhatsApp Mobile Target *</label>
+                                        <input type="text" id="settings-phone" placeholder="e.g. 917695956938" required>
+                                        <small class="form-tip">Mobile target where you will receive your personal WhatsApp alerts.</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="settings-tax-rate">Checkout Processing/Platform Fee (%)</label>
+                                        <input type="number" id="settings-tax-rate" placeholder="e.g. 2 for 2%" min="0" max="20" step="0.1">
+                                        <small class="form-tip">Adds a subtle gateway handling fee/processing surcharge at checkout.</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
                                 <button type="button" class="btn btn-secondary w-50" id="btn-test-notification">
                                     <i data-lucide="bell-ring" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle;"></i>
                                     <span>Send Test Alert</span>

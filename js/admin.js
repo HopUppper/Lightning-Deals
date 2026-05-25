@@ -2198,6 +2198,23 @@ function setupStoreSettings() {
     const saveBtn = document.getElementById('btn-save-settings');
     const testBtn = document.getElementById('btn-test-notification');
 
+    // Branding & Localization DOM Elements
+    const storeNameInput = document.getElementById('settings-store-name');
+    const supportEmailInput = document.getElementById('settings-support-email');
+    const announcementInput = document.getElementById('settings-announcement');
+    const currencySelect = document.getElementById('settings-currency');
+    const checkoutTipSelect = document.getElementById('settings-checkout-tip');
+    
+    // Additional Payment Gateways DOM Elements
+    const upiNameInput = document.getElementById('settings-upi-name');
+    const upiFallbackSelect = document.getElementById('settings-upi-fallback');
+    
+    // Automations DOM Elements
+    const autoRemindersSelect = document.getElementById('settings-auto-reminders');
+    const autoFollowupsSelect = document.getElementById('settings-auto-followups');
+    const fulfillmentWebhookInput = document.getElementById('settings-fulfillment-webhook');
+    const taxRateInput = document.getElementById('settings-tax-rate');
+
     // Fields groups
     const fieldsCallmebot = document.getElementById('fields-callmebot');
     const fieldsDiscord = document.getElementById('fields-discord');
@@ -2214,14 +2231,25 @@ function setupStoreSettings() {
     // Load settings from storage
     function loadStoreSettings() {
         const DEFAULT_SETTINGS = {
-            phone: "917695956938",
+            storeName: "Lightning Deals",
+            supportEmail: "support@lightning-deals.online",
+            announcement: "⚡ 47 subscriptions activated today · Average delivery: 8 min",
+            currency: "₹",
+            checkoutTip: "disabled",
             upiId: "sidhjain9002-1@okhdfcbank",
+            upiName: "Sidh Jain",
             razorpayKeyId: "",
+            upiFallback: "enabled",
             notificationMethod: "disabled",
             callmebotApiKey: "",
             discordWebhookUrl: "",
             telegramBotToken: "",
-            telegramChatId: ""
+            telegramChatId: "",
+            autoReminders: "enabled",
+            autoFollowups: "disabled",
+            fulfillmentWebhook: "",
+            phone: "917695956938",
+            taxRate: 0
         };
 
         let settings = { ...DEFAULT_SETTINGS };
@@ -2240,14 +2268,28 @@ function setupStoreSettings() {
         window.loadStoreSettings = loadStoreSettings;
 
         // Fill form fields
+        if (storeNameInput) storeNameInput.value = settings.storeName || "";
+        if (supportEmailInput) supportEmailInput.value = settings.supportEmail || "";
+        if (announcementInput) announcementInput.value = settings.announcement || "";
+        if (currencySelect) currencySelect.value = settings.currency || "₹";
+        if (checkoutTipSelect) checkoutTipSelect.value = settings.checkoutTip || "disabled";
+        
         phoneInput.value = settings.phone;
         upiInput.value = settings.upiId;
+        if (upiNameInput) upiNameInput.value = settings.upiName || "";
         if (razorpayKeyInput) razorpayKeyInput.value = settings.razorpayKeyId || "";
+        if (upiFallbackSelect) upiFallbackSelect.value = settings.upiFallback || "enabled";
+        
         notifyMethodSelect.value = settings.notificationMethod;
         callmebotApiKeyInput.value = settings.callmebotApiKey || "";
         discordWebhookInput.value = settings.discordWebhookUrl || "";
         telegramTokenInput.value = settings.telegramBotToken || "";
         telegramChatIdInput.value = settings.telegramChatId || "";
+        
+        if (autoRemindersSelect) autoRemindersSelect.value = settings.autoReminders || "enabled";
+        if (autoFollowupsSelect) autoFollowupsSelect.value = settings.autoFollowups || "disabled";
+        if (fulfillmentWebhookInput) fulfillmentWebhookInput.value = settings.fulfillmentWebhook || "";
+        if (taxRateInput) taxRateInput.value = settings.taxRate !== undefined ? settings.taxRate : 0;
 
         // Toggle subfields display
         toggleNotificationFields(settings.notificationMethod);
@@ -2286,14 +2328,28 @@ function setupStoreSettings() {
 
     // Save Settings Event Listener
     saveBtn.addEventListener('click', () => {
+        const storeName = storeNameInput ? storeNameInput.value.trim() : "Lightning Deals";
+        const supportEmail = supportEmailInput ? supportEmailInput.value.trim() : "support@lightning-deals.online";
+        const announcement = announcementInput ? announcementInput.value.trim() : "";
+        const currency = currencySelect ? currencySelect.value : "₹";
+        const checkoutTip = checkoutTipSelect ? checkoutTipSelect.value : "disabled";
+        
         const phone = phoneInput.value.trim();
         const upiId = upiInput.value.trim();
+        const upiName = upiNameInput ? upiNameInput.value.trim() : "";
         const razorpayKeyId = razorpayKeyInput ? razorpayKeyInput.value.trim() : "";
+        const upiFallback = upiFallbackSelect ? upiFallbackSelect.value : "enabled";
+        
         const notificationMethod = notifyMethodSelect.value;
         const callmebotApiKey = callmebotApiKeyInput.value.trim();
         const discordWebhookUrl = discordWebhookInput.value.trim();
         const telegramBotToken = telegramTokenInput.value.trim();
         const telegramChatId = telegramChatIdInput.value.trim();
+        
+        const autoReminders = autoRemindersSelect ? autoRemindersSelect.value : "enabled";
+        const autoFollowups = autoFollowupsSelect ? autoFollowupsSelect.value : "disabled";
+        const fulfillmentWebhook = fulfillmentWebhookInput ? fulfillmentWebhookInput.value.trim() : "";
+        const taxRate = taxRateInput ? parseFloat(taxRateInput.value) || 0 : 0;
 
         if (!phone) {
             alert("Reseller WhatsApp Number is required.");
@@ -2301,6 +2357,18 @@ function setupStoreSettings() {
         }
         if (!upiId) {
             alert("Reseller UPI ID is required.");
+            return;
+        }
+        if (!upiName) {
+            alert("UPI Payee Receiver Name is required.");
+            return;
+        }
+        if (!storeName) {
+            alert("Store Display Name is required.");
+            return;
+        }
+        if (!supportEmail) {
+            alert("Customer Support Email is required.");
             return;
         }
 
@@ -2325,14 +2393,25 @@ function setupStoreSettings() {
         }
 
         const settings = {
+            storeName,
+            supportEmail,
+            announcement,
+            currency,
+            checkoutTip,
             phone,
             upiId,
+            upiName,
             razorpayKeyId,
+            upiFallback,
             notificationMethod,
             callmebotApiKey,
             discordWebhookUrl,
             telegramBotToken,
-            telegramChatId
+            telegramChatId,
+            autoReminders,
+            autoFollowups,
+            fulfillmentWebhook,
+            taxRate
         };
 
         if (database) {
