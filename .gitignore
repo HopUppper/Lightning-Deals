@@ -1,0 +1,8 @@
+# Ignore temporary test and browser profiles
+edge-temp-profile/
+test-endpoint.ps1
+recovered_data_dump.txt
+
+# OS metadata
+.DS_Store
+Thumbs.db
