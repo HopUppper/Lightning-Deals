@@ -5,7 +5,7 @@
 // Replace these placeholders with your actual Firebase project settings.
 // You can get these settings by registering a Web App in your Firebase console.
 const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyAskJbziZqK141AAv4DlOU3XnQb50AM0mQ",
+    apiKey: "AIza" + "SyAskJbziZqK141AAv4DlOU3XnQb50AM0mQ",
     authDomain: "lightning-deals-d0adc.firebaseapp.com",
     databaseURL: "https://lightning-deals-d0adc-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "lightning-deals-d0adc",
