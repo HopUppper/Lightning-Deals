@@ -289,6 +289,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTemplatesForm();
     setupBulkActions();
     setupCRMAndLogs();
+    setupPremiumSaaSOperations();
 });
 
 // --- Session Verification ---
@@ -562,114 +563,64 @@ function setupDashboardActions() {
     }
 }
 
-// --- Setup Tabs Navigation ---
+// --- Setup Collapsible Sidebar & Tabs Navigation ---
 function setupTabsNavigation() {
-    const tabCatalog = document.getElementById('tab-btn-catalog');
-    const tabOrders = document.getElementById('tab-btn-orders');
-    const tabAnalytics = document.getElementById('tab-btn-analytics');
-    const tabTemplates = document.getElementById('tab-btn-templates');
-    const tabCoupons = document.getElementById('tab-btn-coupons');
-    const tabSettings = document.getElementById('tab-btn-settings');
+    const sidebar = document.getElementById('admin-sidebar');
+    const btnSidebarToggle = document.getElementById('btn-sidebar-toggle');
+    const toggleIconSide = document.getElementById('toggle-icon-side');
+    const adminApp = document.getElementById('admin-app');
     
-    const panelCatalog = document.getElementById('panel-catalog');
-    const panelOrders = document.getElementById('panel-orders');
-    const panelAnalytics = document.getElementById('panel-analytics');
-    const panelTemplates = document.getElementById('panel-templates');
-    const panelCoupons = document.getElementById('panel-coupons');
-    const panelSettings = document.getElementById('panel-settings');
-
-    const tabs = [];
-    const panels = [];
-
-    if (tabCatalog && panelCatalog) {
-        tabs.push(tabCatalog);
-        panels.push(panelCatalog);
-        tabCatalog.addEventListener('click', () => {
-            activateTab(tabCatalog, panelCatalog);
-            loadProductsFromStorage();
-            renderProductsTable();
-            renderCatalogStats();
-        });
-    }
-
-    if (tabOrders && panelOrders) {
-        tabs.push(tabOrders);
-        panels.push(panelOrders);
-        tabOrders.addEventListener('click', () => {
-            activateTab(tabOrders, panelOrders);
-            loadOrdersFromStorage();
-            renderOrdersTable();
-            renderOrdersStats();
-        });
-    }
-
-    if (tabAnalytics && panelAnalytics) {
-        tabs.push(tabAnalytics);
-        panels.push(panelAnalytics);
-        tabAnalytics.addEventListener('click', () => {
-            activateTab(tabAnalytics, panelAnalytics);
-            loadOrdersFromStorage();
-            renderAnalytics();
-        });
-    }
-
-    if (tabTemplates && panelTemplates) {
-        tabs.push(tabTemplates);
-        panels.push(panelTemplates);
-        tabTemplates.addEventListener('click', () => {
-            activateTab(tabTemplates, panelTemplates);
-            renderTemplates();
-        });
-    }
-
-    if (tabCoupons && panelCoupons) {
-        tabs.push(tabCoupons);
-        panels.push(panelCoupons);
-        tabCoupons.addEventListener('click', () => {
-            activateTab(tabCoupons, panelCoupons);
-            loadCoupons();
-            renderCouponsTable();
-            renderCouponsStats();
-        });
-    }
-
-    const tabUsers = document.getElementById('tab-btn-users');
-    const panelUsers = document.getElementById('panel-users');
-    const tabLogs = document.getElementById('tab-btn-logs');
-    const panelLogs = document.getElementById('panel-logs');
-
-    if (tabUsers && panelUsers) {
-        tabs.push(tabUsers);
-        panels.push(panelUsers);
-        tabUsers.addEventListener('click', () => {
-            activateTab(tabUsers, panelUsers);
-            renderCRMPanel();
-        });
-    }
-
-    if (tabLogs && panelLogs) {
-        tabs.push(tabLogs);
-        panels.push(panelLogs);
-        tabLogs.addEventListener('click', () => {
-            activateTab(tabLogs, panelLogs);
-            renderLogsPanel();
-        });
-    }
-
-    if (tabSettings && panelSettings) {
-        tabs.push(tabSettings);
-        panels.push(panelSettings);
-        tabSettings.addEventListener('click', () => {
-            activateTab(tabSettings, panelSettings);
-            if (typeof window.loadStoreSettings === 'function') {
-                window.loadStoreSettings();
+    // Sidebar toggle functionality
+    if (btnSidebarToggle && sidebar && adminApp) {
+        btnSidebarToggle.addEventListener('click', () => {
+            adminApp.classList.toggle('collapsed');
+            if (adminApp.classList.contains('collapsed')) {
+                if (toggleIconSide) toggleIconSide.setAttribute('data-lucide', 'chevrons-right');
+            } else {
+                if (toggleIconSide) toggleIconSide.setAttribute('data-lucide', 'chevrons-left');
             }
+            if (window.lucide) window.lucide.createIcons();
         });
     }
 
-    function activateTab(activeTab, activePanel) {
-        tabs.forEach(tab => tab.classList.toggle('active', tab === activeTab));
-        panels.forEach(panel => panel.classList.toggle('active', panel === activePanel));
+    // Ctrl + \ keyboard shortcut to toggle sidebar
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === '\\') {
+            e.preventDefault();
+            if (btnSidebarToggle) btnSidebarToggle.click();
+        }
+    });
+
+    const sidebarBtns = [
+        { btn: document.getElementById('sidebar-btn-catalog'), panel: document.getElementById('panel-catalog'), callback: () => { loadProductsFromStorage(); renderProductsTable(); renderCatalogStats(); } },
+        { btn: document.getElementById('sidebar-btn-orders'), panel: document.getElementById('panel-orders'), callback: () => { loadOrdersFromStorage(); renderOrdersTable(); renderOrdersStats(); } },
+        { btn: document.getElementById('sidebar-btn-analytics'), panel: document.getElementById('panel-analytics'), callback: () => { loadOrdersFromStorage(); renderAnalytics(); } },
+        { btn: document.getElementById('sidebar-btn-users'), panel: document.getElementById('panel-users'), callback: () => { renderCRMPanel(); } },
+        { btn: document.getElementById('sidebar-btn-templates'), panel: document.getElementById('panel-templates'), callback: () => { renderTemplates(); } },
+        { btn: document.getElementById('sidebar-btn-coupons'), panel: document.getElementById('panel-coupons'), callback: () => { loadCoupons(); renderCouponsTable(); renderCouponsStats(); } },
+        { btn: document.getElementById('sidebar-btn-logs'), panel: document.getElementById('panel-logs'), callback: () => { renderLogsPanel(); } },
+        { btn: document.getElementById('sidebar-btn-settings'), panel: document.getElementById('panel-settings'), callback: () => { if (typeof window.loadStoreSettings === 'function') window.loadStoreSettings(); } }
+    ];
+
+    const activeBtns = sidebarBtns.filter(item => item.btn && item.panel);
+
+    activeBtns.forEach(item => {
+        item.btn.addEventListener('click', () => {
+            activeBtns.forEach(other => {
+                other.btn.classList.toggle('active', other.btn === item.btn);
+                other.panel.classList.toggle('active', other.panel === item.panel);
+            });
+            if (item.callback) item.callback();
+        });
+    });
+
+    // Handle logout button inside sidebar too
+    const sidebarLogoutBtn = document.getElementById('sidebar-logout-btn');
+    if (sidebarLogoutBtn) {
+        sidebarLogoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('lightning_deals_logged_in');
+            window.location.reload();
+        });
     }
 }
 
@@ -1505,10 +1456,19 @@ function renderOrdersStats() {
 
 function updatePendingBadgeCount() {
     const pendingOrdersCount = ordersList.filter(o => o && (o.status === 'Pending' || o.status === 'Pending Stripe Payment')).length;
+    
+    // Legacy tabs count badge
     const badge = document.getElementById('badge-pending-count');
     if (badge) {
         badge.innerText = pendingOrdersCount;
         badge.style.display = pendingOrdersCount > 0 ? 'inline-block' : 'none';
+    }
+    
+    // New Collapsible Sidebar count badge
+    const sideBadge = document.getElementById('sidebar-pending-count');
+    if (sideBadge) {
+        sideBadge.innerText = pendingOrdersCount;
+        sideBadge.style.display = pendingOrdersCount > 0 ? 'inline-block' : 'none';
     }
 }
 
@@ -3676,3 +3636,502 @@ function setupCRMAndLogs() {
         logEvent('settings', 'Reseller settings loaded from system storage.');
     }
 }
+
+// ==========================================================================
+// PREMIUM SaaS OPERATING SYSTEM WORKFLOWS & COMMAND PALETTE CONTROLLERS
+// ==========================================================================
+let paletteResults = [];
+let selectedPaletteIdx = -1;
+
+function setupPremiumSaaSOperations() {
+    const searchTriggerBtn = document.getElementById('btn-trigger-search');
+    const paletteModal = document.getElementById('command-palette');
+    const paletteSearchBox = document.getElementById('palette-search-box');
+    const bellBtn = document.getElementById('btn-bell-notify');
+    const notifyMenu = document.getElementById('notifications-dropdown-menu');
+    const clearNotificationsBtn = document.getElementById('btn-clear-notifications-list');
+    
+    // 🔔 Notification bell toggle
+    if (bellBtn && notifyMenu) {
+        bellBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            notifyMenu.classList.toggle('active');
+        });
+        
+        // Hide on click outside
+        document.addEventListener('click', () => {
+            notifyMenu.classList.remove('active');
+        });
+        
+        notifyMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+
+    if (clearNotificationsBtn) {
+        clearNotificationsBtn.addEventListener('click', () => {
+            const listBody = document.getElementById('notifications-dropdown-list');
+            const unreadIndicator = document.getElementById('unread-notifications-indicator');
+            if (listBody) {
+                listBody.innerHTML = '<div class="notify-empty-state">No new alerts.</div>';
+            }
+            if (unreadIndicator) {
+                unreadIndicator.style.display = 'none';
+            }
+        });
+    }
+
+    // ⌨️ Ctrl + K / Cmd + K Command Palette Keyboard bindings
+    window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+            e.preventDefault();
+            openCommandPalette();
+        }
+    });
+
+    if (searchTriggerBtn) {
+        searchTriggerBtn.addEventListener('click', () => {
+            openCommandPalette();
+        });
+    }
+
+    if (paletteModal) {
+        // Hide modal on Esc press
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeCommandPalette();
+            }
+        });
+
+        // Hide modal on background click
+        paletteModal.addEventListener('click', (e) => {
+            if (e.target === paletteModal) {
+                closeCommandPalette();
+            }
+        });
+    }
+
+    if (paletteSearchBox) {
+        paletteSearchBox.addEventListener('input', () => {
+            filterCommandPaletteResults(paletteSearchBox.value);
+        });
+
+        paletteSearchBox.addEventListener('keydown', (e) => {
+            const resultsList = document.getElementById('palette-results-list');
+            const items = resultsList ? resultsList.querySelectorAll('.palette-result-item') : [];
+            
+            if (items.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedPaletteIdx = (selectedPaletteIdx + 1) % items.length;
+                updatePaletteSelection(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedPaletteIdx = (selectedPaletteIdx - 1 + items.length) % items.length;
+                updatePaletteSelection(items);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedPaletteIdx >= 0 && selectedPaletteIdx < items.length) {
+                    items[selectedPaletteIdx].click();
+                }
+            }
+        });
+    }
+}
+
+function openCommandPalette() {
+    const paletteModal = document.getElementById('command-palette');
+    const paletteSearchBox = document.getElementById('palette-search-box');
+    if (!paletteModal || !paletteSearchBox) return;
+
+    paletteModal.classList.add('active');
+    paletteSearchBox.value = "";
+    paletteSearchBox.focus();
+    selectedPaletteIdx = -1;
+    filterCommandPaletteResults("");
+}
+
+function closeCommandPalette() {
+    const paletteModal = document.getElementById('command-palette');
+    if (paletteModal) {
+        paletteModal.classList.remove('active');
+    }
+}
+
+function updatePaletteSelection(items) {
+    items.forEach((item, idx) => {
+        item.classList.toggle('selected', idx === selectedPaletteIdx);
+        if (idx === selectedPaletteIdx) {
+            item.scrollIntoView({ block: 'nearest' });
+        }
+    });
+}
+
+function filterCommandPaletteResults(query) {
+    const resultsContainer = document.getElementById('palette-results-list');
+    if (!resultsContainer) return;
+
+    resultsContainer.innerHTML = '';
+    const q = query.trim().toLowerCase();
+    
+    // --- Indexing categories ---
+    const results = [];
+
+    // 1. Navigation Shortcuts
+    const navs = [
+        { label: "Go to Active Orders Pipeline", icon: "shopping-bag", action: "sidebar-btn-orders" },
+        { label: "Go to Catalog Directory", icon: "package", action: "sidebar-btn-catalog" },
+        { label: "Go to Business Analytics Stats", icon: "bar-chart-2", action: "sidebar-btn-analytics" },
+        { label: "Go to Customer CRM Database", icon: "users", action: "sidebar-btn-users" },
+        { label: "Go to Coupon Manager Configs", icon: "ticket", action: "sidebar-btn-coupons" },
+        { label: "Go to Store Settings Options", icon: "settings", action: "sidebar-btn-settings" },
+        { label: "Go to System Audit Logs", icon: "shield-alert", action: "sidebar-btn-logs" },
+        { label: "Go to Message Copy Templates", icon: "copy", action: "sidebar-btn-templates" }
+    ];
+
+    const matchingNavs = navs.filter(n => n.label.toLowerCase().includes(q));
+    if (matchingNavs.length > 0) {
+        results.push({ category: "Navigation Shortcuts", items: matchingNavs });
+    }
+
+    // 2. Products Catalog
+    const matchingProducts = productsList.filter(p => p && p.name && p.name.toLowerCase().includes(q))
+        .map(p => ({
+            label: `View Product: ${p.name}`,
+            subtext: `Category: ${p.category}`,
+            icon: "box",
+            action: "sidebar-btn-catalog",
+            onSelect: () => {
+                const tr = Array.from(document.querySelectorAll('#admin-products-tbody tr')).find(r => r.innerText.includes(p.name));
+                if (tr) tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }));
+    if (matchingProducts.length > 0) {
+        results.push({ category: "Catalog Products", items: matchingProducts.slice(0, 5) });
+    }
+
+    // 3. Customer Orders
+    const matchingOrders = ordersList.filter(o => o && (
+        (o.name && o.name.toLowerCase().includes(q)) ||
+        (o.id && o.id.toLowerCase().includes(q)) ||
+        (o.utr && o.utr.toLowerCase().includes(q))
+    )).map(o => ({
+        label: `Order: ${o.name} (${o.product})`,
+        subtext: `UTR: ${o.utr || 'N/A'} - ₹${o.price}`,
+        icon: "shopping-cart",
+        action: "sidebar-btn-orders",
+        onSelect: () => {
+            const idx = ordersList.findIndex(item => item && item.id === o.id);
+            if (idx >= 0) openOrderDetailDrawer(idx);
+        }
+    }));
+    if (matchingOrders.length > 0) {
+        results.push({ category: "Customer Placed Orders", items: matchingOrders.slice(0, 5) });
+    }
+
+    // 4. Coupons Directory
+    const matchingCoupons = couponsList.filter(c => c && c.code && c.code.toLowerCase().includes(q))
+        .map(c => ({
+            label: `Coupon: ${c.code}`,
+            subtext: `${c.type === 'percentage' ? c.value + '%' : '₹' + c.value} off`,
+            icon: "tag",
+            action: "sidebar-btn-coupons"
+        }));
+    if (matchingCoupons.length > 0) {
+        results.push({ category: "Active Discount Coupons", items: matchingCoupons.slice(0, 5) });
+    }
+
+    if (results.length === 0) {
+        resultsContainer.innerHTML = '<div class="palette-empty-state" style="padding: 2rem; text-align: center; color: var(--clr-text-muted); font-size: 0.82rem;">No matching commands, products, or orders found.</div>';
+        return;
+    }
+
+    // Render grouped lists
+    let currentItemIdx = 0;
+    results.forEach(group => {
+        const title = document.createElement('div');
+        title.className = 'palette-group-title';
+        title.innerText = group.category;
+        resultsContainer.appendChild(title);
+
+        group.items.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'palette-result-item';
+            row.setAttribute('data-index', currentItemIdx);
+            
+            row.innerHTML = `
+                <i data-lucide="${item.icon}"></i>
+                <span class="palette-result-item-text">${escapeHTML(item.label)}</span>
+                ${item.subtext ? `<span class="palette-result-item-subtext">${escapeHTML(item.subtext)}</span>` : ''}
+            `;
+
+            row.addEventListener('click', () => {
+                closeCommandPalette();
+                if (item.action) {
+                    const btn = document.getElementById(item.action);
+                    if (btn) btn.click();
+                }
+                if (item.onSelect) {
+                    setTimeout(item.onSelect, 250);
+                }
+            });
+
+            resultsContainer.appendChild(row);
+            currentItemIdx++;
+        });
+    });
+
+    if (window.lucide) window.lucide.createIcons();
+    
+    // Select first item by default on filter change
+    const firstItem = resultsContainer.querySelector('.palette-result-item');
+    if (firstItem) {
+        selectedPaletteIdx = 0;
+        firstItem.classList.add('selected');
+    }
+}
+
+// ==========================================================================
+// SLIDING TIMELINE DETAIL DRAWER WITH RISK ANALYSIS OVERRIDES
+// ==========================================================================
+// Intercept order drawer click handlers to render beautiful pipeline timelines
+const originalOpenOrderDetailDrawer = openOrderDetailDrawer;
+openOrderDetailDrawer = function(index) {
+    originalOpenOrderDetailDrawer(index);
+    
+    // Now let's inject the dynamic progress timeline and risk indicator inside the drawer body
+    const order = ordersList[index];
+    if (!order) return;
+
+    const drawerBody = document.getElementById('drawer-body-content');
+    if (!drawerBody) return;
+
+    // 1. Calculate risk indicator dynamically
+    let riskLevel = 'Low';
+    let riskClass = 'low';
+    let riskReason = 'Valid unique payment parameters detected.';
+    
+    const duplicateUTR = ordersList.filter(o => o && o.utr && o.utr === order.utr && o.id !== order.id).length;
+    if (duplicateUTR > 0) {
+        riskLevel = 'High';
+        riskClass = 'high';
+        riskReason = `Duplicate reference ID (UTR) used in ${duplicateUTR + 1} orders. Potential checkout bypass attempt!`;
+    } else {
+        const repeatContactOrders = ordersList.filter(o => o && (o.phone === order.phone || o.email === order.email)).length;
+        if (repeatContactOrders > 4) {
+            riskLevel = 'Medium';
+            riskClass = 'med';
+            riskReason = `High checkout frequency from contact (+${order.phone}). VIP client profile.`;
+        }
+    }
+
+    // 2. Timeline steps based on status
+    let stepPlaced = true;
+    let stepPaid = order.status === 'Paid' || order.status === 'Active' || order.status === 'Expired';
+    let stepActivated = order.status === 'Active';
+    
+    const timelineHTML = `
+        <div class="drawer-section" style="margin-top: 20px;">
+            <h4 style="color: var(--clr-accent); margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px;">Fulfillment Journey Timeline</h4>
+            <div class="drawer-timeline-container">
+                <div class="timeline-node-item ${stepPlaced ? 'active success' : ''}">
+                    <div class="timeline-node-dot"></div>
+                    <span class="timeline-node-title">Order Placed</span>
+                    <span class="timeline-node-time">${order.date || 'N/A'}</span>
+                </div>
+                <div class="timeline-node-item ${stepPaid ? 'active success' : ''}">
+                    <div class="timeline-node-dot"></div>
+                    <span class="timeline-node-title">Payment Verified (Razorpay)</span>
+                    <span class="timeline-node-time">${stepPaid ? 'Complete' : 'Awaiting checkout response...'}</span>
+                </div>
+                <div class="timeline-node-item ${stepActivated ? 'active success' : ''}">
+                    <div class="timeline-node-dot"></div>
+                    <span class="timeline-node-title">License Activated & Dispatched</span>
+                    <span class="timeline-node-time">${stepActivated ? `Active since ${order.activationDate || 'today'}` : 'Fulfillment pending...'}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="drawer-section" style="margin-top: 20px; background-color: ${riskClass === 'high' ? 'rgba(239, 68, 68, 0.05)' : 'rgba(255,255,255,0.01)'}; border: 1px solid ${riskClass === 'high' ? 'rgba(239, 68, 68, 0.15)' : 'var(--clr-border)'}; border-radius: 8px; padding: 12px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                <h4 style="color: #fff; font-size: 0.82rem; margin: 0;">Operational Risk Assessment</h4>
+                <span class="badge-risk-lbl ${riskClass}">${riskLevel} Risk</span>
+            </div>
+            <p style="font-size: 0.74rem; color: var(--clr-text-secondary); margin: 0; line-height: 1.4;">${riskReason}</p>
+        </div>
+    `;
+
+    // Inject timeline element after Order Summary
+    const summarySection = drawerBody.querySelector('.drawer-section');
+    if (summarySection) {
+        summarySection.insertAdjacentHTML('afterend', timelineHTML);
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+};
+
+// ==========================================================================
+// SAAS METRICS BUSINESS INTELLIGENCE SVG CHARTS OVERRIDE
+// ==========================================================================
+// Replace the old simple SVG charts with gorgeous Linear/Vercel style trend charts
+renderAnalytics = function() {
+    loadOrdersFromStorage();
+    
+    const visitsCount = Math.max(100, ordersList.length * 5 + Math.floor(Math.random() * 250));
+    const totalOrders = ordersList.length;
+    const completedOrders = ordersList.filter(o => o && (o.status === 'Active' || o.status === 'Paid'));
+    const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.price || 0), 0);
+    const conversionRate = visitsCount > 0 ? ((totalOrders / visitsCount) * 100).toFixed(1) : '0.0';
+
+    const visitsEl = document.getElementById('stat-analytics-visits');
+    const ordersEl = document.getElementById('stat-analytics-orders');
+    const conversionEl = document.getElementById('stat-analytics-conversion');
+    const revenueEl = document.getElementById('stat-analytics-revenue');
+
+    if (visitsEl) visitsEl.innerText = visitsCount.toLocaleString();
+    if (ordersEl) ordersEl.innerText = totalOrders.toLocaleString();
+    if (conversionEl) conversionEl.innerText = `${conversionRate}%`;
+    if (revenueEl) revenueEl.innerText = `₹${totalRevenue.toLocaleString('en-IN')}`;
+
+    // --- Draw Revenue Trend Line SVG Graph ---
+    const revenueContainer = document.getElementById('revenue-chart-container');
+    if (revenueContainer) {
+        // Group revenue by last 7 days
+        const last7Days = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            last7Days.push({
+                label: d.toLocaleDateString('en-IN', { weekday: 'short' }),
+                dateStr: d.toLocaleDateString('en-IN'),
+                value: 0
+            });
+        }
+
+        completedOrders.forEach(o => {
+            if (!o.date) return;
+            const orderDateStr = o.date.split(',')[0].trim();
+            const day = last7Days.find(d => d.dateStr === orderDateStr);
+            if (day) {
+                day.value += (o.price || 0);
+            }
+        });
+
+        // Set up SVG dimensions
+        const width = 500;
+        const height = 180;
+        const padding = 30;
+        const maxValue = Math.max(1000, ...last7Days.map(d => d.value));
+
+        let points = [];
+        last7Days.forEach((day, idx) => {
+            const x = padding + (idx * (width - (padding * 2)) / (last7Days.length - 1));
+            const y = height - padding - (day.value * (height - (padding * 2)) / maxValue);
+            points.push({ x, y, val: day.value, label: day.label });
+        });
+
+        const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+        const areaPath = `${linePath} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z`;
+
+        // Tooltip container
+        let tooltip = revenueContainer.querySelector('.chart-interactive-tooltip');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.className = 'chart-interactive-tooltip';
+            revenueContainer.appendChild(tooltip);
+        }
+
+        revenueContainer.innerHTML = `
+            <svg viewBox="0 0 ${width} ${height}" style="width: 100%; height: 100%;">
+                <defs>
+                    <linearGradient id="chart-grad-accent" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#00F2FE" />
+                        <stop offset="100%" stop-color="#4FACFE" />
+                    </linearGradient>
+                    <linearGradient id="chart-grad-area" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stop-color="#00F2FE" stop-opacity="0.15" />
+                        <stop offset="100%" stop-color="#00F2FE" stop-opacity="0" />
+                    </linearGradient>
+                </defs>
+                <!-- Grid Lines -->
+                <line x1="${padding}" y1="${padding}" x2="${width - padding}" y2="${padding}" class="chart-grid-line" />
+                <line x1="${padding}" y1="${(height - padding * 2) / 2 + padding}" x2="${width - padding}" y2="${(height - padding * 2) / 2 + padding}" class="chart-grid-line" />
+                <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" class="chart-grid-line" />
+                
+                <!-- Chart Area & Line -->
+                <path d="${areaPath}" class="chart-trend-area" />
+                <path d="${linePath}" class="chart-trend-line" />
+                
+                <!-- Interactive Dots -->
+                ${points.map((p, idx) => `
+                    <circle cx="${p.x}" cy="${p.y}" r="4" class="chart-dot" data-index="${idx}" />
+                `).join('')}
+
+                <!-- X Axis Labels -->
+                ${points.map(p => `
+                    <text x="${p.x}" y="${height - 10}" text-anchor="middle" class="chart-label-x">${p.label}</text>
+                `).join('')}
+            </svg>
+        `;
+        revenueContainer.appendChild(tooltip);
+
+        // Bind interactive tooltip hovers
+        const dots = revenueContainer.querySelectorAll('.chart-dot');
+        dots.forEach(dot => {
+            dot.addEventListener('mouseenter', (e) => {
+                const idx = parseInt(dot.getAttribute('data-index'));
+                const pt = points[idx];
+                tooltip.style.display = 'block';
+                tooltip.innerHTML = `<strong>${pt.label}:</strong> ₹${pt.val.toLocaleString('en-IN')}`;
+                
+                // Adjust position
+                const rect = revenueContainer.getBoundingClientRect();
+                tooltip.style.left = `${pt.x - 40}px`;
+                tooltip.style.top = `${pt.y - 45}px`;
+            });
+            dot.addEventListener('mouseleave', () => {
+                tooltip.style.display = 'none';
+            });
+        });
+    }
+
+    // --- Draw Products Share Chart (SVG distribution bar chart) ---
+    const productsContainer = document.getElementById('products-chart-container');
+    if (productsContainer) {
+        const prodSales = {};
+        completedOrders.forEach(o => {
+            prodSales[o.product] = (prodSales[o.product] || 0) + (o.price || 0);
+        });
+
+        const sortedProds = Object.keys(prodSales).map(k => ({ name: k, val: prodSales[k] }))
+            .sort((a, b) => b.val - a.val).slice(0, 4);
+
+        if (sortedProds.length === 0) {
+            productsContainer.innerHTML = '<div style="padding: 3rem; text-align: center; color: var(--text-muted);">No product sales recorded yet.</div>';
+            return;
+        }
+
+        const maxVal = Math.max(...sortedProds.map(p => p.val));
+
+        productsContainer.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 12px; padding: 10px 20px; height: 100%; justify-content: center;">
+                ${sortedProds.map(p => {
+                    const pct = maxVal > 0 ? (p.val / maxVal) * 100 : 0;
+                    return `
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.78rem;">
+                                <span style="font-weight: 600; color: #fff;">${escapeHTML(p.name)}</span>
+                                <span style="font-family: monospace; color: var(--clr-accent);">₹${p.val.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div style="height: 6px; width: 100%; background-color: rgba(255, 255, 255, 0.04); border-radius: 4px; overflow: hidden;">
+                                <div style="width: ${pct}%; height: 100%; background: var(--clr-accent-grad); border-radius: 4px;"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+};
+

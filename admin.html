@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Custom Styles (shares layout & variables, adds admin styles) -->
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/admin-operating-system.css">
     <!-- Lucide Icons CDN -->
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -51,59 +52,159 @@
 
     <!-- Main Dashboard Application Page (hidden by default) -->
     <div id="admin-app" class="admin-dashboard-layout" style="display: none;">
-        <!-- Top bar -->
-        <header class="admin-topbar">
-            <div class="container topbar-container">
-                <div class="topbar-left">
-                    <a href="index.html" class="logo">
-                        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#lightning-grad-dash)" stroke="url(#lightning-grad-dash)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <defs>
-                                <linearGradient id="lightning-grad-dash" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#00F2FE" />
-                                    <stop offset="100%" stop-color="#4FACFE" />
-                                </linearGradient>
-                            </defs>
-                        </svg>
-                        <span class="logo-text">Lightning<span class="logo-highlight">Deals</span> <span class="badge-admin">Admin</span></span>
-                    </a>
-                </div>
-                <div class="topbar-right">
-                    <a href="index.html" class="btn btn-secondary btn-sm" target="_blank"><i data-lucide="external-link"></i> Live Store</a>
-                    <button class="btn btn-danger btn-sm" id="logout-btn"><i data-lucide="log-out"></i> Logout</button>
-                </div>
+        <!-- Collapsible Sidebar Navigation -->
+        <aside class="sidebar-nav" id="admin-sidebar">
+            <!-- Brand Section -->
+            <div class="sidebar-brand-wrapper">
+                <a href="index.html" class="sidebar-logo">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#sidebar-grad-dash)" stroke="url(#sidebar-grad-dash)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="sidebar-grad-dash" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00F2FE" />
+                                <stop offset="100%" stop-color="#4FACFE" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <span class="logo-text">Lightning<span class="logo-highlight">Deals</span></span>
+                </a>
+                <button class="sidebar-toggle-btn" id="btn-sidebar-toggle" title="Toggle Sidebar (Ctrl+\)">
+                    <i data-lucide="chevrons-left" id="toggle-icon-side"></i>
+                </button>
             </div>
-        </header>
 
-        <main class="container admin-main">
-            <!-- Navigation Tabs Bar -->
-            <div class="admin-tabs-bar margin-bottom-sm">
-                <button class="admin-tab-btn active" id="tab-btn-catalog" data-target="panel-catalog">
-                    <i data-lucide="package"></i> <span>Manage Catalog</span>
-                </button>
-                <button class="admin-tab-btn" id="tab-btn-orders" data-target="panel-orders">
-                    <i data-lucide="shopping-bag"></i> <span>Customer Orders</span>
-                    <span class="badge-tab-count" id="badge-pending-count">0</span>
-                </button>
-                <button class="admin-tab-btn" id="tab-btn-analytics" data-target="panel-analytics">
-                    <i data-lucide="bar-chart-2"></i> <span>Analytics Dashboard</span>
-                </button>
-                <button class="admin-tab-btn" id="tab-btn-users" data-target="panel-users">
-                    <i data-lucide="users"></i> <span>Customer CRM</span>
-                </button>
-                <button class="admin-tab-btn" id="tab-btn-templates" data-target="panel-templates">
-                    <i data-lucide="copy"></i> <span>Copy Reseller Templates</span>
-                </button>
-                <button class="admin-tab-btn" id="tab-btn-coupons" data-target="panel-coupons">
-                    <i data-lucide="ticket"></i> <span>Manage Coupons</span>
-                </button>
-                <button class="admin-tab-btn" id="tab-btn-logs" data-target="panel-logs">
-                    <i data-lucide="shield-alert"></i> <span>System Audit Logs</span>
-                </button>
-                <button class="admin-tab-btn" id="tab-btn-settings" data-target="panel-settings">
-                    <i data-lucide="settings"></i> <span>Store Settings</span>
+            <!-- Navigation Sections Menu -->
+            <div class="sidebar-menu-wrapper">
+                <!-- Operations -->
+                <div class="nav-group-wrapper">
+                    <h5 class="nav-group-title">Operations</h5>
+                    <ul class="nav-list">
+                        <li>
+                            <button class="nav-item-btn" id="sidebar-btn-orders" data-target="panel-orders">
+                                <i data-lucide="shopping-bag"></i>
+                                <span>Active Orders</span>
+                                <span class="sidebar-badge" id="sidebar-pending-count">0</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="nav-item-btn" id="sidebar-btn-templates" data-target="panel-templates">
+                                <i data-lucide="copy"></i>
+                                <span>Message Templates</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Management -->
+                <div class="nav-group-wrapper">
+                    <h5 class="nav-group-title">Management</h5>
+                    <ul class="nav-list">
+                        <li>
+                            <button class="nav-item-btn active" id="sidebar-btn-catalog" data-target="panel-catalog">
+                                <i data-lucide="package"></i>
+                                <span>Catalog Directory</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="nav-item-btn" id="sidebar-btn-coupons" data-target="panel-coupons">
+                                <i data-lucide="ticket"></i>
+                                <span>Coupon Manager</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Intelligence -->
+                <div class="nav-group-wrapper">
+                    <h5 class="nav-group-title">Intelligence</h5>
+                    <ul class="nav-list">
+                        <li>
+                            <button class="nav-item-btn" id="sidebar-btn-analytics" data-target="panel-analytics">
+                                <i data-lucide="bar-chart-2"></i>
+                                <span>Business Analytics</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="nav-item-btn" id="sidebar-btn-users" data-target="panel-users">
+                                <i data-lucide="users"></i>
+                                <span>Customer CRM</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Configuration -->
+                <div class="nav-group-wrapper">
+                    <h5 class="nav-group-title">Configuration</h5>
+                    <ul class="nav-list">
+                        <li>
+                            <button class="nav-item-btn" id="sidebar-btn-settings" data-target="panel-settings">
+                                <i data-lucide="settings"></i>
+                                <span>Store Settings</span>
+                            </button>
+                        </li>
+                        <li>
+                            <button class="nav-item-btn" id="sidebar-btn-logs" data-target="panel-logs">
+                                <i data-lucide="shield-alert"></i>
+                                <span>Audit Trail Logs</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer User Profile -->
+            <div class="sidebar-footer-wrapper">
+                <div class="user-avatar-circle">LD</div>
+                <div class="user-info-text">
+                    <span class="user-name-title">Staff Account</span>
+                    <span class="user-role-lbl">Administrator</span>
+                </div>
+                <button class="logout-btn-nav" id="sidebar-logout-btn" title="Logout Account">
+                    <i data-lucide="log-out"></i>
                 </button>
             </div>
+        </aside>
+
+        <!-- Right Side Main Content Panel Container -->
+        <div class="admin-main-container">
+            <!-- Sleek Sticky Header -->
+            <header class="admin-operating-header">
+                <!-- Search command trigger -->
+                <button class="header-search-trigger" id="btn-trigger-search">
+                    <i data-lucide="search"></i>
+                    <span>Quick search everything...</span>
+                    <kbd>Ctrl + K</kbd>
+                </button>
+
+                <!-- Right Actions -->
+                <div class="header-actions-right">
+                    <!-- Notification Bell dropdown -->
+                    <div class="bell-notify-wrapper">
+                        <button class="bell-btn" id="btn-bell-notify" title="Open Notifications">
+                            <i data-lucide="bell"></i>
+                            <span class="bell-badge-pulse" id="unread-notifications-indicator" style="display: none;"></span>
+                        </button>
+                        <!-- Notifications List Dropdown -->
+                        <div class="notify-dropdown-card" id="notifications-dropdown-menu">
+                            <div class="notify-card-header">
+                                <h4>Notifications</h4>
+                                <button class="btn btn-secondary btn-xs" id="btn-clear-notifications-list" style="padding: 2px 6px; font-size: 0.65rem;">Clear All</button>
+                            </div>
+                            <div class="notify-list-body" id="notifications-dropdown-list">
+                                <!-- Populated dynamically by JS -->
+                                <div class="notify-empty-state">No new alerts.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live storefront link -->
+                    <a href="index.html" class="btn btn-secondary btn-sm" target="_blank" style="padding: 0.45rem 0.85rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600;"><i data-lucide="external-link" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: middle;"></i> Live Store</a>
+                </div>
+            </header>
+
+            <!-- Main Panel Views Workspace -->
+            <main class="admin-workspace-panels">
 
             <!-- ================= PANEL 1: CATALOG MANAGEMENT ================= -->
             <div class="admin-panel active" id="panel-catalog">
@@ -909,7 +1010,25 @@
         </main>
     </div>
 
-    <!-- Order Details Drawer / Modal overlay -->
+    <!-- GLOBAL COMMAND PALETTE Modal -->
+    <div id="command-palette" class="palette-overlay-modal">
+        <div class="palette-box-container">
+            <div class="palette-search-wrapper">
+                <i data-lucide="search"></i>
+                <input type="text" class="palette-search-input" id="palette-search-box" placeholder="Search orders, customers, products, coupons..." autocomplete="off">
+            </div>
+            <div class="palette-results-wrapper" id="palette-results-list">
+                <!-- Populated dynamically by JS -->
+            </div>
+            <div class="palette-footer-shortcuts">
+                <span><kbd>↑↓</kbd> to navigate</span>
+                <span><kbd>Enter</kbd> to select</span>
+                <span><kbd>Esc</kbd> to close</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sliding Detail Drawer Modal -->
     <div id="order-detail-drawer" class="admin-drawer-overlay">
         <div class="admin-drawer-card">
             <div class="admin-drawer-header">
@@ -919,12 +1038,12 @@
                 </button>
             </div>
             <div class="admin-drawer-body" id="drawer-body-content">
-                <!-- Content will be rendered dynamically by JS -->
+                <!-- Rendered dynamically by JS -->
             </div>
         </div>
     </div>
 
-    <!-- Lightbox Modal for fullscreen screenshot viewing -->
+    <!-- Lightbox Modal for receipt screenshot viewing -->
     <div id="admin-lightbox" class="admin-lightbox">
         <button class="admin-lightbox-close" id="close-lightbox-btn">
             <i data-lucide="x"></i>
