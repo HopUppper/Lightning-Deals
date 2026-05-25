@@ -6156,11 +6156,25 @@ html, body {
 .proof-carousel-track {
     display: flex;
     gap: 2rem;
-    animation: scroll-proof-slides 45s linear infinite;
-    width: max-content;
+    width: 100%;
+    justify-content: center;
 }
-.proof-carousel-track:hover {
-    animation-play-state: paused;
+@media (max-width: 768px) {
+    .proof-carousel-container {
+        overflow-x: auto;
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+        mask-image: none;
+        -webkit-mask-image: none;
+        scrollbar-width: none;
+    }
+    .proof-carousel-container::-webkit-scrollbar {
+        display: none;
+    }
+    .proof-carousel-track {
+        width: max-content;
+        justify-content: flex-start;
+    }
 }
 .proof-card {
     width: 280px;

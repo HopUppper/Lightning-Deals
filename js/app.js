@@ -3378,15 +3378,15 @@ function renderRecentlyViewed() {
         return;
     }
 
-    section.style.display = 'block';
     grid.innerHTML = '';
-
     const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+    let renderedCount = 0;
 
     recentlyViewed.forEach(id => {
         const prod = activeProducts.find(p => p.id === id && p.visible !== false);
         if (!prod) return;
 
+        renderedCount++;
         const card = document.createElement('div');
         card.className = 'product-card glass-card';
         card.id = `recent-prod-card-${prod.id}`;
@@ -3458,6 +3458,12 @@ function renderRecentlyViewed() {
         `;
         grid.appendChild(card);
     });
+
+    if (renderedCount === 0) {
+        section.style.display = 'none';
+    } else {
+        section.style.display = 'block';
+    }
 
     if (window.lucide) window.lucide.createIcons();
 }
