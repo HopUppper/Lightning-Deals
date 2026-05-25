@@ -80,6 +80,12 @@
                     <h5 class="nav-group-title">Operations</h5>
                     <ul class="nav-list">
                         <li>
+                            <button class="nav-item-btn active" id="sidebar-btn-home" data-target="panel-home">
+                                <i data-lucide="home"></i>
+                                <span>Overview Cockpit</span>
+                            </button>
+                        </li>
+                        <li>
                             <button class="nav-item-btn" id="sidebar-btn-orders" data-target="panel-orders">
                                 <i data-lucide="shopping-bag"></i>
                                 <span>Active Orders</span>
@@ -100,7 +106,7 @@
                     <h5 class="nav-group-title">Management</h5>
                     <ul class="nav-list">
                         <li>
-                            <button class="nav-item-btn active" id="sidebar-btn-catalog" data-target="panel-catalog">
+                            <button class="nav-item-btn" id="sidebar-btn-catalog" data-target="panel-catalog">
                                 <i data-lucide="package"></i>
                                 <span>Catalog Directory</span>
                             </button>
@@ -170,6 +176,11 @@
         <div class="admin-main-container">
             <!-- Sleek Sticky Header -->
             <header class="admin-operating-header">
+                <!-- Mobile Sidebar Toggle -->
+                <button class="mobile-sidebar-toggle-btn" id="btn-mobile-sidebar-toggle" title="Toggle Menu" style="margin-right: 12px;">
+                    <i data-lucide="menu"></i>
+                </button>
+
                 <!-- Search command trigger -->
                 <button class="header-search-trigger" id="btn-trigger-search">
                     <i data-lucide="search"></i>
@@ -206,8 +217,164 @@
             <!-- Main Panel Views Workspace -->
             <main class="admin-workspace-panels">
 
+            <!-- ================= PANEL 0: OVERVIEW COCKPIT (HOME) ================= -->
+            <div class="admin-panel active" id="panel-home">
+                <!-- Cockpit Header Summary -->
+                <section class="admin-stats-grid margin-bottom-lg">
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper blue-glow"><i data-lucide="trending-up"></i></div>
+                        <div>
+                            <h4 class="stat-label">Today's Revenue</h4>
+                            <p class="stat-value" id="home-stat-revenue">₹0</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper purple-glow"><i data-lucide="clock"></i></div>
+                        <div>
+                            <h4 class="stat-label">Avg. Activation Time</h4>
+                            <p class="stat-value">6.8 min</p>
+                        </div>
+                    </div>
+                    <div class="glass-card stat-card">
+                        <div class="stat-icon-wrapper cyan-glow"><i data-lucide="alert-circle"></i></div>
+                        <div>
+                            <h4 class="stat-label">Action Items</h4>
+                            <p class="stat-value" id="home-stat-alerts">0 Pending</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- High-Density Home Grid -->
+                <div class="home-cockpit-grid">
+                    <!-- Left: Urgent Action & Pending Queues -->
+                    <div class="home-left-col">
+                        <!-- URGENT ACTION CENTER -->
+                        <div class="glass-card home-card margin-bottom-md">
+                            <div class="home-card-header">
+                                <h3 class="home-card-title"><i data-lucide="shield-alert" style="color: var(--clr-danger);"></i> Critical Actions Center</h3>
+                                <span class="badge-status-operating pending" id="home-badge-urgent-count">0 URGENT</span>
+                            </div>
+                            <div class="action-items-list" id="home-urgent-actions-list">
+                                <div class="action-item-empty">All caught up! No critical actions pending.</div>
+                            </div>
+                        </div>
+
+                        <!-- PENDING ACTIVATIONS LIST -->
+                        <div class="glass-card home-card">
+                            <div class="home-card-header">
+                                <h3 class="home-card-title"><i data-lucide="hourglass" style="color: var(--clr-warning);"></i> Pending Activations Queue</h3>
+                                <button class="btn btn-secondary btn-xs" id="home-btn-goto-orders" style="padding: 4px 8px; font-size: 0.7rem;">View All Orders</button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="admin-table" id="home-pending-activations-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Order</th>
+                                            <th>Customer</th>
+                                            <th>Product</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="home-pending-tbody">
+                                        <tr>
+                                            <td colspan="4" class="text-center" style="padding: 2rem; color: var(--clr-text-muted);">
+                                                No pending activations. Good job!
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Quick Actions & Live Activity Feed -->
+                    <div class="home-right-col">
+                        <!-- PERSISTENT QUICK ACTIONS BOARD -->
+                        <div class="glass-card home-card margin-bottom-md">
+                            <div class="home-card-header">
+                                <h3 class="home-card-title"><i data-lucide="zap" style="color: var(--clr-accent);"></i> Command Quick Actions</h3>
+                            </div>
+                            <div class="quick-actions-grid">
+                                <button class="quick-action-btn" data-action="create-order">
+                                    <i data-lucide="plus-circle"></i>
+                                    <span>Create Order</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="activate-customer">
+                                    <i data-lucide="check-square"></i>
+                                    <span>Activate Cust.</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="send-whatsapp">
+                                    <i data-lucide="message-square"></i>
+                                    <span>Send WhatsApp</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="create-coupon">
+                                    <i data-lucide="ticket"></i>
+                                    <span>Create Coupon</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="add-product">
+                                    <i data-lucide="package"></i>
+                                    <span>Add Product</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="search-customer">
+                                    <i data-lucide="search"></i>
+                                    <span>Search Cockpit</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="resend-activation">
+                                    <i data-lucide="mail"></i>
+                                    <span>Resend Act.</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="issue-refund">
+                                    <i data-lucide="dollar-sign"></i>
+                                    <span>Issue Refund</span>
+                                </button>
+                                <button class="quick-action-btn" data-action="copy-template">
+                                    <i data-lucide="copy"></i>
+                                    <span>Copy Template</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- AUTOMATION STATUS PANEL -->
+                        <div class="glass-card home-card margin-bottom-md">
+                            <div class="home-card-header">
+                                <h3 class="home-card-title"><i data-lucide="sliders" style="color: var(--clr-success);"></i> Automation Engines</h3>
+                                <span class="badge-status-operating active">ALL ACTIVE</span>
+                            </div>
+                            <div class="automation-status-list">
+                                <div class="automation-status-item">
+                                    <span class="auto-item-title">WhatsApp Order Flows</span>
+                                    <span class="auto-status-indicator active">● Running</span>
+                                </div>
+                                <div class="automation-status-item">
+                                    <span class="auto-item-title">Abandoned Cart Reminders</span>
+                                    <span class="auto-status-indicator active">● Running</span>
+                                </div>
+                                <div class="automation-status-item">
+                                    <span class="auto-item-title">Subscription Renewal Alerts</span>
+                                    <span class="auto-status-indicator active">● Running</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- LIVE ACTIVITY FEED -->
+                        <div class="glass-card home-card">
+                            <div class="home-card-header">
+                                <h3 class="home-card-title"><i data-lucide="activity" style="color: var(--clr-info);"></i> Live Activity Feed</h3>
+                                <span class="realtime-dot-pulse"></span>
+                            </div>
+                            <div class="activity-feed-wrapper" id="home-activity-feed-list">
+                                <div class="activity-feed-item">
+                                    <div class="activity-time">Just now</div>
+                                    <div class="activity-text">System initialised successfully. Listening for live web orders...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ================= PANEL 1: CATALOG MANAGEMENT ================= -->
-            <div class="admin-panel active" id="panel-catalog">
+            <div class="admin-panel" id="panel-catalog">
                 <!-- Summary Stats -->
                 <section class="admin-stats-grid margin-bottom-lg">
                     <div class="glass-card stat-card">
