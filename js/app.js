@@ -865,6 +865,7 @@ function applyStoreFilters() {
         return;
     }
 
+    let cardCount = 0;
     filtered.forEach(prod => {
         // Determine selected plan based on billingCycle
         let selectedPlan = null;
@@ -885,9 +886,16 @@ function applyStoreFilters() {
         const percentSaved = retailVal > priceVal ? Math.round(((retailVal - priceVal) / retailVal) * 100) : 0;
         const planLabelText = selectedPlan ? selectedPlan.label : 'Plan';
 
+        cardCount++;
         const card = document.createElement('div');
         card.className = 'glass-card product-card';
         card.setAttribute('id', `prod-card-${prod.id}`);
+        
+        // Mobile progressive lazy loading of DOM elements
+        if (window.innerWidth <= 768 && cardCount > 6) {
+            card.classList.add('progressive-hidden');
+            card.style.display = 'none';
+        }
 
         // Badge tag styling dropshadow
         let badgeHTML = '';
@@ -931,16 +939,16 @@ function applyStoreFilters() {
         // Demand urgency badge
         let demandHTML = '';
         if (prod.demand === 'high' || prod.stockStatus === 'limited') {
-            demandHTML = `<span class="demand-badge demand-high"><i data-lucide="trending-up" style="width: 10px; height: 10px;"></i> High Demand</span>`;
+            demandHTML = `<span class="demand-badge demand-high"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 10px; height: 10px; display: inline-block; vertical-align: middle; margin-right: 3px;"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg> High Demand</span>`;
         } else if (prod.demand === 'popular' || prod.bestseller) {
-            demandHTML = `<span class="demand-badge demand-popular"><i data-lucide="zap" style="width: 10px; height: 10px;"></i> Popular Deal</span>`;
+            demandHTML = `<span class="demand-badge demand-popular"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 10px; height: 10px; display: inline-block; vertical-align: middle; margin-right: 3px; color: #ffbc00;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Popular Deal</span>`;
         }
 
         // Build benefits list using healFeatures helper
         let benefitsHTML = '';
         const healed = healFeatures(prod.features);
         healed.slice(0, 5).forEach(feat => {
-            benefitsHTML += `<li><i data-lucide="check-circle-2"></i> <span>${feat}</span></li>`;
+            benefitsHTML += `<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; color: var(--clr-cyan); flex-shrink: 0; margin-top: 2px;"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg> <span>${feat}</span></li>`;
         });
 
         const wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
@@ -999,7 +1007,7 @@ function applyStoreFilters() {
             ${valuePropHTML}
             
             <div class="product-card-rating">
-                <i data-lucide="star" class="star-icon"></i>
+                <svg viewBox="0 0 24 24" fill="#F5C842" stroke="#F5C842" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="star-icon" style="width: 14px; height: 14px; color: #F5C842; display: inline-block; vertical-align: middle; margin-right: 4px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                 <span class="rating-val">${trustData.rating}</span>
                 <span class="rating-count">(${trustData.count} activations)</span>
             </div>
@@ -1022,8 +1030,8 @@ function applyStoreFilters() {
 
             <!-- Product Card Trust Features Checklist -->
             <ul class="product-card-trust-features">
-                <li><i data-lucide="check" class="check-icon"></i> Delivery in ${trustData.delivery} avg</li>
-                <li><i data-lucide="shield-check" class="check-icon"></i> Replacement warranty included</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon" style="width: 11px; height: 11px; color: var(--clr-cyan); display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M20 6 9 17l-5-5"></path></svg> Delivery in ${trustData.delivery} avg</li>
+                <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-icon" style="width: 11px; height: 11px; color: var(--clr-cyan); display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M20 13c0 5-3.5 7.5-7.66 9.7a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 .76-.97l8-2a1 1 0 0 1 .48 0l8 2A1 1 0 0 1 20 6z"></path><path d="m9 12 2 2 4-4"></path></svg> Replacement warranty included</li>
             </ul>
 
             <ul class="prod-benefits" style="margin-top: 0.75rem;">
@@ -1035,12 +1043,12 @@ function applyStoreFilters() {
                     <span>Get Access &rarr;</span>
                 </button>
                 <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button">
-                    <i data-lucide="heart"></i>
+                    <svg viewBox="0 0 24 24" fill="${isWishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
                 </button>
             </div>
             
             <div class="product-card-social-footer">
-                <i data-lucide="eye" style="width: 12px; height: 12px; opacity: 0.6;"></i>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; opacity: 0.6; display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 <span>${trustData.views} people got this today</span>
             </div>
         `;
@@ -1055,6 +1063,39 @@ function applyStoreFilters() {
 
         grid.appendChild(card);
     });
+
+    // Handle progressive/lazy loading trigger for mobile devices
+    const loadMoreExisting = document.getElementById('progressive-load-container');
+    if (loadMoreExisting) loadMoreExisting.remove();
+
+    if (window.innerWidth <= 768 && filtered.length > 6) {
+        const loadMoreDiv = document.createElement('div');
+        loadMoreDiv.id = 'progressive-load-container';
+        loadMoreDiv.style.cssText = 'grid-column: 1 / -1; display: flex; justify-content: center; margin-top: 2rem; margin-bottom: 1rem; width: 100%;';
+        loadMoreDiv.innerHTML = `
+            <button class="btn btn-secondary glass-card" id="btn-load-more-products" style="padding: 0.8rem 2.5rem; font-weight: 600; display: flex; align-items: center; gap: 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); color: #fff; cursor: pointer;">
+                <span>Show More Premium Deals</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+        `;
+        grid.appendChild(loadMoreDiv);
+
+        loadMoreDiv.querySelector('#btn-load-more-products').addEventListener('click', () => {
+            const hiddenCards = grid.querySelectorAll('.progressive-hidden');
+            hiddenCards.forEach(c => {
+                c.style.display = 'flex';
+                c.style.opacity = '0';
+                c.style.transform = 'translateY(15px)';
+                c.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                // Trigger reflow
+                c.offsetHeight;
+                c.style.opacity = '1';
+                c.style.transform = 'translateY(0)';
+                c.classList.remove('progressive-hidden');
+            });
+            loadMoreDiv.remove();
+        });
+    }
 
     if (window.lucide) {
         window.lucide.createIcons();
@@ -2881,6 +2922,10 @@ function setupScreenshotUpload() {
 
 // --- Live Indian Recent Purchases simulated loop ---
 function startLivePurchaseNotifications() {
+    if (window.innerWidth <= 768) {
+        console.log("Live purchase notifications muted on mobile for smooth scrolling and clean space.");
+        return;
+    }
     const names = ["Aarav", "Vivaan", "Aditya", "Sai", "Reyansh", "Krishna", "Arjun", "Ananya", "Diya", "Ira", "Kiara", "Prisha", "Rohan", "Vikram", "Neha", "Rahul", "Preeti", "Sanjay", "Karan", "Pooja"];
     const cities = ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Ahmedabad", "Chennai", "Kolkata", "Pune", "Jaipur", "Lucknow", "Patna", "Indore", "Thane", "Bhopal", "Visakhapatnam", "Vadodara", "Ghaziabad", "Ludhiana"];
     const times = ["just now", "2 mins ago", "5 mins ago", "10 mins ago", "15 mins ago", "20 mins ago", "1 min ago"];
@@ -3447,12 +3492,12 @@ function renderRecentlyViewed() {
             </div>
             
             <div class="card-actions-wrapper" style="display: flex; gap: 0.5rem; width: 100%; margin-top: 1rem;">
-                <button class="btn btn-primary cta-purchase-trigger" data-id="${prod.id}" style="flex-grow: 1;">
+                <button class="btn btn-primary cta-purchase-trigger" data-id="${prod.id}" style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 6px;">
                     <span>Add to Cart</span>
-                    <i data-lucide="arrow-right"></i>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </button>
                 <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button">
-                    <i data-lucide="heart"></i>
+                    <svg viewBox="0 0 24 24" fill="${isWishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
                 </button>
             </div>
         `;

@@ -3,6 +3,12 @@
    ========================================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Disable on mobile viewports to save memory, battery, and CPU/GPU processing
+    if (window.innerWidth <= 768) {
+        console.log("Background lightning engine disabled on mobile to optimize performance.");
+        return;
+    }
+
     // Create and inject background canvas
     let canvas = document.getElementById('lightning-canvas');
     if (!canvas) {
