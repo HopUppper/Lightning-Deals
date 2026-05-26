@@ -19,14 +19,14 @@ const DEFAULT_CATALOG = [
             { label: "12 Months (1 Year)", price: 2999, retail: 17999 }
         ],
         features: [
-            "Join official admin organization",
+            "Activated directly on your personal account",
             "100M+ premium stock photos & videos",
             "One-click Background Remover Tool",
             "Brand Kits, Logo assets & Custom Fonts",
             "Full warranty replacement cover"
         ],
         activationRequirements: "Registered Canva account email address.",
-        activationProcess: "We will send an organization team invite link to your email. Click it to join our team."
+        activationProcess: "We will register secure and seamless activation directly on your personal account. Check your email or WhatsApp for the invite link."
     },
     {
         id: "adobe-cc",
@@ -56,10 +56,10 @@ const DEFAULT_CATALOG = [
         id: "notion-pro",
         name: "Notion Pro",
         category: "productivity",
-        description: "Enhance your team workspaces, wikis, and project databases. Get unlimited block uploads, file attachments, and version history logs.",
+        description: "Enhance your personal pages, wikis, and project databases. Get unlimited block uploads, file attachments, and version history logs.",
         icon: "N",
         iconColor: "grad-blue",
-        tag: "Workspaces",
+        tag: "Productivity",
         plans: [
             { label: "1 Month", price: 299, retail: 999 },
             { label: "6 Months", price: 1499, retail: 5999 },
@@ -69,11 +69,11 @@ const DEFAULT_CATALOG = [
             "Unlimited file uploads & document blocks",
             "Full page version history (30 days)",
             "Notion AI writing assistant add-on",
-            "Custom workspace page links",
-            "Private teams collaborative spaces"
+            "Custom personal page links",
+            "Private access experience"
         ],
         activationRequirements: "Your Notion registered email account.",
-        activationProcess: "We will send team invite request. Once accepted, workspace will upgrade to Pro."
+        activationProcess: "We will send a secure activation setup request to your email. Click it to upgrade your personal account."
     },
     {
         id: "ms-office",
@@ -113,7 +113,7 @@ const DEFAULT_CATALOG = [
             { label: "12 Months (1 Year)", price: 1799, retail: 7788 }
         ],
         features: [
-            "Shared premium account slot",
+            "Official premium account slot",
             "Ultra HD 4K video resolution",
             "Offline downloads supported",
             "Custom PIN-locked profile screen",
@@ -137,14 +137,14 @@ const DEFAULT_CATALOG = [
             { label: "12 Months (1 Year)", price: 799, retail: 1199 }
         ],
         features: [
-            "Official Family plan slot invite link",
+            "Official premium slot activation",
             "Ad-free offline high quality music",
             "Individual private account upgrade",
             "Millions of songs & podcast titles",
             "Zero account access sharing needed"
         ],
         activationRequirements: "Registered Spotify email account.",
-        activationProcess: "We will send a family invite link with address verification credentials on WhatsApp."
+        activationProcess: "We will send a private access experience setup link on WhatsApp."
     },
     {
         id: "linkedin-premium",
@@ -188,7 +188,7 @@ const DEFAULT_CATALOG = [
             "Second-based intervals charts",
             "Up to 8 charts per window layout",
             "400 active alerts & volume profiles",
-            "Ad-free interface workspace"
+            "Ad-free interface setup"
         ],
         activationRequirements: "Your TradingView Username (No password required).",
         activationProcess: "We will upgrade your username directly inside our team portal. Features will activate instantly."
@@ -218,8 +218,6 @@ const DEFAULT_CATALOG = [
         activationProcess: "We will send an activation link or access credentials via WhatsApp/Email to activate Plus."
     }
 ];
-
-const CORRECT_PIN = "love9002";
 
 const DEFAULT_COUPONS = [
     { code: "SAVE10", type: "percentage", value: 10, minOrder: 0, active: true },
@@ -363,20 +361,47 @@ function initSessionTimeout() {
 
 // --- Session Verification ---
 function checkActiveSession() {
-    const sessionActive = sessionStorage.getItem('lightning_deals_logged_in');
-    if (sessionActive === 'true') {
-        unlockDashboard();
-        initSessionTimeout(); // Start inactivity monitor
+    const sessionToken = sessionStorage.getItem('lightning_deals_session_token');
+    if (sessionToken) {
+        // Validate session state with serverless API to block bypass
+        fetch('/api/verify-admin.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'verify_session', sessionToken: sessionToken })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && data.valid) {
+                unlockDashboard();
+                initSessionTimeout(); // Start inactivity monitor
+            } else {
+                sessionStorage.clear();
+                window.location.reload();
+            }
+        })
+        .catch(err => {
+            console.error('Session validation failed, locking dashboard:', err);
+            sessionStorage.clear();
+            window.location.reload();
+        });
     }
 }
 
 // --- Login Gate Handlers ---
 function setupLoginGate() {
-    const loginForm = document.getElementById('admin-login-form');
-    const pinInput = document.getElementById('admin-pin');
-    const errorText = document.getElementById('login-error-msg');
+    const loginFormPwd = document.getElementById('admin-login-form-pwd');
+    const loginFormPin = document.getElementById('admin-login-form-pin');
+    const pwdInput = document.getElementById('admin-password');
+    const pinInput2fa = document.getElementById('admin-pin-2fa');
+    
+    const errorTextPwd = document.getElementById('login-error-msg-pwd');
+    const errorTextPin = document.getElementById('login-error-msg-pin');
+    
+    const panePwd = document.getElementById('login-pane-pwd');
+    const panePin = document.getElementById('login-pane-pin');
+    const btnBack = document.getElementById('btn-back-to-pwd');
 
-    if (!loginForm) return;
+    if (!loginFormPwd || !loginFormPin) return;
 
     // Helper to check lock state
     function checkLockState() {
@@ -384,59 +409,163 @@ function setupLoginGate() {
         const now = Date.now();
         if (lockTime > 0 && now - lockTime < 15 * 60 * 1000) {
             const remainingMins = Math.ceil((15 * 60 * 1000 - (now - lockTime)) / 60000);
-            errorText.textContent = `Too many incorrect attempts. Login is locked. Try again in ${remainingMins} minute(s).`;
-            errorText.style.display = 'block';
-            pinInput.disabled = true;
-            if (loginForm.querySelector('button[type="submit"]')) {
-                loginForm.querySelector('button[type="submit"]').disabled = true;
+            const lockMsg = `Too many incorrect attempts. Login is locked. Try again in ${remainingMins} minute(s).`;
+            
+            if (errorTextPwd) {
+                errorTextPwd.textContent = lockMsg;
+                errorTextPwd.style.display = 'block';
             }
+            if (errorTextPin) {
+                errorTextPin.textContent = lockMsg;
+                errorTextPin.style.display = 'block';
+            }
+            
+            if (pwdInput) pwdInput.disabled = true;
+            if (pinInput2fa) pinInput2fa.disabled = true;
+            
+            const subPwd = loginFormPwd.querySelector('button[type="submit"]');
+            const subPin = loginFormPin.querySelector('button[type="submit"]');
+            if (subPwd) subPwd.disabled = true;
+            if (subPin) subPin.disabled = true;
             return true;
         } else {
-            pinInput.disabled = false;
-            if (loginForm.querySelector('button[type="submit"]')) {
-                loginForm.querySelector('button[type="submit"]').disabled = false;
-            }
+            if (pwdInput) pwdInput.disabled = false;
+            if (pinInput2fa) pinInput2fa.disabled = false;
+            
+            const subPwd = loginFormPwd.querySelector('button[type="submit"]');
+            const subPin = loginFormPin.querySelector('button[type="submit"]');
+            if (subPwd) subPwd.disabled = false;
+            if (subPin) subPin.disabled = false;
             return false;
         }
     }
 
     // Run check initially
     checkLockState();
-
-    // Check periodically in case lock expires while page is open
     setInterval(checkLockState, 10000);
 
-    loginForm.addEventListener('submit', (e) => {
+    // Step 1: Submit Password
+    loginFormPwd.addEventListener('submit', (e) => {
         e.preventDefault();
-        
         if (checkLockState()) return;
 
-        if (pinInput.value === CORRECT_PIN) {
-            errorText.style.display = 'none';
-            localStorage.setItem('lightning_deals_login_attempts', '0');
-            localStorage.removeItem('lightning_deals_login_lock_time');
-            sessionStorage.setItem('lightning_deals_logged_in', 'true');
-            logEvent('auth', 'Staff authenticated successfully via secure PIN code.');
-            unlockDashboard();
-            initSessionTimeout(); // Start inactivity monitor on unlock!
-        } else {
-            let attempts = parseInt(localStorage.getItem('lightning_deals_login_attempts') || '0');
-            attempts++;
-            localStorage.setItem('lightning_deals_login_attempts', attempts.toString());
+        const password = pwdInput.value;
 
-            if (attempts >= 5) {
-                localStorage.setItem('lightning_deals_login_lock_time', Date.now().toString());
-                const mockIp = "192.168." + Math.floor(Math.random() * 254 + 1) + "." + Math.floor(Math.random() * 254 + 1);
-                logEvent('auth', `WARNING: 5 failed PIN attempts. Admin login locked for 15 minutes. Attempted from IP: ${mockIp}`);
-                checkLockState();
+        fetch('/api/verify-admin.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'verify_password', password: password })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && data.tempToken) {
+                if (errorTextPwd) errorTextPwd.style.display = 'none';
+                sessionStorage.setItem('lightning_deals_temp_token', data.tempToken);
+                
+                // Smooth transition animation
+                if (panePwd && panePin) {
+                    panePwd.style.opacity = '0';
+                    setTimeout(() => {
+                        panePwd.style.display = 'none';
+                        panePin.style.display = 'block';
+                        panePin.style.opacity = '0';
+                        setTimeout(() => {
+                            panePin.style.opacity = '1';
+                            if (pinInput2fa) pinInput2fa.focus();
+                        }, 50);
+                    }, 200);
+                }
             } else {
-                errorText.textContent = `Incorrect secure passcode PIN. (${5 - attempts} attempts remaining)`;
-                errorText.style.display = 'block';
-                pinInput.value = '';
-                pinInput.focus();
+                handleFailedAttempt(errorTextPwd, data.error || 'Incorrect password.');
+            }
+        })
+        .catch(err => {
+            console.error('Password verify error:', err);
+            handleFailedAttempt(errorTextPwd, 'Secure Authentication connection failure.');
+        });
+    });
+
+    // Step 2: Submit 4-digit PIN
+    loginFormPin.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (checkLockState()) return;
+
+        const pin = pinInput2fa.value;
+        const tempToken = sessionStorage.getItem('lightning_deals_temp_token');
+
+        if (!tempToken) {
+            alert('Your session has expired. Please re-enter your password.');
+            window.location.reload();
+            return;
+        }
+
+        fetch('/api/verify-admin.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'verify_pin', pin: pin, tempToken: tempToken })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success && data.sessionToken) {
+                if (errorTextPin) errorTextPin.style.display = 'none';
+                sessionStorage.removeItem('lightning_deals_temp_token');
+                sessionStorage.setItem('lightning_deals_session_token', data.sessionToken);
+                sessionStorage.setItem('lightning_deals_logged_in', 'true');
+                
+                localStorage.setItem('lightning_deals_login_attempts', '0');
+                localStorage.removeItem('lightning_deals_login_lock_time');
+                
+                unlockDashboard();
+                initSessionTimeout();
+            } else {
+                handleFailedAttempt(errorTextPin, data.error || 'Incorrect secure PIN.');
+            }
+        })
+        .catch(err => {
+            console.error('PIN verify error:', err);
+            handleFailedAttempt(errorTextPin, 'Secure PIN connection failure.');
+        });
+    });
+
+    // Back to password screen
+    if (btnBack) {
+        btnBack.addEventListener('click', () => {
+            sessionStorage.removeItem('lightning_deals_temp_token');
+            if (errorTextPin) errorTextPin.style.display = 'none';
+            if (pinInput2fa) pinInput2fa.value = '';
+            
+            if (panePwd && panePin) {
+                panePin.style.opacity = '0';
+                setTimeout(() => {
+                    panePin.style.display = 'none';
+                    panePwd.style.display = 'block';
+                    panePwd.style.opacity = '0';
+                    setTimeout(() => {
+                        panePwd.style.opacity = '1';
+                        if (pwdInput) pwdInput.focus();
+                    }, 50);
+                }, 200);
+            }
+        });
+    }
+
+    function handleFailedAttempt(errorElement, errorMsg) {
+        let attempts = parseInt(localStorage.getItem('lightning_deals_login_attempts') || '0');
+        attempts++;
+        localStorage.setItem('lightning_deals_login_attempts', attempts.toString());
+
+        if (attempts >= 5) {
+            localStorage.setItem('lightning_deals_login_lock_time', Date.now().toString());
+            const mockIp = "192.168." + Math.floor(Math.random() * 254 + 1) + "." + Math.floor(Math.random() * 254 + 1);
+            logEvent('auth', `CRITICAL Lockout triggered: 5 failed admin auth attempts. Login locked for 15 mins. IP: ${mockIp}`);
+            checkLockState();
+        } else {
+            if (errorElement) {
+                errorElement.textContent = `${errorMsg} (${5 - attempts} attempts remaining)`;
+                errorElement.style.display = 'block';
             }
         }
-    });
+    }
 }
 
 function syncAdminData(callback) {
@@ -2677,13 +2806,13 @@ function setupStoreSettings() {
 const DEFAULT_TEMPLATES = [
     {
         id: "temp-canva",
-        name: "Canva Pro Invite Link",
-        text: "Hello {customer_name}! 👋\n\nThank you for choosing Canva Pro. Here is your team invite link to join our Premium Team:\n\n🔗 Invite Link: {invite_link}\n\nSimply click this link while logged in to upgrade your account instantly!\n\nWarranty Expiry: {expiry_date}\n\nLet us know if you need any assistance! ✨"
+        name: "Canva Pro Activation",
+        text: "Hello {customer_name}! 👋\n\nThank you for choosing Canva Pro. Here is your secure account setup link to activate your access:\n\n🔗 Activation Link: {invite_link}\n\nSimply click this link while logged in to upgrade your account instantly!\n\nWarranty Expiry: {expiry_date}\n\nLet us know if you need any assistance! ✨"
     },
     {
         id: "temp-adobe",
         name: "Adobe CC Activation",
-        text: "Hello {customer_name}! 👋\n\nYour Adobe Creative Cloud subscription is now active on your email: {customer_email}.\n\nSteps to access:\n1. Go to adobe.com and log in with your email.\n2. Choose the profile/team license when prompted.\n3. Download your favorite creative apps!\n\nWarranty Expiry: {expiry_date}\n\nEnjoy your creative tools! 🎨"
+        text: "Hello {customer_name}! 👋\n\nYour Adobe Creative Cloud subscription is now active on your email: {customer_email}.\n\nSteps to access:\n1. Go to adobe.com and log in with your email.\n2. Choose your active license profile when prompted.\n3. Download your favorite creative apps!\n\nWarranty Expiry: {expiry_date}\n\nEnjoy your creative tools! 🎨"
     },
     {
         id: "temp-streaming",
@@ -2728,7 +2857,7 @@ function setupTemplatesForm() {
                 <input type="hidden" id="template-edit-id" value="">
                 <div class="form-group">
                     <label for="template-name" style="font-weight: 600; display: block; margin-bottom: 6px;">Template Name *</label>
-                    <input type="text" id="template-name" placeholder="e.g. Canva Pro Team Invite" required style="width: 100%; padding: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.9rem; margin-bottom: 12px;">
+                    <input type="text" id="template-name" placeholder="e.g. Canva Pro Activation" required style="width: 100%; padding: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.9rem; margin-bottom: 12px;">
                 </div>
                 <div class="form-group">
                     <label for="template-text" style="font-weight: 600; display: block; margin-bottom: 6px;">Template Text *</label>

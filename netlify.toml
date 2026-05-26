@@ -23,3 +23,9 @@
   to = "/.netlify/functions/razorpay-webhook"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/api/verify-admin.php"
+  to = "/.netlify/functions/verify-admin"
+  status = 200
+  force = true

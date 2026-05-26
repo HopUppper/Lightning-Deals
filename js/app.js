@@ -30,14 +30,14 @@ const DEFAULT_PRODUCTS = [
             { label: "12 Months (1 Year)", price: 2999, retail: 17999 }
         ],
         features: [
-            "Join official admin organization",
+            "Activated directly on your personal account",
             "100M+ premium stock photos & videos",
             "One-click Background Remover Tool",
             "Brand Kits, Logo assets & Custom Fonts",
             "Full warranty replacement cover"
         ],
         activationRequirements: "Registered Canva account email address.",
-        activationProcess: "We will send an organization team invite link to your email. Click it to join our team."
+        activationProcess: "We will register secure and seamless activation directly on your personal account. Check your email or WhatsApp for the invite link."
     },
     {
         id: "adobe-cc",
@@ -67,10 +67,10 @@ const DEFAULT_PRODUCTS = [
         id: "notion-pro",
         name: "Notion Pro",
         category: "productivity",
-        description: "Enhance your team workspaces, wikis, and project databases. Get unlimited block uploads, file attachments, and version history logs.",
+        description: "Enhance your personal pages, wikis, and project databases. Get unlimited block uploads, file attachments, and version history logs.",
         icon: "N",
         iconColor: "grad-blue",
-        tag: "Workspaces",
+        tag: "Productivity",
         plans: [
             { label: "1 Month", price: 299, retail: 999 },
             { label: "6 Months", price: 1499, retail: 5999 },
@@ -80,11 +80,11 @@ const DEFAULT_PRODUCTS = [
             "Unlimited file uploads & document blocks",
             "Full page version history (30 days)",
             "Notion AI writing assistant add-on",
-            "Custom workspace page links",
-            "Private teams collaborative spaces"
+            "Custom personal page links",
+            "Private access experience"
         ],
         activationRequirements: "Your Notion registered email account.",
-        activationProcess: "We will send team invite request. Once accepted, workspace will upgrade to Pro."
+        activationProcess: "We will send a secure activation setup request to your email. Click it to upgrade your personal account."
     },
     {
         id: "ms-office",
@@ -107,7 +107,7 @@ const DEFAULT_PRODUCTS = [
             "Full reseller replacement support"
         ],
         activationRequirements: "Registered Microsoft email address.",
-        activationProcess: "We will send an invitation to join our Family subscription group. Click it to activate."
+        activationProcess: "We will send a secure personal account setup invitation. Click it to activate."
     },
     {
         id: "netflix-premium",
@@ -148,14 +148,14 @@ const DEFAULT_PRODUCTS = [
             { label: "12 Months (1 Year)", price: 799, retail: 1199 }
         ],
         features: [
-            "Official Family plan slot invite link",
+            "Official premium slot activation",
             "Ad-free offline high quality music",
             "Individual private account upgrade",
             "Millions of songs & podcast titles",
             "Zero account access sharing needed"
         ],
         activationRequirements: "Registered Spotify email account.",
-        activationProcess: "We will send a family invite link with address verification credentials on WhatsApp."
+        activationProcess: "We will send a private access experience setup link on WhatsApp."
     },
     {
         id: "linkedin-premium",
@@ -199,7 +199,7 @@ const DEFAULT_PRODUCTS = [
             "Second-based intervals charts",
             "Up to 8 charts per window layout",
             "400 active alerts & volume profiles",
-            "Ad-free interface workspace"
+            "Ad-free interface setup"
         ],
         activationRequirements: "Your TradingView Username (No password required).",
         activationProcess: "We will upgrade your username directly inside our team portal. Features will activate instantly."
@@ -271,10 +271,10 @@ const DEFAULT_PRODUCTS = [
             "VS Code, JetBrains, Neovim extensions support",
             "Natural language comments to code translation",
             "Quality inline code explanations & refactoring",
-            "Official organization seat invite activation"
+            "Official personal activation"
         ],
         activationRequirements: "Your GitHub username or registered email address.",
-        activationProcess: "We will invite your GitHub account to join our team organization. Acceptance upgrades it immediately."
+        activationProcess: "We will configure private access setup directly on your personal account. Acceptance upgrades it immediately."
     }
 ];
 
@@ -3938,7 +3938,7 @@ function setupDashboardMock() {
                     status: "Delivered",
                     activationDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
                     warrantyTerm: 6,
-                    notes: "Use invite code: cursor-lightning-deal-key-xyz999\nRedeem on: https://cursor.sh/settings\nWarranty validity: 6 Months."
+                    notes: "Use activation code: cursor-lightning-deal-key-xyz999\nRedeem on: https://cursor.sh/settings\nWarranty validity: 6 Months."
                 },
                 {
                     id: "LD-MOCK-3",
@@ -4033,7 +4033,7 @@ function setupDashboardMock() {
                     <div class="success-info-alert" style="margin-bottom: 1.5rem; background: rgba(0, 242, 254, 0.05); border-color: rgba(0, 242, 254, 0.15);">
                         <i data-lucide="info" class="info-alert-icon" style="color: var(--clr-cyan);"></i>
                         <div class="info-alert-text" style="color: var(--text-secondary); font-size: 0.8rem;">
-                            <strong>Workspace Preview Mode:</strong> You haven't made any purchases yet. Below is a preview demonstration of your workspace once a subscription stack is activated.
+                            <strong>Dashboard Preview Mode:</strong> You haven't made any purchases yet. Below is a preview demonstration of your dashboard once a subscription stack is activated.
                         </div>
                     </div>
                 `;
@@ -4112,7 +4112,7 @@ function setupDashboardMock() {
 
             licensesPanel.innerHTML = `
                 <h3 class="dash-panel-title">Active Stack Subscriptions</h3>
-                <p class="dash-panel-subtitle">Manage credentials and monitor renewal dates for your active workspace tools.</p>
+                <p class="dash-panel-subtitle">Manage credentials and monitor renewal dates for your active tools.</p>
                 
                 ${bannerHTML}
 
@@ -4173,7 +4173,7 @@ function setupDashboardMock() {
                     <div class="success-info-alert" style="margin-bottom: 1.5rem; background: rgba(0, 242, 254, 0.05); border-color: rgba(0, 242, 254, 0.15);">
                         <i data-lucide="info" class="info-alert-icon" style="color: var(--clr-cyan);"></i>
                         <div class="info-alert-text" style="color: var(--text-secondary); font-size: 0.8rem;">
-                            <strong>Workspace Preview Mode:</strong> Showing invoice demonstrations below. Your actual purchase receipts will appear here after checkout.
+                            <strong>Dashboard Preview Mode:</strong> Showing invoice demonstrations below. Your actual purchase receipts will appear here after checkout.
                         </div>
                     </div>
                 `;
@@ -4272,10 +4272,10 @@ const legalPolicies = {
         
         <h3>2. License Distribution & Usage</h3>
         <ul>
-            <li><strong>Bulk Licensing:</strong> We officially procure organizational enterprise, developer, and regional volume subscription licenses. We distribute spare seats or slots from these official plans to individual users.</li>
-            <li><strong>Slot Activation:</strong> Activation is done either via organization invite (e.g. joining a Canva Team) or through dedicated premium credentials. You agree to use these slots strictly for personal, educational, or standard freelance business purposes.</li>
+            <li><strong>Bulk Licensing:</strong> We officially procure bulk group volume licenses. We distribute spare slots from these official plans to individual users.</li>
+            <li><strong>Slot Activation:</strong> Activation is done either via official account invite or through dedicated premium credentials. You agree to use these slots strictly for personal, educational, or standard freelance business purposes.</li>
             <li><strong>Account Credential Safety:</strong> Shared credentials (if provided for a specific slot) are strictly confidential. Sharing these credentials with third parties or attempting to alter account credentials (passwords, emails, profiles) is strictly prohibited and will result in immediate termination without refund.</li>
-            <li><strong>No Modification:</strong> You must not modify the organizational structure, invite other users, or access billing sections of the parent organizations under which your slots are assigned.</li>
+            <li><strong>No Modification:</strong> You must not modify the structure, invite other users, or access billing sections of the parent platforms under which your slots are assigned.</li>
         </ul>
         
         <h3>3. Support Service Levels (SLA)</h3>
@@ -4293,15 +4293,15 @@ const legalPolicies = {
         
         <h3>2. Eligibility Criteria for Refunds</h3>
         <ul>
-            <li><strong>Technical Failures:</strong> If a license invite link fails to activate, or credentials do not work, and our technical support team is unable to resolve it or issue a replacement slot within 24 hours.</li>
+            <li><strong>Technical Failures:</strong> If a license activation fails, or credentials do not work, and our technical support team is unable to resolve it or issue a replacement slot within 24 hours.</li>
             <li><strong>Double Payments:</strong> Accidental duplicate checkouts for the same product plan are automatically eligible for immediate refunds.</li>
-            <li><strong>Change of Mind:</strong> Due to the digital nature of instant licenses and invites, change-of-mind refunds are eligible only if the invite link has NOT been clicked or the credentials have NOT been logged into.</li>
+            <li><strong>Change of Mind:</strong> Due to the digital nature of instant licenses and activations, change-of-mind refunds are eligible only if the invite link has NOT been clicked or the credentials have NOT been logged into.</li>
         </ul>
         
         <h3>3. Exclusion and Non-Refundable Scenarios</h3>
         <ul>
-            <li><strong>Account Misuse:</strong> If your slot access is revoked due to violating our Terms of Service (e.g., trying to change admin passwords, sharing Canva team invite links with outside users, or reselling slots).</li>
-            <li><strong>External Platform Changes:</strong> If a major software vendor updates their global terms of service in a way that deprecates team features, we will transition you to a comparable service or issue a pro-rata store credit, but cash refunds are not available after the 7-day initial window.</li>
+            <li><strong>Account Misuse:</strong> If your slot access is revoked due to violating our Terms of Service (e.g., trying to change admin passwords, sharing private setup links with outside users, or reselling slots).</li>
+            <li><strong>External Platform Changes:</strong> If a major software vendor updates their global terms of service in a way that deprecates custom setup features, we will transition you to a comparable service or issue a pro-rata store credit, but cash refunds are not available after the 7-day initial window.</li>
         </ul>
         
         <h3>4. How to Request a Refund</h3>
@@ -4318,7 +4318,7 @@ const legalPolicies = {
         
         <h3>2. How We Use Your Information</h3>
         <ul>
-            <li><strong>License Provisioning:</strong> To send organization invitation emails (e.g., Canva Pro, Adobe CC invitation) directly to your personal accounts.</li>
+            <li><strong>License Provisioning:</strong> To send account setup emails (e.g., Canva Pro, Adobe CC invitation) directly to your personal accounts.</li>
             <li><strong>Support Communications:</strong> To contact you via WhatsApp for order delivery updates, slot renewals, or troubleshooting.</li>
             <li><strong>Security and Auditing:</strong> The system logs track changes to prevent unauthorized catalog editing, system PIN brute-forcing, and license abuse.</li>
         </ul>

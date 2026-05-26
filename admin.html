@@ -21,7 +21,7 @@
 
     <!-- Passcode Gate Section -->
     <div id="admin-gate" class="admin-login-overlay">
-        <div class="glass-card login-card text-center">
+        <div class="glass-card login-card text-center" style="max-width: 400px; padding: 2rem; border-color: rgba(255, 255, 255, 0.08); background: rgba(11, 15, 25, 0.85);">
             <div class="login-logo">
                 <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: 48px; height: 48px; margin: 0 auto 1rem;">
                     <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="url(#lightning-grad-login)" stroke="url(#lightning-grad-login)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -32,21 +32,50 @@
                         </linearGradient>
                     </defs>
                 </svg>
-                <h2 class="login-brand">Lightning<span class="logo-highlight">Deals</span></h2>
-                <p class="login-desc">Staff Admin Console</p>
+                <h2 class="login-brand" style="font-family: 'Outfit', sans-serif; font-size: 1.8rem; font-weight: 700; color: #fff;">Lightning<span class="logo-highlight" style="color: var(--clr-cyan);">Deals</span></h2>
+                <p class="login-desc" style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Staff Admin Console</p>
             </div>
             
-            <form id="admin-login-form">
-                <div class="form-group margin-top-md">
-                    <label for="admin-pin">Enter Access PIN</label>
-                    <input type="password" id="admin-pin" placeholder="••••••••" required autofocus style="text-align: center; letter-spacing: 0.2em;">
-                    <span class="error-text" id="login-error-msg">Incorrect PIN. Please try again.</span>
-                </div>
-                <button type="submit" class="btn btn-primary w-100 btn-glow margin-top-sm" id="login-submit-btn">
-                    <span>Unlock Dashboard</span>
-                </button>
-            </form>
-            <a href="index.html" class="back-link margin-top-md inline-block"><i data-lucide="arrow-left" style="width: 14px; height: 14px; vertical-align: middle;"></i> Back to Storefront</a>
+            <!-- Step 1: Password Gate -->
+            <div id="login-pane-pwd" style="transition: all 0.3s ease;">
+                <form id="admin-login-form-pwd">
+                    <div class="form-group margin-top-md" style="margin-top: 1.5rem; text-align: left;">
+                        <label for="admin-password" style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Enter Administrator Password</label>
+                        <input type="password" id="admin-password" placeholder="••••••••" required autofocus style="text-align: center; letter-spacing: 0.2em; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 0.8rem; color: #fff; width: 100%; font-size: 1rem; outline: none; transition: border-color 0.2s;">
+                        <span class="error-text" id="login-error-msg-pwd" style="display: none; color: var(--clr-red); font-size: 0.75rem; margin-top: 6px; font-weight: 500;">Incorrect password. Please try again.</span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 btn-glow margin-top-sm" id="login-submit-btn-pwd" style="padding: 0.8rem; font-weight: 600; font-size: 0.9rem; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <span>Continue to Security PIN</span>
+                        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Step 2: PIN Gate (hidden by default) -->
+            <div id="login-pane-pin" style="display: none; transition: all 0.3s ease;">
+                <form id="admin-login-form-pin">
+                    <div class="form-group margin-top-md" style="margin-top: 1.5rem;">
+                        <label for="admin-pin-2fa" style="color: var(--clr-cyan); font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 4px;">Enter 4-Digit Security PIN</label>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; margin-bottom: 12px; line-height: 1.4;">Two-step authentication required. Please type your secure code.</p>
+                        
+                        <input type="password" id="admin-pin-2fa" maxlength="4" placeholder="••••" required style="text-align: center; letter-spacing: 0.5em; font-size: 1.5rem; background: rgba(0,0,0,0.25); border: 1px solid rgba(0, 242, 254, 0.2); border-radius: 8px; padding: 0.8rem; color: #fff; width: 160px; margin: 0 auto 10px; display: block; outline: none; box-shadow: 0 0 15px rgba(0, 242, 254, 0.05); font-family: monospace;">
+                        
+                        <span class="error-text" id="login-error-msg-pin" style="display: none; color: var(--clr-red); font-size: 0.75rem; margin-top: 6px; font-weight: 500;">Incorrect PIN. Please try again.</span>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 1.5rem; width: 100%;">
+                        <button type="button" class="btn btn-secondary w-100" id="btn-back-to-pwd" style="padding: 0.8rem; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                            <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+                            <span>Back</span>
+                        </button>
+                        <button type="submit" class="btn btn-primary w-100 btn-glow" id="login-submit-btn-pin" style="padding: 0.8rem; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+                            <span>Verify & Unlock</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <a href="index.html" class="back-link margin-top-md inline-block" style="color: var(--text-muted); font-size: 0.75rem; font-weight: 500; text-decoration: none; margin-top: 1.5rem;"><i data-lucide="arrow-left" style="width: 14px; height: 14px; vertical-align: middle; margin-right: 4px;"></i> Back to Storefront</a>
         </div>
     </div>
 
@@ -494,7 +523,7 @@
                                             <option value="Limited">
                                             <option value="Recommended">
                                             <option value="90% Off">
-                                            <option value="Workspaces">
+                                            <option value="Personal Setup">
                                         </datalist>
                                     </div>
                                 </div>
@@ -611,7 +640,7 @@
 
                                 <div class="form-group">
                                     <label for="prod-features">Included Features (Comma separated list) *</label>
-                                    <textarea id="prod-features" rows="3" required placeholder="Shared Admin Team Access, Brand Kit & Custom Fonts, Background Remover Tool, 100M+ Premium Stock Assets, Full Duration Reseller Warranty"></textarea>
+                                    <textarea id="prod-features" rows="3" required placeholder="Activated directly on your account, Brand Kit & Custom Fonts, Background Remover Tool, 100M+ Premium Stock Assets, Full Duration Reseller Warranty"></textarea>
                                     <small class="form-tip">Separate each feature with a comma.</small>
                                 </div>
 
@@ -623,7 +652,7 @@
 
                                 <div class="form-group">
                                     <label for="prod-activation-process">Activation Process Instructions *</label>
-                                    <textarea id="prod-activation-process" rows="3" required placeholder="e.g. We will send an organization team invite link to your email. Click it to join our team."></textarea>
+                                    <textarea id="prod-activation-process" rows="3" required placeholder="We will register secure and seamless activation directly on your personal account. Check your email or WhatsApp for instructions."></textarea>
                                     <small class="form-tip">Step by step process to activate this subscription.</small>
                                 </div>
 

@@ -126,9 +126,39 @@ exports.handler = async (event, context) => {
       console.error('Failed to load templates from Firebase:', e);
     }
 
-    // 2. Build the order object
-    const orderId = "LD-" + Date.now() + Math.floor(Math.random() * 100);
+    // 2. Build the order object (with deterministic ID mapping based on payment ID to prevent duplicate creations)
+    const orderId = "LD-PAY-" + payment.id;
     const amountVal = payment.amount ? (payment.amount / 100) : parseFloat(notes.subtotal || 0);
+
+    // Duplicate protection check
+    let existingOrder = null;
+    try {
+      const getExisting = await httpsRequest({
+        hostname: 'lightning-deals-d0adc-default-rtdb.asia-southeast1.firebasedatabase.app',
+        port: 443,
+        path: `/orders/${orderId}.json`,
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (getExisting.statusCode === 200 && getExisting.body && getExisting.body !== 'null') {
+        existingOrder = JSON.parse(getExisting.body);
+      }
+    } catch (e) {
+      console.error('Error checking duplicate order:', e);
+    }
+
+    if (existingOrder && (existingOrder.status === 'Paid' || existingOrder.status === 'Delivered')) {
+      console.log(`Order ${orderId} has already been fulfilled. Skipping duplicate delivery.`);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({
+          success: true,
+          message: 'Order already fulfilled.',
+          orderId: orderId
+        })
+      };
+    }
 
     const order = {
       id: orderId,
