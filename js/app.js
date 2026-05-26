@@ -723,6 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initSearchSuggestions();
     updateWishlistUI();
     startLightningPulse();
+    setupCustomerPortal();
 
     // Dynamically render role-based Stack Builder bundles
     renderBundles();
@@ -4522,3 +4523,857 @@ function startLightningPulse() {
         }
     }, 6000); // Trigger every 6 seconds for a subtle effect
 }
+
+// --- 13. My Orders & Customer Portal Dashboard Implementation ---
+function setupCustomerPortal() {
+    const portalModal = document.getElementById('orders-portal-modal');
+    const btnHeaderOrders = document.getElementById('header-orders-btn');
+    const btnMobOrders = document.getElementById('mob-nav-orders-btn');
+    const btnMobOrdersFooter = document.getElementById('mob-nav-orders-btn-footer');
+    const btnClosePortal = document.getElementById('close-orders-portal-modal-btn');
+    
+    // Panel Views
+    const lookupPane = document.getElementById('portal-lookup-pane');
+    const dashboardPane = document.getElementById('portal-dashboard-pane');
+    
+    // Forms & Inputs
+    const lookupForm = document.getElementById('portal-lookup-form');
+    const identityInput = document.getElementById('portal-lookup-identity');
+    const lookupUtrInput = document.getElementById('portal-lookup-utr');
+    const btnSubmitLookup = document.getElementById('btn-submit-portal-lookup');
+    const btnPortalLogout = document.getElementById('btn-portal-logout');
+    
+    // Filters & List Containers
+    const searchInput = document.getElementById('portal-search-input');
+    const statusFilter = document.getElementById('portal-status-filter');
+    const sortOrder = document.getElementById('portal-sort-order');
+    const cardsContainer = document.getElementById('portal-orders-cards-container');
+    const crossSellDrawer = document.getElementById('portal-cross-sell');
+    const crossSellList = document.getElementById('portal-recommendations-list');
+    
+    if (!portalModal) return;
+
+    let customerOrders = [];
+    let currentSessionUser = null; // Email or Phone looked up
+
+    // 1. Open Portal Modal
+    function openPortal() {
+        portalModal.classList.add('active');
+        document.body.classList.add('modal-open');
+        
+        // Auto-fill active session if exists
+        const savedUser = localStorage.getItem('lightning_deals_portal_user');
+        if (savedUser) {
+            currentSessionUser = savedUser;
+            fetchCustomerOrders(savedUser);
+        } else {
+            showLookupView();
+        }
+        
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    function closePortal() {
+        portalModal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+    }
+
+    // Nav Bindings
+    if (btnHeaderOrders) btnHeaderOrders.addEventListener('click', openPortal);
+    if (btnMobOrders) btnMobOrders.addEventListener('click', (e) => { e.preventDefault(); openPortal(); });
+    if (btnMobOrdersFooter) btnMobOrdersFooter.addEventListener('click', openPortal);
+    if (btnClosePortal) btnClosePortal.addEventListener('click', closePortal);
+    
+    portalModal.addEventListener('click', (e) => {
+        if (e.target === portalModal) closePortal();
+    });
+
+    // Logout/Switch Account
+    if (btnPortalLogout) {
+        btnPortalLogout.addEventListener('click', () => {
+            localStorage.removeItem('lightning_deals_portal_user');
+            currentSessionUser = null;
+            customerOrders = [];
+            showLookupView();
+        });
+    }
+
+    function showLookupView() {
+        lookupPane.style.display = 'block';
+        dashboardPane.style.display = 'none';
+        if (identityInput) identityInput.value = '';
+        if (lookupUtrInput) lookupUtrInput.value = '';
+    }
+
+    function showDashboardView(username) {
+        lookupPane.style.display = 'none';
+        dashboardPane.style.display = 'block';
+        
+        const greeting = document.getElementById('portal-greeting-text');
+        const subMeta = document.getElementById('portal-subscriber-meta');
+        if (greeting) greeting.innerText = `Hello Subscriber! 👋`;
+        if (subMeta) subMeta.innerText = `Secured session: ${username}`;
+    }
+
+    // 2. Fetch Customer Orders from Firebase Realtime Database
+    function fetchCustomerOrders(identity) {
+        if (btnSubmitLookup) {
+            btnSubmitLookup.disabled = true;
+            btnSubmitLookup.innerHTML = `<span>Verifying details...</span> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 14px; height: 14px; display: inline-block; animation: spin 1s linear infinite; vertical-align: middle;"></span>`;
+        }
+
+        const normalizedIdentity = identity.trim().toLowerCase();
+        
+        if (database) {
+            database.ref('orders').once('value')
+                .then(snapshot => {
+                    const data = snapshot.val();
+                    const list = [];
+                    if (data) {
+                        Object.values(data).forEach(o => {
+                            if (!o) return;
+                            const emailMatch = o.email && o.email.toLowerCase().trim() === normalizedIdentity;
+                            const phoneMatch = o.phone && o.phone.replace(/[^0-9]/g, '').includes(normalizedIdentity.replace(/[^0-9]/g, ''));
+                            
+                            if (emailMatch || phoneMatch) {
+                                list.push(o);
+                            }
+                        });
+                    }
+                    
+                    customerOrders = list;
+                    localStorage.setItem('lightning_deals_portal_user', identity);
+                    currentSessionUser = identity;
+                    
+                    // Check if an instant UTR was supplied in the form and auto-verify it
+                    const formUtr = lookupUtrInput ? lookupUtrInput.value.trim() : "";
+                    if (formUtr.length >= 8) {
+                        customerOrders.forEach(o => {
+                            if (o.utr && (o.utr.toLowerCase() === formUtr.toLowerCase() || o.razorpay_payment_id === formUtr)) {
+                                sessionStorage.setItem(`lightning_deals_portal_utr_verified_${o.id}`, 'true');
+                            }
+                        });
+                    }
+
+                    showDashboardView(identity);
+                    renderPortalDashboard();
+                    renderCrossSells();
+                })
+                .catch(err => {
+                    console.error("Firebase portal fetch failed:", err);
+                    showToast("Failed to connect to orders database. Please try again.", "error");
+                })
+                .finally(() => {
+                    if (btnSubmitLookup) {
+                        btnSubmitLookup.disabled = false;
+                        btnSubmitLookup.innerHTML = `<span>Access Subscription Hub</span> <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>`;
+                        if (window.lucide) window.lucide.createIcons();
+                    }
+                });
+        } else {
+            showToast("Database offline. Active subscriptions cannot be fetched.", "error");
+            if (btnSubmitLookup) {
+                btnSubmitLookup.disabled = false;
+                btnSubmitLookup.innerHTML = `<span>Access Subscription Hub</span> <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>`;
+            }
+        }
+    }
+
+    // Lookup Form Submission
+    if (lookupForm) {
+        lookupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const val = identityInput.value.trim();
+            if (val.length < 4) {
+                showToast("Please enter a valid email or phone number.", "warning");
+                return;
+            }
+            fetchCustomerOrders(val);
+        });
+    }
+
+    // 3. Render Portal Dashboard UI
+    function renderPortalDashboard() {
+        if (!cardsContainer) return;
+        
+        // Search filter query
+        const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+        const statFilter = statusFilter ? statusFilter.value : "all";
+        const orderSort = sortOrder ? sortOrder.value : "newest";
+        
+        // Filter orders
+        let filtered = customerOrders.filter(o => {
+            if (!o) return false;
+            
+            // Search query matches product or order ID
+            const matchesSearch = !query || 
+                (o.product && o.product.toLowerCase().includes(query)) ||
+                (o.id && o.id.toLowerCase().includes(query));
+                
+            // Status matches select filter
+            const displayStatus = (o.status || 'Pending').toLowerCase();
+            const isActive = displayStatus === 'active' || displayStatus === 'delivered';
+            const isPending = displayStatus === 'pending' || displayStatus === 'processing' || displayStatus === 'paid';
+            const isExpired = displayStatus === 'expired' || displayStatus === 'cancelled' || displayStatus === 'failed';
+            
+            let matchesStatus = true;
+            if (statFilter === 'active') matchesStatus = isActive;
+            else if (statFilter === 'pending') matchesStatus = isPending;
+            else if (statFilter === 'expired') matchesStatus = isExpired;
+            
+            return matchesSearch && matchesStatus;
+        });
+
+        // Sort orders
+        filtered.sort((a, b) => {
+            const dateA = new Date(a.date || 0);
+            const dateB = new Date(b.date || 0);
+            return orderSort === 'newest' ? dateB - dateA : dateA - dateB;
+        });
+
+        // Update top stats cards count
+        const statTotalEl = document.getElementById('portal-stat-total');
+        const statActiveEl = document.getElementById('portal-stat-active');
+        const statExpiringEl = document.getElementById('portal-stat-expiring');
+        
+        const totalCount = customerOrders.length;
+        const activeCount = customerOrders.filter(o => (o.status || '').toLowerCase() === 'active' || (o.status || '').toLowerCase() === 'delivered').length;
+        
+        let expiringCount = 0;
+        customerOrders.forEach(o => {
+            if (o.status === 'Active' || o.status === 'Delivered') {
+                const daysLeft = calculateExpiryDays(o);
+                if (daysLeft !== null && daysLeft <= 12 && daysLeft >= 0) {
+                    expiringCount++;
+                }
+            }
+        });
+
+        if (statTotalEl) statTotalEl.innerText = totalCount;
+        if (statActiveEl) statActiveEl.innerText = activeCount;
+        if (statExpiringEl) statExpiringEl.innerText = expiringCount;
+
+        // Render Cards
+        if (filtered.length === 0) {
+            cardsContainer.innerHTML = `
+                <div style="text-align: center; padding: 3rem 1.5rem; background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.05); border-radius: 12px;">
+                    <i data-lucide="folder-open" style="width: 40px; height: 40px; color: var(--text-muted); margin: 0 auto 12px; display: block;"></i>
+                    <h5 style="color: #fff; font-size: 0.95rem; font-weight: 600; margin-bottom: 4px;">No Matching Orders Found</h5>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; max-width: 320px; margin: 0 auto 1.5rem; line-height: 1.4;">
+                        ${totalCount === 0 ? "You haven't placed any orders with this email/phone yet." : "No orders matching your filters in this account."}
+                    </p>
+                    ${totalCount === 0 ? `<a href="#products" class="btn btn-secondary btn-sm" onclick="document.getElementById('close-orders-portal-modal-btn').click();" style="font-size: 0.75rem; padding: 6px 16px; border-radius: 6px;">Explore Premium Deals</a>` : ""}
+                </div>
+            `;
+            if (window.lucide) window.lucide.createIcons();
+            return;
+        }
+
+        cardsContainer.innerHTML = filtered.map(o => renderOrderCardHTML(o)).join('');
+        
+        // Bind Copy Credentials Event handlers
+        document.querySelectorAll('.portal-btn-copy-code').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const val = btn.getAttribute('data-clipboard');
+                navigator.clipboard.writeText(val).then(() => {
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = `<i data-lucide="check" style="width: 14px; height: 14px; color: #10b981;"></i>`;
+                    if (window.lucide) window.lucide.createIcons();
+                    showToast("Copied to clipboard!", "success");
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                        if (window.lucide) window.lucide.createIcons();
+                    }, 2000);
+                });
+            });
+        });
+
+        // Bind Credentials Toggles (Show/Hide)
+        document.querySelectorAll('.btn-portal-reveal-sensitive').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target-reveal');
+                const targetEl = document.getElementById(targetId);
+                if (targetEl) {
+                    const isMasked = targetEl.getAttribute('data-masked') === 'true';
+                    if (isMasked) {
+                        targetEl.innerText = targetEl.getAttribute('data-original-val');
+                        targetEl.setAttribute('data-masked', 'false');
+                        btn.innerHTML = `<i data-lucide="eye-off" style="width: 14px; height: 14px;"></i>`;
+                    } else {
+                        targetEl.innerText = "••••••••••••";
+                        targetEl.setAttribute('data-masked', 'true');
+                        btn.innerHTML = `<i data-lucide="eye" style="width: 14px; height: 14px;"></i>`;
+                    }
+                    if (window.lucide) window.lucide.createIcons();
+                }
+            });
+        });
+
+        // Bind UTR Unlock Handlers
+        document.querySelectorAll('.btn-portal-unlock-utr').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const orderId = btn.getAttribute('data-order-id');
+                const inputEl = document.getElementById(`utr-unlock-input-${orderId}`);
+                if (!inputEl) return;
+                
+                const enteredUtr = inputEl.value.trim().toLowerCase();
+                const matchedOrder = customerOrders.find(x => x.id === orderId);
+                
+                if (!matchedOrder) return;
+                
+                // Validate match with order UTR or payment ID
+                const orderUtr = matchedOrder.utr ? matchedOrder.utr.toLowerCase().trim() : "";
+                const rzpPayId = matchedOrder.razorpay_payment_id ? matchedOrder.razorpay_payment_id.toLowerCase().trim() : "";
+                
+                if (enteredUtr.length >= 6 && (orderUtr.includes(enteredUtr) || rzpPayId.includes(enteredUtr))) {
+                    sessionStorage.setItem(`lightning_deals_portal_utr_verified_${orderId}`, 'true');
+                    showToast("Access Unlocked! Credentials Decrypted.", "success");
+                    renderPortalDashboard();
+                } else {
+                    showToast("Incorrect transaction reference UTR code. Please try again.", "error");
+                }
+            });
+        });
+
+        // Bind OTP Request Handlers
+        document.querySelectorAll('.btn-portal-req-otp').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const orderId = btn.getAttribute('data-order-id');
+                const matchedOrder = customerOrders.find(x => x.id === orderId);
+                if (!matchedOrder) return;
+                
+                btn.disabled = true;
+                btn.innerText = "Sending OTP...";
+
+                const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                
+                // Write OTP verification record to Firebase with 5 min expiration
+                if (database) {
+                    database.ref(`otp_verifications/${orderId}`).set({
+                        code: generatedOtp,
+                        createdAt: Date.now()
+                    })
+                    .then(() => {
+                        // Ping their WhatsApp using our secure trigger Netlify function or CallMeBot
+                        const messageText = `⚡ *Lightning Deals Verification Code*\n\nYour 6-digit access code is: *${generatedOtp}*\n\nEnter this code in your customer dashboard to securely unlock your Canva/Netflix/Adobe credentials.\n\nCode expires in 5 minutes.`;
+                        
+                        // We use trigger-notification for this by creating a mock order!
+                        fetch('/.netlify/functions/trigger-notification', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                order: {
+                                    id: `OTP-${orderId}`,
+                                    name: matchedOrder.name,
+                                    phone: matchedOrder.phone,
+                                    product: "Access Verification Code",
+                                    price: 0,
+                                    date: new Date().toLocaleString(),
+                                    utr: generatedOtp
+                                }
+                            })
+                        })
+                        .then(() => {
+                            showToast("Verification code sent to your WhatsApp!", "success");
+                            
+                            // Swap unlock prompt to OTP input
+                            const maskPrompt = document.getElementById(`mask-prompt-${orderId}`);
+                            if (maskPrompt) {
+                                maskPrompt.innerHTML = `
+                                    <h5 style="font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 2px;">Enter 6-Digit WhatsApp Code</h5>
+                                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 10px;">Verification code sent to +${matchedOrder.phone.substring(0, 4)}••••${matchedOrder.phone.slice(-3)}</p>
+                                    <div style="display: flex; gap: 6px; justify-content: center; max-width: 260px; width: 100%;">
+                                        <input type="text" id="otp-input-${orderId}" maxlength="6" placeholder="••••••" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px; color: #fff; text-align: center; font-size: 0.85rem; font-family: monospace; letter-spacing: 0.25em; width: 100px; outline: none;">
+                                        <button class="btn btn-primary btn-xs btn-verify-otp-submit" data-order-id="${orderId}" style="padding: 6px 12px; font-size: 0.72rem;">Verify</button>
+                                    </div>
+                                `;
+                                
+                                // Bind OTP Submit check
+                                maskPrompt.querySelector('.btn-verify-otp-submit').addEventListener('click', () => {
+                                    const otpInput = document.getElementById(`otp-input-${orderId}`);
+                                    if (!otpInput) return;
+                                    const enteredCode = otpInput.value.trim();
+                                    
+                                    database.ref(`otp_verifications/${orderId}`).once('value')
+                                        .then(otpSnap => {
+                                            const otpData = otpSnap.val();
+                                            if (otpData && otpData.code === enteredCode && (Date.now() - otpData.createdAt < 300000)) {
+                                                sessionStorage.setItem(`lightning_deals_portal_utr_verified_${orderId}`, 'true');
+                                                showToast("Verified! Access details unlocked.", "success");
+                                                database.ref(`otp_verifications/${orderId}`).remove(); // Clean up
+                                                renderPortalDashboard();
+                                            } else {
+                                                showToast("Invalid or expired OTP code. Please try again.", "error");
+                                            }
+                                        });
+                                });
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            showToast("Failed to deliver WhatsApp verification code.", "error");
+                            btn.disabled = false;
+                            btn.innerText = "Verify via WhatsApp OTP";
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        btn.disabled = false;
+                        btn.innerText = "Verify via WhatsApp OTP";
+                    });
+                }
+            });
+        });
+
+        // Bind WhatsApp Support Actions
+        document.querySelectorAll('.btn-portal-help-action').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const orderId = btn.getAttribute('data-order-id');
+                const issueType = btn.getAttribute('data-issue');
+                const matchedOrder = customerOrders.find(x => x.id === orderId);
+                if (!matchedOrder) return;
+                
+                let textMsg = "";
+                if (issueType === 'not-received') {
+                    textMsg = `Hi Lightning Deals Support! 👋\n\nI haven't received my premium subscription details yet.\n\n🆔 *Order ID:* ${matchedOrder.id}\n👤 *Customer:* ${matchedOrder.name}\n📦 *Product:* ${matchedOrder.product}\n📅 *Purchase Date:* ${matchedOrder.date}\n\nPlease check my activation progress!`;
+                } else if (issueType === 'wrong-email') {
+                    textMsg = `Hi Lightning Deals Support! 👋\n\nI entered the wrong email address during checkout and need to update it.\n\n🆔 *Order ID:* ${matchedOrder.id}\n👤 *Customer:* ${matchedOrder.name}\n📦 *Product:* ${matchedOrder.product}\n\n📧 *Correct Email Address:* [Type your correct email here]`;
+                } else if (issueType === 'setup-help') {
+                    textMsg = `Hi Lightning Deals Support! 👋\n\nI need setup/login guidance for my premium account:\n\n🆔 *Order ID:* ${matchedOrder.id}\n👤 *Customer:* ${matchedOrder.name}\n📦 *Product:* ${matchedOrder.product}\n\nI'm facing this issue: [Describe setup issue here]`;
+                } else if (issueType === 'renewal-help') {
+                    textMsg = `Hi Lightning Deals Support! 👋\n\nI want to renew my premium subscription licence:\n\n🆔 *Order ID:* ${matchedOrder.id}\n👤 *Customer:* ${matchedOrder.name}\n📦 *Product:* ${matchedOrder.product}`;
+                }
+                
+                const waUrl = `https://wa.me/917695956938?text=${encodeURIComponent(textMsg)}`;
+                window.open(waUrl, '_blank');
+            });
+        });
+
+        // Bind Renewal One-Click CTAs
+        document.querySelectorAll('.btn-portal-renew-sub').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const prodName = btn.getAttribute('data-prod-name').toLowerCase();
+                
+                // Attempt to find original product in store products list
+                const prod = products.find(p => p.name.toLowerCase() === prodName || p.id.toLowerCase() === prodName.replace(/[^a-z0-9]/g, '-'));
+                
+                if (prod) {
+                    // Close portal modal
+                    closePortal();
+                    
+                    // Trigger config modal of storefront to add to cart
+                    const ctaTrigger = document.querySelector(`.cta-purchase-trigger[data-id="${prod.id}"]`);
+                    if (ctaTrigger) {
+                        ctaTrigger.click();
+                        showToast(`Initiating renewal for ${prod.name}...`, "info");
+                    } else {
+                        // Direct cart inject
+                        const pLabel = prod.plans && prod.plans.length > 0 ? prod.plans[0].label : "1 Month Plan";
+                        const pPrice = prod.plans && prod.plans.length > 0 ? prod.plans[0].price : 199;
+                        const cartItem = {
+                            productId: prod.id,
+                            name: prod.name,
+                            planLabel: pLabel,
+                            price: pPrice,
+                            retail: prod.retailPrice || (pPrice * 2),
+                            qty: 1
+                        };
+                        cart.push(cartItem);
+                        saveCartToStorage();
+                        updateCartBadge();
+                        
+                        // Open cart
+                        const cartBtn = document.getElementById('header-cart-btn');
+                        if (cartBtn) cartBtn.click();
+                        showToast(`Added ${prod.name} to cart for renewal!`, "success");
+                    }
+                } else {
+                    // Fallback directly to support whatsapp chat
+                    const waUrl = `https://wa.me/917695956938?text=Hi,%20I'd%20like%20to%20renew%20my%20subscription%20for%20${encodeURIComponent(btn.getAttribute('data-prod-name'))}!`;
+                    window.open(waUrl, '_blank');
+                }
+            });
+        });
+
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Helper: Render individual order card HTML
+    function renderOrderCardHTML(o) {
+        const dateStr = o.date ? o.date.split(',')[0].trim() : "N/A";
+        
+        // Brand logo icons & gradient coloring presets
+        let logoBg = "linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%)";
+        let logoText = "P";
+        
+        const prodLower = (o.product || '').toLowerCase();
+        if (prodLower.includes('canva')) {
+            logoBg = "linear-gradient(135deg, #FF3366 0%, #7F2BFF 100%)";
+            logoText = "C";
+        } else if (prodLower.includes('adobe') || prodLower.includes('photoshop')) {
+            logoBg = "linear-gradient(135deg, #00C6FF 0%, #0072FF 100%)";
+            logoText = "A";
+        } else if (prodLower.includes('spotify')) {
+            logoBg = "linear-gradient(135deg, #1ED760 0%, #159342 100%)";
+            logoText = "S";
+        } else if (prodLower.includes('netflix')) {
+            logoBg = "linear-gradient(135deg, #E50914 0%, #8E060D 100%)";
+            logoText = "N";
+        } else if (prodLower.includes('gpt') || prodLower.includes('chatgpt') || prodLower.includes('openai')) {
+            logoBg = "linear-gradient(135deg, #10A37F 0%, #064E3B 100%)";
+            logoText = "G";
+        } else if (prodLower.includes('cursor')) {
+            logoBg = "linear-gradient(135deg, #2E2E2E 0%, #111111 100%)";
+            logoText = "C";
+        }
+        
+        // Map dynamic badge status
+        const rawStatus = (o.status || 'Pending').toLowerCase();
+        let statusBadgeHTML = `<span class="portal-badge portal-badge-pending"><i data-lucide="hourglass" style="width: 12px; height: 12px;"></i> Verification Pending</span>`;
+        let timelinePercent = 20;
+        let stepPlacedClass = "completed";
+        let stepProcessingClass = "";
+        let stepSetupClass = "";
+        let stepDeliveredClass = "";
+        let stepCompletedClass = "";
+        
+        if (rawStatus === 'paid') {
+            statusBadgeHTML = `<span class="portal-badge portal-badge-processing"><i data-lucide="circle-dot" style="width: 12px; height: 12px; animation: pulse 1.5s infinite;"></i> Paid · Processing</span>`;
+            timelinePercent = 40;
+            stepProcessingClass = "active";
+        } else if (rawStatus === 'processing') {
+            statusBadgeHTML = `<span class="portal-badge portal-badge-processing"><i data-lucide="circle-dot" style="width: 12px; height: 12px; animation: pulse 1.5s infinite;"></i> In Setup</span>`;
+            timelinePercent = 60;
+            stepProcessingClass = "completed";
+            stepSetupClass = "active";
+        } else if (rawStatus === 'active' || rawStatus === 'delivered') {
+            statusBadgeHTML = `<span class="portal-badge portal-badge-active"><i data-lucide="check" style="width: 12px; height: 12px;"></i> Access Delivered</span>`;
+            timelinePercent = 100;
+            stepProcessingClass = "completed";
+            stepSetupClass = "completed";
+            stepDeliveredClass = "completed";
+            stepCompletedClass = "completed";
+        } else if (rawStatus === 'expired') {
+            statusBadgeHTML = `<span class="portal-badge portal-badge-expired"><i data-lucide="alert-triangle" style="width: 12px; height: 12px;"></i> Expired</span>`;
+            timelinePercent = 100;
+        }
+
+        // Expected delivery delay/eta alerts
+        let etaAlertHTML = "";
+        if (rawStatus === 'pending' || rawStatus === 'paid' || rawStatus === 'processing') {
+            etaAlertHTML = `
+                <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+                    <i data-lucide="clock" style="width: 13px; height: 13px; color: var(--clr-cyan);"></i>
+                    <span>Estimated activation completion: <strong>5 - 15 mins</strong>. Running auto-verification triggers...</span>
+                </div>
+            `;
+        }
+
+        // Warranty Expiration Countdown Ticker
+        let expiryDateStr = "N/A (Lifetime)";
+        let renewalBannerHTML = "";
+        const daysLeft = calculateExpiryDays(o);
+        
+        if (daysLeft !== null) {
+            expiryDateStr = `${daysLeft} Days Remaining`;
+            
+            if (daysLeft <= 12 && daysLeft >= 0) {
+                renewalBannerHTML = `
+                    <div style="background: rgba(245, 166, 35, 0.08); border: 1px solid rgba(245, 166, 35, 0.15); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px;">
+                        <span style="font-size: 0.78rem; color: #F5A623;">⚠️ Your <strong>${o.product}</strong> subscription expires in <strong>${daysLeft} days</strong>. Renew now to avoid service interruption!</span>
+                        <button class="btn btn-primary btn-xs btn-portal-renew-sub" data-prod-name="${o.product}" style="background: #F5A623; color: #000; border: none; font-weight: 600; padding: 4px 10px; font-size: 0.7rem; border-radius: 4px; flex-shrink: 0;">Renew Now</button>
+                    </div>
+                `;
+            } else if (daysLeft < 0) {
+                expiryDateStr = "Expired";
+                renewalBannerHTML = `
+                    <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px;">
+                        <span style="font-size: 0.78rem; color: #ef4444;">❌ Your <strong>${o.product}</strong> subscription has expired. Re-order now to restore premium access.</span>
+                        <button class="btn btn-primary btn-xs btn-portal-renew-sub" data-prod-name="${o.product}" style="background: #ef4444; color: #fff; border: none; font-weight: 600; padding: 4px 10px; font-size: 0.7rem; border-radius: 4px; flex-shrink: 0;">Re-order Now</button>
+                    </div>
+                `;
+            }
+        }
+
+        // 4. Secure Frosted Glass Credentials Mask Logic
+        let credentialsMaskHTML = "";
+        const isDelivered = rawStatus === 'active' || rawStatus === 'delivered';
+        
+        if (isDelivered && o.notes && o.notes.trim().length > 0) {
+            // Check if user has unlocked credentials using UTR in this session
+            const isVerified = sessionStorage.getItem(`lightning_deals_portal_utr_verified_${o.id}`) === 'true';
+            
+            if (!isVerified) {
+                // RENDER FROSTED MASK GATE
+                credentialsMaskHTML = `
+                    <div class="portal-credential-mask">
+                        <div class="portal-credential-mask-frosted" id="mask-prompt-${o.id}">
+                            <i data-lucide="lock" style="width: 24px; height: 24px; color: var(--clr-cyan); margin-bottom: 2px;"></i>
+                            <h5 style="font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 600; color: #fff; margin-bottom: 2px;">Activation Details Encrypted</h5>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); max-width: 320px; line-height: 1.4; margin-bottom: 6px;">
+                                Provide the 12-digit transaction UTR code from your payment app (GPay/Paytm/PhonePe) or verify with WhatsApp OTP to unlock.
+                            </p>
+                            
+                            <!-- Input unlock fields -->
+                            <div style="display: flex; gap: 6px; width: 100%; max-width: 380px;">
+                                <input type="text" id="utr-unlock-input-${o.id}" placeholder="Enter payment UTR ID..." style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 12px; color: #fff; font-size: 0.8rem; flex: 1; outline: none;">
+                                <button class="btn btn-primary btn-xs btn-portal-unlock-utr" data-order-id="${o.id}" style="padding: 6px 14px; font-size: 0.72rem; font-weight: 600;">Unlock Access</button>
+                            </div>
+                            
+                            <button class="btn btn-secondary btn-xs btn-portal-req-otp" data-order-id="${o.id}" style="font-size: 0.68rem; margin-top: 4px; padding: 2px 10px; border-color: rgba(0, 242, 254, 0.1); color: var(--clr-cyan);">
+                                Verify via WhatsApp OTP
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // RENDER SECURE UNLOCKED DECRYPTED DETAILS
+                let linesText = o.notes || "";
+                let compiledHTML = "";
+                
+                // Parse standard welcome templates details cleanly
+                const emailMatch = linesText.match(/Email:\s*([^\n\r]+)/i);
+                const passMatch = linesText.match(/Password:\s*([^\n\r]+)/i);
+                const pinMatch = linesText.match(/Profile PIN:\s*([^\n\r]+)/i);
+                const linkMatch = linesText.match(/Invite Link:\s*([^\n\r]+)/i) || linesText.match(/https?:\/\/[^\s]+/i);
+
+                if (emailMatch || passMatch || linkMatch) {
+                    compiledHTML = `
+                        <div style="display: flex; flex-direction: column; gap: 8px; text-align: left;">
+                            ${emailMatch ? `
+                                <div>
+                                    <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Login Email / Account ID</span>
+                                    <div class="portal-code-box">
+                                        <code>${escapeHTML(emailMatch[1].trim())}</code>
+                                        <button class="portal-btn-copy-code" data-clipboard="${escapeHTML(emailMatch[1].trim())}"><i data-lucide="copy" style="width: 14px; height: 14px;"></i></button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            ${passMatch ? `
+                                <div>
+                                    <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Login Password</span>
+                                    <div class="portal-code-box">
+                                        <code id="pass-field-${o.id}" data-masked="true" data-original-val="${escapeHTML(passMatch[1].trim())}">••••••••••••</code>
+                                        <div style="display: flex; gap: 8px; align-items: center;">
+                                            <button class="portal-btn-copy-code btn-portal-reveal-sensitive" data-target-reveal="pass-field-${o.id}"><i data-lucide="eye" style="width: 14px; height: 14px; color: var(--text-muted);"></i></button>
+                                            <button class="portal-btn-copy-code" data-clipboard="${escapeHTML(passMatch[1].trim())}"><i data-lucide="copy" style="width: 14px; height: 14px;"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${pinMatch ? `
+                                <div>
+                                    <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600;">Profile PIN</span>
+                                    <div class="portal-code-box" style="max-width: 140px;">
+                                        <code>${escapeHTML(pinMatch[1].trim())}</code>
+                                        <button class="portal-btn-copy-code" data-clipboard="${escapeHTML(pinMatch[1].trim())}"><i data-lucide="copy" style="width: 14px; height: 14px;"></i></button>
+                                    </div>
+                                </div>
+                            ` : ''}
+
+                            ${linkMatch ? `
+                                <div style="margin-top: 6px;">
+                                    <a href="${escapeHTML(linkMatch[1].trim())}" target="_blank" class="btn btn-primary btn-xs btn-glow" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; font-size: 0.75rem; border-radius: 6px;">
+                                        <i data-lucide="external-link" style="width: 14px; height: 14px;"></i>
+                                        <span>Click to Claim Invite Access</span>
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                } else {
+                    // Fallback standard text copy block
+                    compiledHTML = `
+                        <div class="portal-code-box" style="align-items: flex-start; flex-direction: column; text-align: left;">
+                            <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block;">Setup Instructions</span>
+                            <pre style="white-space: pre-wrap; font-family: monospace; font-size: 0.76rem; color: #fff; width: 100%; max-height: 150px; overflow-y: auto; line-height: 1.4;">${escapeHTML(linesText)}</pre>
+                            <button class="btn btn-secondary btn-xs btn-portal-copy-fallback" data-clipboard="${escapeHTML(linesText)}" style="display: flex; align-items: center; gap: 4px; font-size: 0.7rem; margin-top: 8px; padding: 4px 8px; border-radius: 4px; align-self: flex-end;">
+                                <i data-lucide="copy" style="width: 12px; height: 12px;"></i>
+                                <span>Copy Details</span>
+                            </button>
+                        </div>
+                    `;
+                }
+
+                credentialsMaskHTML = `
+                    <div class="glass-card" style="padding: 1.25rem; border-color: rgba(0, 242, 254, 0.1); background: rgba(0,0,0,0.1); border-radius: 8px;">
+                        <h5 style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--clr-cyan); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                            <i data-lucide="unlock" style="width: 14px; height: 14px;"></i>
+                            <span>Decrypted Activation Log</span>
+                        </h5>
+                        ${compiledHTML}
+                    </div>
+                `;
+            }
+        }
+
+        return `
+            <div class="portal-card">
+                <!-- Header -->
+                <div class="portal-card-header">
+                    <div class="portal-card-product-info">
+                        <div class="portal-card-logo-box" style="background: ${logoBg};">${logoText}</div>
+                        <div class="portal-card-title-group">
+                            <h4>${escapeHTML(o.product)}</h4>
+                            <span>Plan validity: <strong>${escapeHTML(o.plan)}</strong></span>
+                        </div>
+                    </div>
+                    ${statusBadgeHTML}
+                </div>
+
+                <!-- Expiry Renewal Banner -->
+                ${renewalBannerHTML}
+
+                <!-- Expected Delivery Eta -->
+                ${etaAlertHTML}
+
+                <!-- Metadata details Grid -->
+                <div class="portal-card-meta-grid">
+                    <div class="portal-meta-item">
+                        <span>Order ID</span>
+                        <p style="font-size: 0.76rem; font-family: monospace;">${escapeHTML(o.id)}</p>
+                    </div>
+                    <div class="portal-meta-item">
+                        <span>Paid Amount</span>
+                        <p>₹${o.price.toLocaleString('en-IN')}</p>
+                    </div>
+                    <div class="portal-meta-item">
+                        <span>Purchase Date</span>
+                        <p>${escapeHTML(dateStr)}</p>
+                    </div>
+                    <div class="portal-meta-item">
+                        <span>Warranty</span>
+                        <p>${escapeHTML(expiryDateStr)}</p>
+                    </div>
+                </div>
+
+                <!-- Real-Time Journey Tracker -->
+                <div style="background: rgba(0, 0, 0, 0.15); border-radius: 8px; padding: 1.25rem 1rem; border: 1px solid rgba(255,255,255,0.01);">
+                    <div class="portal-timeline-track">
+                        <div class="portal-timeline-progress-bar">
+                            <div class="portal-timeline-progress-active" style="width: ${timelinePercent}%;"></div>
+                        </div>
+                        <div class="portal-timeline-step completed">
+                            <div class="portal-timeline-node"></div>
+                            <span class="portal-timeline-step-label">Placed</span>
+                        </div>
+                        <div class="portal-timeline-step ${stepProcessingClass}">
+                            <div class="portal-timeline-node"></div>
+                            <span class="portal-timeline-step-label">Processing</span>
+                        </div>
+                        <div class="portal-timeline-step ${stepSetupClass}">
+                            <div class="portal-timeline-node"></div>
+                            <span class="portal-timeline-step-label">Setup</span>
+                        </div>
+                        <div class="portal-timeline-step ${stepDeliveredClass}">
+                            <div class="portal-timeline-node"></div>
+                            <span class="portal-timeline-step-label">Delivered</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Unlocked Logins / Frosted Credentials Gate -->
+                ${credentialsMaskHTML}
+
+                <!-- Quick Help / Support Action Drawer -->
+                <div class="portal-quick-help-wrapper">
+                    <span class="portal-quick-help-title">Need help with this order?</span>
+                    <div class="portal-quick-help-buttons">
+                        <button class="btn-portal-help-action" data-order-id="${o.id}" data-issue="not-received">
+                            <i data-lucide="help-circle" style="width: 12px; height: 12px;"></i>
+                            <span>Not Received</span>
+                        </button>
+                        <button class="btn-portal-help-action" data-order-id="${o.id}" data-issue="wrong-email">
+                            <i data-lucide="edit-3" style="width: 12px; height: 12px;"></i>
+                            <span>Update Email</span>
+                        </button>
+                        <button class="btn-portal-help-action" data-order-id="${o.id}" data-issue="setup-help">
+                            <i data-lucide="book-open" style="width: 12px; height: 12px;"></i>
+                            <span>Setup Guide</span>
+                        </button>
+                        <button class="btn-portal-help-action" data-order-id="${o.id}" data-issue="renewal-help">
+                            <i data-lucide="refresh-cw" style="width: 12px; height: 12px;"></i>
+                            <span>Help Renewing</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        `;
+    }
+
+    // Helper: Calculate warranty expiration countdown in days
+    function calculateExpiryDays(order) {
+        if (!order.activationDate || !order.warrantyTerm || order.warrantyTerm === 9999) return null;
+        
+        const actDate = new Date(order.activationDate);
+        if (isNaN(actDate.getTime())) return null;
+        
+        actDate.setMonth(actDate.getMonth() + order.warrantyTerm);
+        const today = new Date();
+        
+        const diffTime = actDate - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    }
+
+    // 5. Cross-Sells & Recommendations Logic
+    function renderCrossSells() {
+        if (!crossSellDrawer || !crossSellList) return;
+        
+        // Find what they already bought
+        const purchasedItems = customerOrders.map(o => (o.product || '').toLowerCase());
+        
+        // Curate related recommendation cards
+        const recList = [];
+        
+        const recommendations = [
+            { id: "canva-pro", name: "Canva Pro Premium", bg: "linear-gradient(135deg, #FF3366 0%, #7F2BFF 100%)", icon: "C" },
+            { id: "adobe-cloud", name: "Adobe Creative Cloud", bg: "linear-gradient(135deg, #00C6FF 0%, #0072FF 100%)", icon: "A" },
+            { id: "gpt-plus", name: "ChatGPT Plus", bg: "linear-gradient(135deg, #10A37F 0%, #064E3B 100%)", icon: "G" },
+            { id: "spotify-premium", name: "Spotify Premium", bg: "linear-gradient(135deg, #1ED760 0%, #159342 100%)", icon: "S" }
+        ];
+
+        recommendations.forEach(r => {
+            const hasPurchased = purchasedItems.some(p => p.includes(r.id.split('-')[0]));
+            if (!hasPurchased && recList.length < 2) {
+                recList.push(r);
+            }
+        });
+
+        if (recList.length > 0) {
+            crossSellDrawer.style.display = 'block';
+            crossSellList.innerHTML = recList.map(r => `
+                <div class="portal-cross-sell-card">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="portal-card-logo-box" style="background: ${r.bg}; width: 32px; height: 32px; font-size: 0.95rem; border-radius: 6px;">${r.icon}</div>
+                        <div>
+                            <h6 style="color: #fff; font-size: 0.78rem; font-weight: 600; margin: 0;">${r.name}</h6>
+                            <span style="font-size: 0.65rem; color: var(--text-muted);">Stacked checkout discount</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-xs btn-portal-renew-sub" data-prod-name="${r.name}" style="padding: 4px 8px; font-size: 0.68rem; border-radius: 4px;">Get Deal</button>
+                </div>
+            `).join('');
+        } else {
+            crossSellDrawer.style.display = 'none';
+        }
+        
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    // Filter Tool Belt Event Triggers
+    if (searchInput) {
+        searchInput.addEventListener('input', () => renderPortalDashboard());
+    }
+    if (statusFilter) {
+        statusFilter.addEventListener('change', () => renderPortalDashboard());
+    }
+    if (sortOrder) {
+        sortOrder.addEventListener('change', () => renderPortalDashboard());
+    }
+}
+
