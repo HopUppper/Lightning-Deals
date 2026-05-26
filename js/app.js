@@ -4375,7 +4375,7 @@ function renderBundles() {
         });
 
         const card = document.createElement('div');
-        card.className = 'product-card glass-card reveal';
+        card.className = 'product-card glass-card';
         card.style.cssText = 'display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(245, 200, 66, 0.1);';
         
         card.innerHTML = `
