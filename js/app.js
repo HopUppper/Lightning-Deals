@@ -328,7 +328,7 @@ function applyStoreSettingsToDOM() {
 
     // Head Title Tag
     if (settings.storeName) {
-        document.title = `${settings.storeName} | Premium Digital Subscriptions up to 90% Off`;
+        document.title = "LightningDeals — Premium Software at 90% Off";
     }
 
     // Logo text elements
@@ -588,6 +588,47 @@ function syncCoupons(callback) {
 }
 syncCoupons();
 
+const DEFAULT_BUNDLES = [
+    {
+        id: "developer",
+        name: "The Ultimate Developer Stack",
+        subtitle: "The gold standard AI development toolkit. Perfect for engineering students, freelance coders, and startup developers.",
+        productIds: "cursor-pro,github-copilot,notion-pro",
+        price: 1199,
+        retailPrice: 4497,
+        savesLabel: "Saves ₹10,000+/mo",
+        bundleSavePercent: "-73% Bundle Save",
+        icons: "Cr,Gh,N",
+        iconColors: "grad-blue,grad-purple,grad-blue"
+    },
+    {
+        id: "designer",
+        name: "The Startup Designer Stack",
+        subtitle: "The ultimate digital graphics powerhouse. Scale your agency, bootstrap your brand, and unlock all creative apps.",
+        productIds: "canva-pro,adobe-cc",
+        price: 1299,
+        retailPrice: 10498,
+        savesLabel: "Saves ₹9,000+/mo",
+        bundleSavePercent: "-87% Bundle Save",
+        icons: "C,Cc",
+        iconColors: "grad-purple,grad-red"
+    },
+    {
+        id: "trader",
+        name: "The Day Trader Stack",
+        subtitle: "The ultimate finance and strategy combo. Make second-by-second market decisions and run robust AI trade analysis.",
+        productIds: "tradingview-premium,chatgpt-plus",
+        price: 1349,
+        retailPrice: 7989,
+        savesLabel: "Saves ₹7,000+/mo",
+        bundleSavePercent: "-83% Bundle Save",
+        icons: "Tv,Gp",
+        iconColors: "grad-yellow,grad-green"
+    }
+];
+
+let bundles = safeGetLocalStorage('lightning_deals_bundles', DEFAULT_BUNDLES);
+
 // --- Globals ---
 let products = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
 let cart = safeGetLocalStorage('lightning_deals_cart', []);
@@ -650,6 +691,44 @@ function syncProducts(callback) {
 }
 syncProducts();
 
+function syncBundles(callback) {
+    if (database) {
+        database.ref('bundles').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                let loadedBundles = [];
+                if (Array.isArray(data)) {
+                    loadedBundles = data.filter(b => b !== null && b !== undefined);
+                } else if (typeof data === 'object') {
+                    loadedBundles = Object.keys(data).map(key => {
+                        const b = data[key];
+                        if (b && !b.id) b.id = key;
+                        return b;
+                    }).filter(b => b !== null && b !== undefined);
+                }
+                bundles = loadedBundles;
+                localStorage.setItem('lightning_deals_bundles', JSON.stringify(bundles));
+            } else {
+                bundles = [...DEFAULT_BUNDLES];
+                database.ref('bundles').set(DEFAULT_BUNDLES);
+                localStorage.setItem('lightning_deals_bundles', JSON.stringify(bundles));
+            }
+            if (typeof renderBundles === 'function') renderBundles();
+            if (callback) callback();
+        }, (error) => {
+            console.error("Firebase bundles sync error, falling back to local storage:", error);
+            bundles = safeGetLocalStorage('lightning_deals_bundles', DEFAULT_BUNDLES);
+            if (typeof renderBundles === 'function') renderBundles();
+            if (callback) callback();
+        });
+    } else {
+        bundles = safeGetLocalStorage('lightning_deals_bundles', DEFAULT_BUNDLES);
+        if (typeof renderBundles === 'function') renderBundles();
+        if (callback) callback();
+    }
+}
+syncBundles();
+
 // --- DOM elements ---
 document.addEventListener('DOMContentLoaded', () => {
     // Increment storefront visit tracker
@@ -688,73 +767,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setupMobileBottomNav();
     setupWishlistModal();
     initSearchSuggestions();
-    renderRecentlyViewed();
     updateWishlistUI();
-    setupLegalModal();
     startLightningPulse();
 
-    // Wire up role-based Stack Builder preset bundles
-    const getStackButtons = document.querySelectorAll('.btn-get-stack');
-    if (getStackButtons.length > 0) {
-        getStackButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const stack = e.currentTarget.getAttribute('data-stack');
-                const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
-                
-                // Clear current cart
-                cart = [];
-                
-                const addProductToCart = (prodId) => {
-                    const prod = activeProducts.find(p => p.id === prodId && p.visible !== false);
-                    if (prod && prod.plans && prod.plans.length > 0) {
-                        const firstPlan = prod.plans[0]; // 1-Month plan
-                        cart.push({
-                            productId: prod.id,
-                            name: prod.name,
-                            planLabel: firstPlan.label,
-                            price: firstPlan.price,
-                            retail: firstPlan.retail || firstPlan.price,
-                            qty: 1,
-                            iconColor: prod.iconColor,
-                            icon: prod.icon
-                        });
-                        
-                        if (typeof gtag === 'function') {
-                            gtag('event', 'add_to_cart', {
-                                item_name: prod.name,
-                                value: firstPlan.price,
-                                currency: 'INR'
-                            });
-                        }
-                    }
-                };
-
-                if (stack === 'developer') {
-                    addProductToCart('cursor-pro');
-                    addProductToCart('github-copilot');
-                    addProductToCart('notion-pro');
-                } else if (stack === 'designer') {
-                    addProductToCart('canva-pro');
-                    addProductToCart('adobe-cc');
-                } else if (stack === 'trader') {
-                    addProductToCart('tradingview-premium');
-                    addProductToCart('chatgpt-plus');
-                }
-
-                // Save to localStorage and update badge
-                localStorage.setItem('lightning_deals_cart', JSON.stringify(cart));
-                updateCartBadge();
-                
-                showToast(`Premium ${stack.toUpperCase()} Stack added to cart!`, 'success');
-                
-                // Open Cart Modal immediately
-                const headerCartBtn = document.getElementById('header-cart-btn');
-                if (headerCartBtn) {
-                    headerCartBtn.click();
-                }
-            });
-        });
-    }
+    // Dynamically render role-based Stack Builder bundles
+    renderBundles();
 });
 
 // --- Setup Sticky Header ---
@@ -3548,118 +3565,7 @@ document.addEventListener('click', (e) => {
 
 // --- Recently Viewed Deals ---
 function trackRecentlyViewed(productId) {
-    let recentlyViewed = safeGetLocalStorage('lightning_deals_recently_viewed', []);
-    recentlyViewed = recentlyViewed.filter(id => id !== productId);
-    recentlyViewed.unshift(productId);
-    recentlyViewed = recentlyViewed.slice(0, 4);
-
-    try {
-        localStorage.setItem('lightning_deals_recently_viewed', JSON.stringify(recentlyViewed));
-    } catch (err) {
-        // Ignored
-    }
-    renderRecentlyViewed();
-}
-
-function renderRecentlyViewed() {
-    const section = document.getElementById('recently-viewed-section');
-    const grid = document.getElementById('recently-viewed-grid');
-    if (!grid || !section) return;
-
-    const recentlyViewed = safeGetLocalStorage('lightning_deals_recently_viewed', []);
-    if (recentlyViewed.length === 0) {
-        section.style.display = 'none';
-        return;
-    }
-
-    grid.innerHTML = '';
-    const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
-    let renderedCount = 0;
-
-    recentlyViewed.forEach(id => {
-        const prod = activeProducts.find(p => p.id === id && p.visible !== false);
-        if (!prod) return;
-
-        renderedCount++;
-        const card = document.createElement('div');
-        card.className = 'product-card glass-card';
-        card.id = `recent-prod-card-${prod.id}`;
-
-        let minPrice = 0;
-        if (prod.plans && prod.plans.length > 0) {
-            minPrice = Math.min(...prod.plans.map(pl => parseFloat(pl.price) || 0));
-        }
-
-        let badgeHTML = '';
-        if (prod.badge) {
-            badgeHTML = `<span class="prod-badge">${prod.badge}</span>`;
-        }
-
-        let stockHTML = '';
-        if (prod.stockStatus) {
-            let dotClass = 'available';
-            let label = 'Available';
-            const status = prod.stockStatus.toLowerCase();
-            if (status === 'available') { dotClass = 'available'; label = 'Available'; }
-            else if (status === 'limited') { dotClass = 'limited'; label = 'Limited Slots'; }
-            else if (status === 'outofstock') { dotClass = 'outofstock'; label = 'Out of Stock'; }
-            else if (status === 'instant') { dotClass = 'instant'; label = 'Instant Activation'; }
-
-            stockHTML = `
-                <div class="stock-status-wrapper">
-                    <span class="stock-dot ${dotClass}"></span>
-                    <span class="stock-label">${label}</span>
-                </div>
-            `;
-        } else {
-            stockHTML = `
-                <div class="stock-status-wrapper">
-                    <span class="stock-dot available"></span>
-                    <span class="stock-label">Available</span>
-                </div>
-            `;
-        }
-
-        const wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
-        const isWishlisted = wishlist.includes(prod.id);
-
-        card.innerHTML = `
-            <div class="prod-header">
-                <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
-                ${badgeHTML}
-            </div>
-            <h3 class="prod-title">${prod.name}</h3>
-            ${stockHTML}
-            <p class="prod-desc" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 2.8rem;">${prod.description}</p>
-            
-            <div class="prod-price-area" style="margin-top: auto;">
-                <span class="prod-retail">Starting from</span>
-                <div class="prod-offer">
-                    <span class="prod-price-new">₹${minPrice.toLocaleString('en-IN')}</span>
-                    <span class="prod-price-suffix">/ plan</span>
-                </div>
-            </div>
-            
-            <div class="card-actions-wrapper" style="display: flex; gap: 0.5rem; width: 100%; margin-top: 1rem;">
-                <button class="btn btn-primary cta-purchase-trigger" data-id="${prod.id}" style="flex-grow: 1; display: flex; align-items: center; justify-content: center; gap: 6px;">
-                    <span>Add to Cart</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-                </button>
-                <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button">
-                    <svg viewBox="0 0 24 24" fill="${isWishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
-                </button>
-            </div>
-        `;
-        grid.appendChild(card);
-    });
-
-    if (renderedCount === 0) {
-        section.style.display = 'none';
-    } else {
-        section.style.display = 'block';
-    }
-
-    if (window.lucide) window.lucide.createIcons();
+    // No-op - recently viewed feature removed
 }
 
 function getWarrantyStatus(order) {
@@ -4428,6 +4334,142 @@ const legalPolicies = {
         <p>We use browser local storage to save your cart details, wishlist items, and session tokens to ensure a smooth browsing experience. You can clear this data at any time via your browser settings.</p>
     `
 };
+
+// --- Dynamic Bundles Renderer ---
+function renderBundles() {
+    const grid = document.getElementById('store-bundles-grid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+    
+    const activeBundles = safeGetLocalStorage('lightning_deals_bundles', DEFAULT_BUNDLES);
+    const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+
+    if (activeBundles.length === 0) {
+        grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No subscription bundles currently active.</p>';
+        return;
+    }
+
+    activeBundles.forEach(bundle => {
+        // Build icons HTML
+        const iconList = (bundle.icons || '').split(',');
+        const colorList = (bundle.iconColors || '').split(',');
+        let iconsHTML = '';
+        iconList.forEach((ico, idx) => {
+            if (!ico.trim()) return;
+            const col = (colorList[idx] || 'grad-blue').trim();
+            iconsHTML += `<div class="cart-item-logo ${col}" style="width: 32px; height: 32px; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 0.8rem;">${escapeHTML(ico.trim())}</div>`;
+        });
+
+        // Build products list HTML
+        const prodIds = (bundle.productIds || '').split(',');
+        let productsListHTML = '';
+        prodIds.forEach(pId => {
+            if (!pId.trim()) return;
+            const prod = activeProducts.find(p => p.id === pId.trim());
+            if (prod) {
+                productsListHTML += `<li style="display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--text-secondary);"><i data-lucide="check" style="width: 14px; height: 14px; color: #F5C842; flex-shrink: 0;"></i> <span><strong>${escapeHTML(prod.name)}</strong> (1 Month)</span></li>`;
+            } else {
+                productsListHTML += `<li style="display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: var(--text-secondary);"><i data-lucide="check" style="width: 14px; height: 14px; color: #F5C842; flex-shrink: 0;"></i> <span><strong>${escapeHTML(pId.trim())}</strong> (1 Month)</span></li>`;
+            }
+        });
+
+        const card = document.createElement('div');
+        card.className = 'product-card glass-card reveal';
+        card.style.cssText = 'display: flex; flex-direction: column; justify-content: space-between; border-color: rgba(245, 200, 66, 0.1);';
+        
+        card.innerHTML = `
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1.5rem;">
+                    <div style="display: flex; gap: 8px;">
+                        ${iconsHTML}
+                    </div>
+                    <span class="fc-badge-success" style="background: rgba(245, 200, 66, 0.1); color: #F5C842; border: 1px solid rgba(245, 200, 66, 0.2); font-size: 0.65rem;">${escapeHTML(bundle.savesLabel || '')}</span>
+                </div>
+                <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">${escapeHTML(bundle.name || '')}</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5;">${escapeHTML(bundle.subtitle || '')}</p>
+                
+                <ul style="list-style: none; padding: 0; margin: 0 0 2rem 0; display: flex; flex-direction: column; gap: 0.6rem;">
+                    ${productsListHTML}
+                </ul>
+            </div>
+            <div>
+                <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 1.2rem;">
+                    <span style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); font-family: 'Outfit', sans-serif;">₹${(bundle.price || 0).toLocaleString('en-IN')}</span>
+                    <span style="font-size: 0.9rem; text-decoration: line-through; opacity: 0.5; color: var(--text-secondary);">₹${(bundle.retailPrice || 0).toLocaleString('en-IN')}</span>
+                    <span style="font-size: 0.75rem; color: var(--clr-green); font-weight: 600;">${escapeHTML(bundle.bundleSavePercent || '')}</span>
+                </div>
+                <button type="button" class="btn btn-primary w-100 btn-get-stack" data-stack="${bundle.id}" style="background: linear-gradient(135deg, #F5C842 0%, #F5A623 100%); border: none; color: #07080b; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="shopping-cart" style="width: 18px; height: 18px;"></i>
+                    <span>Get This Stack</span>
+                </button>
+            </div>
+        `;
+
+        grid.appendChild(card);
+    });
+
+    // Re-wire event listeners for newly rendered buttons
+    const getStackButtons = grid.querySelectorAll('.btn-get-stack');
+    getStackButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const stackId = e.currentTarget.getAttribute('data-stack');
+            const activeBundles = safeGetLocalStorage('lightning_deals_bundles', DEFAULT_BUNDLES);
+            const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+            const bundle = activeBundles.find(b => b.id === stackId);
+            if (!bundle) return;
+
+            // Clear current cart
+            cart = [];
+            
+            const addProductToCart = (prodId) => {
+                const prod = activeProducts.find(p => p.id === prodId && p.visible !== false);
+                if (prod && prod.plans && prod.plans.length > 0) {
+                    const firstPlan = prod.plans[0]; // 1-Month plan
+                    cart.push({
+                        productId: prod.id,
+                        name: prod.name,
+                        planLabel: firstPlan.label,
+                        price: firstPlan.price,
+                        retail: firstPlan.retail || firstPlan.price,
+                        qty: 1,
+                        iconColor: prod.iconColor,
+                        icon: prod.icon
+                    });
+                    
+                    if (typeof gtag === 'function') {
+                        gtag('event', 'add_to_cart', {
+                            item_name: prod.name,
+                            value: firstPlan.price,
+                            currency: 'INR'
+                        });
+                    }
+                }
+            };
+
+            const prodIds = (bundle.productIds || '').split(',');
+            prodIds.forEach(pId => {
+                addProductToCart(pId.trim());
+            });
+
+            // Save to localStorage and update badge
+            localStorage.setItem('lightning_deals_cart', JSON.stringify(cart));
+            updateCartBadge();
+            
+            showToast(`Premium ${bundle.name} added to cart!`, 'success');
+            
+            // Open Cart Modal immediately
+            const headerCartBtn = document.getElementById('header-cart-btn');
+            if (headerCartBtn) {
+                headerCartBtn.click();
+            }
+        });
+    });
+
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+}
 
 // --- Legal Policy Modal Controller ---
 function setupLegalModal() {

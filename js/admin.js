@@ -227,6 +227,45 @@ const DEFAULT_COUPONS = [
     { code: "LIFETIME50", type: "percentage", value: 15, minOrder: 1999, active: true }
 ];
 
+const DEFAULT_BUNDLES = [
+    {
+        id: "developer",
+        name: "The Ultimate Developer Stack",
+        subtitle: "The gold standard AI development toolkit. Perfect for engineering students, freelance coders, and startup developers.",
+        productIds: "cursor-pro,github-copilot,notion-pro",
+        price: 1199,
+        retailPrice: 4497,
+        savesLabel: "Saves ₹10,000+/mo",
+        bundleSavePercent: "-73% Bundle Save",
+        icons: "Cr,Gh,N",
+        iconColors: "grad-blue,grad-purple,grad-blue"
+    },
+    {
+        id: "designer",
+        name: "The Startup Designer Stack",
+        subtitle: "The ultimate digital graphics powerhouse. Scale your agency, bootstrap your brand, and unlock all creative apps.",
+        productIds: "canva-pro,adobe-cc",
+        price: 1299,
+        retailPrice: 10498,
+        savesLabel: "Saves ₹9,000+/mo",
+        bundleSavePercent: "-87% Bundle Save",
+        icons: "C,Cc",
+        iconColors: "grad-purple,grad-red"
+    },
+    {
+        id: "trader",
+        name: "The Day Trader Stack",
+        subtitle: "The ultimate finance and strategy combo. Make second-by-second market decisions and run robust AI trade analysis.",
+        productIds: "tradingview-premium,chatgpt-plus",
+        price: 1349,
+        retailPrice: 7989,
+        savesLabel: "Saves ₹7,000+/mo",
+        bundleSavePercent: "-83% Bundle Save",
+        icons: "Tv,Gp",
+        iconColors: "grad-yellow,grad-green"
+    }
+];
+
 // --- Firebase / Database Initialization ---
 let database = null;
 if (isFirebaseConfigured()) {
@@ -265,8 +304,10 @@ function safeGetLocalStorage(key, defaultValue) {
 let productsList = [];
 let ordersList = [];
 let couponsList = [];
+let bundlesList = [];
 let editingIndex = -1; // -1 means add mode, >=0 means edit mode
 let editingCouponIndex = -1;
+let editingBundleIndex = -1;
 let orderSearchQuery = '';
 let orderStatusFilter = 'all';
 
@@ -285,6 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupTabsNavigation();
     setupOrdersControls();
     setupCouponsForm();
+    setupBundlesForm();
     setupStoreSettings();
     setupTemplatesForm();
     setupBulkActions();
@@ -402,6 +444,7 @@ function syncAdminData(callback) {
         loadProductsFromStorage();
         loadOrdersFromStorage();
         loadCoupons();
+        loadBundles();
         loadTemplates();
         if (callback) callback();
         return;
@@ -470,6 +513,29 @@ function syncAdminData(callback) {
         }).catch(err => {
             console.error("Error syncing coupons:", err);
             loadCoupons();
+        })
+    );
+
+    // Bundles
+    syncPromises.push(
+        database.ref('bundles').once('value').then(snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                let loaded = [];
+                if (Array.isArray(data)) {
+                    loaded = data.filter(b => b !== null && b !== undefined);
+                } else if (typeof data === 'object') {
+                    loaded = Object.values(data).filter(b => b !== null && b !== undefined);
+                }
+                bundlesList = loaded;
+            } else {
+                bundlesList = [...DEFAULT_BUNDLES];
+                database.ref('bundles').set(DEFAULT_BUNDLES);
+            }
+            localStorage.setItem('lightning_deals_bundles', JSON.stringify(bundlesList));
+        }).catch(err => {
+            console.error("Error syncing bundles:", err);
+            loadBundles();
         })
     );
 
@@ -706,6 +772,7 @@ function setupTabsNavigation() {
         { btn: document.getElementById('sidebar-btn-users'), panel: document.getElementById('panel-users'), callback: () => { renderCRMPanel(); } },
         { btn: document.getElementById('sidebar-btn-templates'), panel: document.getElementById('panel-templates'), callback: () => { renderTemplates(); } },
         { btn: document.getElementById('sidebar-btn-coupons'), panel: document.getElementById('panel-coupons'), callback: () => { loadCoupons(); renderCouponsTable(); renderCouponsStats(); } },
+        { btn: document.getElementById('sidebar-btn-bundles'), panel: document.getElementById('panel-bundles'), callback: () => { loadBundles(); renderBundlesTable(); renderBundlesStats(); } },
         { btn: document.getElementById('sidebar-btn-logs'), panel: document.getElementById('panel-logs'), callback: () => { renderLogsPanel(); } },
         { btn: document.getElementById('sidebar-btn-settings'), panel: document.getElementById('panel-settings'), callback: () => { if (typeof window.loadStoreSettings === 'function') window.loadStoreSettings(); } }
     ];
@@ -4174,7 +4241,7 @@ renderAnalytics = function() {
     
     const visitsCount = Math.max(100, ordersList.length * 5 + Math.floor(Math.random() * 250));
     const totalOrders = ordersList.length;
-    const completedOrders = ordersList.filter(o => o && (o.status === 'Active' || o.status === 'Paid'));
+    const completedOrders = ordersList.filter(o => o && (o.status === 'Active' || o.status === 'Paid' || o.status === 'Delivered' || o.status === 'Paid via Stripe'));
     const totalRevenue = completedOrders.reduce((sum, o) => sum + (o.price || 0), 0);
     const conversionRate = visitsCount > 0 ? ((totalOrders / visitsCount) * 100).toFixed(1) : '0.0';
 
@@ -4679,6 +4746,270 @@ function checkAndSendExpiryReminders() {
             }
         }
     });
+}
+
+// ==========================================================================
+// BUNDLES DIRECTORY CONTROLS
+// ==========================================================================
+function loadBundles() {
+    bundlesList = safeGetLocalStorage('lightning_deals_bundles', DEFAULT_BUNDLES);
+    if (!bundlesList || !Array.isArray(bundlesList) || bundlesList.length === 0) {
+        bundlesList = [...DEFAULT_BUNDLES];
+        localStorage.setItem('lightning_deals_bundles', JSON.stringify(bundlesList));
+    }
+}
+
+function saveBundlesToFirebase() {
+    if (database) {
+        database.ref('bundles').set(bundlesList)
+            .then(() => console.log("Bundles synced to Firebase."))
+            .catch(err => console.error("Firebase bundles sync failed:", err));
+    }
+    localStorage.setItem('lightning_deals_bundles', JSON.stringify(bundlesList));
+}
+
+function renderBundlesStats() {
+    const total = bundlesList.length;
+    
+    // Average save percent calculation
+    let avgSave = 0;
+    if (total > 0) {
+        let sumSave = 0;
+        bundlesList.forEach(b => {
+            const matches = (b.bundleSavePercent || '').match(/\d+/);
+            if (matches) {
+                sumSave += parseInt(matches[0]);
+            } else {
+                const rawVal = parseFloat(b.bundleSavePercent);
+                if (!isNaN(rawVal)) sumSave += Math.abs(rawVal);
+            }
+        });
+        avgSave = Math.round(sumSave / total);
+    }
+
+    const activeEl = document.getElementById('stat-active-bundles');
+    const avgSaveEl = document.getElementById('stat-avg-save-bundles');
+    
+    if (activeEl) activeEl.innerText = total;
+    if (avgSaveEl) avgSaveEl.innerText = `${avgSave}%`;
+}
+
+function renderBundlesTable() {
+    const tbody = document.getElementById('admin-bundles-tbody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+
+    const validBundles = bundlesList.filter(b => b);
+    if (validBundles.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6" class="text-center" style="padding: 3rem 1rem; color: var(--text-muted);">
+                    <i data-lucide="package-2" style="width: 32px; height: 32px; margin-bottom: 0.5rem; display: block; margin-left: auto; margin-right: auto; opacity: 0.5;"></i>
+                    No subscription bundles found in the database. Add one on the left.
+                </td>
+            </tr>
+        `;
+        if (window.lucide) window.lucide.createIcons();
+        return;
+    }
+
+    validBundles.forEach((bundle, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>
+                <span class="text-cyan" style="font-weight: 700; font-family: monospace; font-size: 0.95rem;">${escapeHTML(bundle.id || '')}</span>
+            </td>
+            <td>
+                <span style="font-weight: 600; color: var(--text-primary);">${escapeHTML(bundle.name || '')}</span>
+            </td>
+            <td>
+                <span style="color: var(--text-secondary); font-size: 0.85rem;">${escapeHTML(bundle.productIds || '')}</span>
+            </td>
+            <td>
+                <span style="color: var(--text-secondary);">₹${(bundle.price || 0).toLocaleString('en-IN')}</span>
+            </td>
+            <td>
+                <span class="badge-status badge-status-delivered" style="background: rgba(245, 200, 66, 0.1); color: #F5C842; border: 1px solid rgba(245, 200, 66, 0.2);">${escapeHTML(bundle.bundleSavePercent || '')}</span>
+            </td>
+            <td>
+                <div class="table-actions">
+                    <button class="btn btn-secondary btn-xs edit-bundle-btn-trigger" data-index="${index}" aria-label="Edit bundle">
+                        <i data-lucide="edit-3" style="width: 13px; height: 13px;"></i>
+                    </button>
+                    <button class="btn btn-danger btn-xs delete-bundle-btn-trigger" data-index="${index}" aria-label="Delete bundle">
+                        <i data-lucide="trash-2" style="width: 13px; height: 13px;"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+
+    tbody.querySelectorAll('.edit-bundle-btn-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-index'));
+            initiateEditBundle(idx);
+        });
+    });
+
+    tbody.querySelectorAll('.delete-bundle-btn-trigger').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-index'));
+            deleteBundle(idx);
+        });
+    });
+
+    if (window.lucide) {
+        window.lucide.createIcons();
+    }
+}
+
+function setupBundlesForm() {
+    const form = document.getElementById('bundle-form');
+    const cancelBtn = document.getElementById('cancel-bundle-edit-btn');
+
+    if (!form) return;
+
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            cancelBundleEdit();
+        });
+    }
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const idInput = document.getElementById('bundle-id');
+        const id = idInput.value.trim().toLowerCase();
+        const name = document.getElementById('bundle-name').value.trim();
+        const subtitle = document.getElementById('bundle-subtitle').value.trim();
+        const productIds = document.getElementById('bundle-products').value.trim();
+        const price = parseFloat(document.getElementById('bundle-price').value) || 0;
+        const retailPrice = parseFloat(document.getElementById('bundle-retail').value) || 0;
+        const savesLabel = document.getElementById('bundle-saves-label').value.trim();
+        const savePercentInput = document.getElementById('bundle-save-percent').value;
+        const icons = document.getElementById('bundle-icons').value.trim();
+        const iconColors = document.getElementById('bundle-icon-colors').value.trim();
+        
+        const mode = document.getElementById('edit-bundle-mode').value;
+
+        if (!/^[a-z0-9\-]+$/.test(id)) {
+            alert("Bundle ID must contain only lowercase letters, numbers, and hyphens (no spaces).");
+            idInput.focus();
+            return;
+        }
+
+        // Check if ID is unique when creating new or changing ID
+        const duplicateIdx = bundlesList.findIndex(b => b.id === id);
+        if (duplicateIdx > -1 && (mode === 'add' || (mode === 'edit' && bundlesList[editingBundleIndex].id !== id))) {
+            alert(`A bundle with the ID "${id}" already exists.`);
+            idInput.focus();
+            return;
+        }
+
+        // Format save percent
+        let bundleSavePercent = '';
+        if (savePercentInput !== '') {
+            const pct = parseFloat(savePercentInput) || 0;
+            bundleSavePercent = `-${pct}% Bundle Save`;
+        }
+
+        const newBundle = {
+            id,
+            name,
+            subtitle,
+            productIds,
+            price,
+            retailPrice,
+            savesLabel,
+            bundleSavePercent,
+            icons,
+            iconColors
+        };
+
+        if (mode === 'edit' && editingBundleIndex >= 0) {
+            bundlesList[editingBundleIndex] = newBundle;
+            logEvent('catalog', `Updated bundle: ${newBundle.name}`);
+        } else {
+            bundlesList.push(newBundle);
+            logEvent('catalog', `Created bundle: ${newBundle.name}`);
+        }
+
+        saveBundlesToFirebase();
+        cancelBundleEdit();
+        renderBundlesStats();
+        renderBundlesTable();
+    });
+}
+
+function initiateEditBundle(index) {
+    editingBundleIndex = index;
+    const bundle = bundlesList[index];
+
+    document.getElementById('edit-bundle-mode').value = "edit";
+    document.getElementById('original-bundle-id').value = bundle.id;
+
+    // Fill fields
+    document.getElementById('bundle-id').value = bundle.id;
+    document.getElementById('bundle-name').value = bundle.name;
+    document.getElementById('bundle-subtitle').value = bundle.subtitle;
+    document.getElementById('bundle-products').value = bundle.productIds;
+    document.getElementById('bundle-price').value = bundle.price;
+    document.getElementById('bundle-retail').value = bundle.retailPrice;
+    document.getElementById('bundle-saves-label').value = bundle.savesLabel || '';
+    
+    // Parse save percent out of string like "-73% Bundle Save"
+    let savePct = '';
+    const matches = (bundle.bundleSavePercent || '').match(/\d+/);
+    if (matches) {
+        savePct = matches[0];
+    } else {
+        const parsed = parseFloat(bundle.bundleSavePercent);
+        if (!isNaN(parsed)) savePct = Math.abs(parsed);
+    }
+    document.getElementById('bundle-save-percent').value = savePct;
+    
+    document.getElementById('bundle-icons').value = bundle.icons || '';
+    document.getElementById('bundle-icon-colors').value = bundle.iconColors || '';
+
+    document.getElementById('bundle-form-action-title').innerHTML = `<i data-lucide="edit" style="vertical-align: middle; margin-right: 4px;"></i> Edit Bundle: ${bundle.name}`;
+    document.getElementById('bundle-form-submit-btn').innerText = "Update Bundle";
+    document.getElementById('cancel-bundle-edit-btn').style.display = 'inline-block';
+
+    if (window.lucide) window.lucide.createIcons();
+}
+
+function cancelBundleEdit() {
+    editingBundleIndex = -1;
+    document.getElementById('bundle-form').reset();
+    document.getElementById('edit-bundle-mode').value = "add";
+    document.getElementById('original-bundle-id').value = "";
+
+    document.getElementById('bundle-form-action-title').innerHTML = `<i data-lucide="plus-circle" style="vertical-align: middle; margin-right: 4px;"></i> Add Bundle`;
+    document.getElementById('bundle-form-submit-btn').innerText = "Save Bundle";
+    document.getElementById('cancel-bundle-edit-btn').style.display = 'none';
+
+    if (window.lucide) window.lucide.createIcons();
+}
+
+function deleteBundle(index) {
+    const bundle = bundlesList[index];
+    if (confirm(`Are you sure you want to delete the bundle "${bundle.name}"?`)) {
+        if (editingBundleIndex === index) {
+            cancelBundleEdit();
+        } else if (editingBundleIndex > index) {
+            editingBundleIndex--;
+        }
+
+        bundlesList.splice(index, 1);
+        logEvent('catalog', `Deleted bundle: ${bundle.name}`);
+        saveBundlesToFirebase();
+        renderBundlesStats();
+        renderBundlesTable();
+    }
 }
 
 
