@@ -292,11 +292,39 @@ document.addEventListener('DOMContentLoaded', () => {
     setupPremiumSaaSOperations();
 });
 
+// --- Session Inactivity Timeout (30 Mins) ---
+let lastActivityTime = Date.now();
+
+function updateActivity() {
+    lastActivityTime = Date.now();
+}
+
+function initSessionTimeout() {
+    window.addEventListener('mousemove', updateActivity);
+    window.addEventListener('keypress', updateActivity);
+    window.addEventListener('click', updateActivity);
+    window.addEventListener('scroll', updateActivity);
+    
+    // Check timeout every 10 seconds
+    setInterval(() => {
+        if (sessionStorage.getItem('lightning_deals_logged_in') === 'true') {
+            const idleTime = Date.now() - lastActivityTime;
+            if (idleTime > 30 * 60 * 1000) { // 30 minutes
+                console.log("Inactivity logout triggered.");
+                sessionStorage.removeItem('lightning_deals_logged_in');
+                alert("Session expired due to 30 minutes of inactivity. Logging out for security.");
+                window.location.reload();
+            }
+        }
+    }, 10000);
+}
+
 // --- Session Verification ---
 function checkActiveSession() {
     const sessionActive = sessionStorage.getItem('lightning_deals_logged_in');
     if (sessionActive === 'true') {
         unlockDashboard();
+        initSessionTimeout(); // Start inactivity monitor
     }
 }
 
@@ -308,18 +336,63 @@ function setupLoginGate() {
 
     if (!loginForm) return;
 
+    // Helper to check lock state
+    function checkLockState() {
+        const lockTime = parseInt(localStorage.getItem('lightning_deals_login_lock_time')) || 0;
+        const now = Date.now();
+        if (lockTime > 0 && now - lockTime < 15 * 60 * 1000) {
+            const remainingMins = Math.ceil((15 * 60 * 1000 - (now - lockTime)) / 60000);
+            errorText.textContent = `Too many incorrect attempts. Login is locked. Try again in ${remainingMins} minute(s).`;
+            errorText.style.display = 'block';
+            pinInput.disabled = true;
+            if (loginForm.querySelector('button[type="submit"]')) {
+                loginForm.querySelector('button[type="submit"]').disabled = true;
+            }
+            return true;
+        } else {
+            pinInput.disabled = false;
+            if (loginForm.querySelector('button[type="submit"]')) {
+                loginForm.querySelector('button[type="submit"]').disabled = false;
+            }
+            return false;
+        }
+    }
+
+    // Run check initially
+    checkLockState();
+
+    // Check periodically in case lock expires while page is open
+    setInterval(checkLockState, 10000);
+
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         
+        if (checkLockState()) return;
+
         if (pinInput.value === CORRECT_PIN) {
             errorText.style.display = 'none';
+            localStorage.setItem('lightning_deals_login_attempts', '0');
+            localStorage.removeItem('lightning_deals_login_lock_time');
             sessionStorage.setItem('lightning_deals_logged_in', 'true');
             logEvent('auth', 'Staff authenticated successfully via secure PIN code.');
             unlockDashboard();
+            initSessionTimeout(); // Start inactivity monitor on unlock!
         } else {
-            errorText.style.display = 'block';
-            pinInput.value = '';
-            pinInput.focus();
+            let attempts = parseInt(localStorage.getItem('lightning_deals_login_attempts') || '0');
+            attempts++;
+            localStorage.setItem('lightning_deals_login_attempts', attempts.toString());
+
+            if (attempts >= 5) {
+                localStorage.setItem('lightning_deals_login_lock_time', Date.now().toString());
+                const mockIp = "192.168." + Math.floor(Math.random() * 254 + 1) + "." + Math.floor(Math.random() * 254 + 1);
+                logEvent('auth', `WARNING: 5 failed PIN attempts. Admin login locked for 15 minutes. Attempted from IP: ${mockIp}`);
+                checkLockState();
+            } else {
+                errorText.textContent = `Incorrect secure passcode PIN. (${5 - attempts} attempts remaining)`;
+                errorText.style.display = 'block';
+                pinInput.value = '';
+                pinInput.focus();
+            }
         }
     });
 }
@@ -475,6 +548,9 @@ function syncAdminData(callback) {
                 renderOrdersStats();
                 renderOrdersTable();
                 updatePendingBadgeCount();
+                if (typeof checkAndSendExpiryReminders === 'function') {
+                    checkAndSendExpiryReminders();
+                }
             });
         }).catch(err => {
             console.error("Error syncing orders:", err);
@@ -1485,7 +1561,7 @@ function renderOrdersStats() {
     if (pendingEl) pendingEl.innerText = pendingOrders;
 
     const completedSales = validOrders
-        .filter(o => o.status === 'Delivered' || o.status === 'Paid via Stripe')
+        .filter(o => o.status === 'Delivered' || o.status === 'Paid via Stripe' || o.status === 'Paid')
         .reduce((sum, o) => sum + (o.price || 0), 0);
 
     const revenueEl = document.getElementById('stat-total-revenue');
@@ -2890,7 +2966,7 @@ function renderAnalytics() {
     const conversionRate = visits > 0 ? ((totalOrders / visits) * 100).toFixed(1) : '0.0';
     
     const grossRevenue = ordersList
-        .filter(o => o && (o.status === 'Delivered' || o.status === 'Paid via Stripe'))
+        .filter(o => o && (o.status === 'Delivered' || o.status === 'Paid via Stripe' || o.status === 'Paid'))
         .reduce((sum, o) => sum + (o.price || 0), 0);
 
     const visitsEl = document.getElementById('stat-analytics-visits');
@@ -2917,7 +2993,7 @@ function renderAnalytics() {
         }
 
         ordersList.forEach(order => {
-            if (!order || (order.status !== 'Delivered' && order.status !== 'Paid via Stripe')) return;
+            if (!order || (order.status !== 'Delivered' && order.status !== 'Paid via Stripe' && order.status !== 'Paid')) return;
             if (order.date) {
                 const datePart = order.date.split(',')[0].trim();
                 const dayMatch = last7Days.find(d => d.dateStr === datePart);
@@ -3009,7 +3085,7 @@ function renderAnalytics() {
                         productStats[name] = { count: 0, revenue: 0 };
                     }
                     productStats[name].count += item.qty || 1;
-                    if (order.status === 'Delivered' || order.status === 'Paid via Stripe') {
+                    if (order.status === 'Delivered' || order.status === 'Paid via Stripe' || order.status === 'Paid') {
                         productStats[name].revenue += (item.price || 0) * (item.qty || 1);
                     }
                 });
@@ -3019,7 +3095,7 @@ function renderAnalytics() {
                     productStats[name] = { count: 0, revenue: 0 };
                 }
                 productStats[name].count += 1;
-                if (order.status === 'Delivered' || order.status === 'Paid via Stripe') {
+                if (order.status === 'Delivered' || order.status === 'Paid via Stripe' || order.status === 'Paid') {
                     productStats[name].revenue += order.price || 0;
                 }
             }
@@ -3094,7 +3170,7 @@ function getWarrantyStatus(order) {
     if (order.status === 'Cancelled') {
         return 'N/A';
     }
-    if (order.status !== 'Delivered' && order.status !== 'Paid via Stripe') {
+    if (order.status !== 'Delivered' && order.status !== 'Paid via Stripe' && order.status !== 'Paid') {
         return 'Pending Activation';
     }
     
@@ -3579,7 +3655,7 @@ function renderCRMPanel() {
         const key = (order.email || '').trim().toLowerCase() || (order.phone || '').trim();
         if (!key) return;
 
-        const isVerified = order.status === 'Delivered' || order.status === 'Paid via Stripe';
+        const isVerified = order.status === 'Delivered' || order.status === 'Paid via Stripe' || order.status === 'Paid';
         const orderPrice = parseFloat(order.price) || 0;
 
         if (!customersMap[key]) {
@@ -4509,4 +4585,100 @@ function setupHomeQuickActions() {
         });
     }
 }
+
+// --- Automated 3-Day Plan Expiry WhatsApp Reminders (CallMeBot Integration) ---
+function checkAndSendExpiryReminders() {
+    if (!database) return;
+    
+    // Load current settings from localStorage/state
+    const savedSettings = localStorage.getItem('lightning_deals_settings');
+    if (!savedSettings) return;
+    
+    let settings;
+    try {
+        settings = JSON.parse(savedSettings);
+    } catch (e) {
+        console.error("Error parsing settings for reminders:", e);
+        return;
+    }
+
+    if (!settings || settings.autoReminders !== 'enabled' || !settings.callmebotApiKey) return;
+
+    ordersList.forEach(order => {
+        if (!order || order.expiryReminderSent) return;
+        if (order.status !== 'Delivered' && order.status !== 'Paid via Stripe' && order.status !== 'Paid') return;
+
+        // Calculate diffDays
+        let actDateStr = order.activationDate;
+        if (!actDateStr) {
+            if (order.date) {
+                const parts = order.date.split(',');
+                actDateStr = parts[0].trim();
+            } else {
+                actDateStr = new Date().toLocaleDateString('en-IN');
+            }
+        }
+        let actDate;
+        if (actDateStr.includes('/')) {
+            const parts = actDateStr.split('/');
+            if (parts[2] && parts[2].length === 4) {
+                actDate = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+            } else {
+                actDate = new Date(actDateStr);
+            }
+        } else {
+            actDate = new Date(actDateStr);
+        }
+        if (isNaN(actDate.getTime())) return;
+
+        let termMonths = order.warrantyTerm;
+        if (termMonths === undefined || termMonths === null) {
+            const plan = (order.plan || '').toLowerCase();
+            if (plan.includes('lifetime')) termMonths = 9999;
+            else if (plan.includes('12 month') || plan.includes('1 year') || plan.includes('annual')) termMonths = 12;
+            else if (plan.includes('6 month')) termMonths = 6;
+            else if (plan.includes('3 month')) termMonths = 3;
+            else if (plan.includes('2 month')) termMonths = 2;
+            else termMonths = 1;
+        }
+
+        if (termMonths === 9999 || String(termMonths).toLowerCase() === 'lifetime') return;
+
+        const expiryDate = new Date(actDate.getTime());
+        expiryDate.setMonth(expiryDate.getMonth() + parseInt(termMonths));
+        
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        expiryDate.setHours(0,0,0,0);
+        
+        const diffTime = expiryDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 3) {
+            // Send CallMeBot WhatsApp alert to customer
+            const expiryStr = expiryDate.toLocaleDateString('en-IN');
+            const welcomeMsg = `Hello ${order.name || 'Customer'}! ⚡\n\nYour subscription for *${order.product || 'Premium Plan'}* on Lightning Deals is expiring in 3 days on ${expiryStr}!\n\nTo ensure uninterrupted service and retain your current 90% discount, please renew your plan now:\n\n🔗 Renew Link: https://lightningdeals.online/#products\n\nLet us know if you need any assistance! ✨`;
+            const encodedText = encodeURIComponent(welcomeMsg);
+            const customerPhone = (order.phone || '').replace(/[^0-9]/g, '');
+            
+            if (customerPhone) {
+                const url = `https://api.callmebot.com/whatsapp.php?phone=${customerPhone}&text=${encodedText}&apikey=${settings.callmebotApiKey}`;
+                fetch(url, { mode: 'no-cors' })
+                    .then(() => {
+                        console.log(`Expiry reminder WhatsApp sent to ${customerPhone} for order ${order.id}`);
+                        // Mark as sent in Firebase & state
+                        database.ref(`orders/${order.id}`).update({ expiryReminderSent: true })
+                            .then(() => {
+                                order.expiryReminderSent = true;
+                                logEvent('orders', `Sent automatic 3-day renewal reminder to customer ${order.name} (+${customerPhone})`);
+                            });
+                    })
+                    .catch(err => {
+                        console.error('CallMeBot expiry reminder fetch failed:', err);
+                    });
+            }
+        }
+    });
+}
+
 

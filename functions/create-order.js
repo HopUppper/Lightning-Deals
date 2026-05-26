@@ -90,7 +90,8 @@ exports.handler = async (event, context) => {
       amount: amount,
       currency: 'INR',
       receipt: receipt,
-      payment_capture: 1
+      payment_capture: 1,
+      notes: input.notes || {}
     });
 
     const options = {

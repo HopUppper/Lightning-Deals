@@ -657,6 +657,13 @@ document.addEventListener('DOMContentLoaded', () => {
     visits++;
     localStorage.setItem('lightning_deals_visits', visits);
 
+    // Auto-hide empty recently viewed deals section on load
+    const recentSection = document.querySelector('[id*="recently"], [class*="recently-viewed"]');
+    const recentItems = JSON.parse(localStorage.getItem('lightning_deals_recently_viewed') || localStorage.getItem('recentlyViewed') || '[]');
+    if (recentSection && recentItems.length === 0) {
+        recentSection.style.display = 'none';
+    }
+
     // Icons initialization
     if (window.lucide) {
         window.lucide.createIcons();
@@ -685,6 +692,69 @@ document.addEventListener('DOMContentLoaded', () => {
     updateWishlistUI();
     setupLegalModal();
     startLightningPulse();
+
+    // Wire up role-based Stack Builder preset bundles
+    const getStackButtons = document.querySelectorAll('.btn-get-stack');
+    if (getStackButtons.length > 0) {
+        getStackButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const stack = e.currentTarget.getAttribute('data-stack');
+                const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+                
+                // Clear current cart
+                cart = [];
+                
+                const addProductToCart = (prodId) => {
+                    const prod = activeProducts.find(p => p.id === prodId && p.visible !== false);
+                    if (prod && prod.plans && prod.plans.length > 0) {
+                        const firstPlan = prod.plans[0]; // 1-Month plan
+                        cart.push({
+                            productId: prod.id,
+                            name: prod.name,
+                            planLabel: firstPlan.label,
+                            price: firstPlan.price,
+                            retail: firstPlan.retail || firstPlan.price,
+                            qty: 1,
+                            iconColor: prod.iconColor,
+                            icon: prod.icon
+                        });
+                        
+                        if (typeof gtag === 'function') {
+                            gtag('event', 'add_to_cart', {
+                                item_name: prod.name,
+                                value: firstPlan.price,
+                                currency: 'INR'
+                            });
+                        }
+                    }
+                };
+
+                if (stack === 'developer') {
+                    addProductToCart('cursor-pro');
+                    addProductToCart('github-copilot');
+                    addProductToCart('notion-pro');
+                } else if (stack === 'designer') {
+                    addProductToCart('canva-pro');
+                    addProductToCart('adobe-cc');
+                } else if (stack === 'trader') {
+                    addProductToCart('tradingview-premium');
+                    addProductToCart('chatgpt-plus');
+                }
+
+                // Save to localStorage and update badge
+                localStorage.setItem('lightning_deals_cart', JSON.stringify(cart));
+                updateCartBadge();
+                
+                showToast(`Premium ${stack.toUpperCase()} Stack added to cart!`, 'success');
+                
+                // Open Cart Modal immediately
+                const headerCartBtn = document.getElementById('header-cart-btn');
+                if (headerCartBtn) {
+                    headerCartBtn.click();
+                }
+            });
+        });
+    }
 });
 
 // --- Setup Sticky Header ---
@@ -1899,7 +1969,21 @@ function setupPurchaseModal() {
             btnRazorpayCheckout.disabled = true;
             btnRazorpayCheckout.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 16px; height: 16px; display: inline-block; animation: spin 1s linear infinite; margin-right: 8px; vertical-align: middle;"></span> Processing...`;
 
-            // Call secure API to construct Razorpay transaction order
+            if (typeof gtag === 'function') {
+                gtag('event', 'begin_checkout', {
+                    value: finalPrice,
+                    currency: 'INR'
+                });
+            }
+
+            // Format phone number for robust delivery
+            const cleanPhone = phoneVal.replace(/[\s\-\+\(\)]/g, '');
+            let formattedCustomerPhone = cleanPhone;
+            if (formattedCustomerPhone.length === 10) {
+                formattedCustomerPhone = '91' + formattedCustomerPhone;
+            }
+
+            // Call secure API to construct Razorpay transaction order with metadata
             fetch('/.netlify/functions/create-order', {
                 method: 'POST',
                 headers: {
@@ -1907,7 +1991,24 @@ function setupPurchaseModal() {
                 },
                 body: JSON.stringify({
                     amount: finalPrice * 100, // in paise
-                    receipt: 'rcpt_' + Date.now() + Math.floor(Math.random() * 100)
+                    receipt: 'rcpt_' + Date.now() + Math.floor(Math.random() * 100),
+                    notes: {
+                        customer_name: nameVal,
+                        customer_email: emailVal,
+                        customer_phone: formattedCustomerPhone || phoneVal,
+                        product_purchased: cart.map(item => `${item.name} (${item.qty}x)`).join(', ').substring(0, 100),
+                        plan_details: cart.map(item => item.planLabel).join(', ').substring(0, 100),
+                        subtotal: subtotal.toString(),
+                        discount: discount.toString(),
+                        coupon: appliedCoupon ? appliedCoupon.code : "",
+                        items: JSON.stringify(cart.map(item => ({
+                            productId: item.productId,
+                            name: item.name,
+                            planLabel: item.planLabel,
+                            price: item.price,
+                            qty: item.qty
+                        })))
+                    }
                 })
             })
             .then(res => {
@@ -2033,6 +2134,14 @@ function setupPurchaseModal() {
                     razorpay_order_id: response.razorpay_order_id,
                     razorpay_payment_id: response.razorpay_payment_id
                 };
+
+                if (typeof gtag === 'function') {
+                    gtag('event', 'purchase', {
+                        transaction_id: order.id,
+                        value: finalPrice,
+                        currency: 'INR'
+                    });
+                }
 
                 // Sync order object to Firebase
                 if (database) {
@@ -2606,9 +2715,32 @@ function setupConfigureModal() {
         const relatedList = document.getElementById('config-related-products-list');
         if (relatedSection && relatedList) {
             relatedList.innerHTML = '';
-            // Find products in the same category or default others
+            
             const activeProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
-            const relatedProds = activeProducts.filter(p => p.id !== selectedConfigureProduct.id && p.visible !== false).slice(0, 2);
+            
+            // Curated Frequently Bought Together logic
+            let relatedProds = [];
+            const prodId = selectedConfigureProduct.id;
+            
+            if (prodId === 'chatgpt-plus') {
+                const cursor = activeProducts.find(p => p.id === 'cursor-pro' && p.visible !== false);
+                const notion = activeProducts.find(p => p.id === 'notion-pro' && p.visible !== false);
+                if (cursor) relatedProds.push(cursor);
+                if (notion) relatedProds.push(notion);
+            } else if (prodId === 'canva-pro') {
+                const adobe = activeProducts.find(p => p.id === 'adobe-cc' && p.visible !== false);
+                const notion = activeProducts.find(p => p.id === 'notion-pro' && p.visible !== false);
+                if (adobe) relatedProds.push(adobe);
+                if (notion) relatedProds.push(notion);
+            } else if (prodId === 'tradingview-premium') {
+                const chatgpt = activeProducts.find(p => p.id === 'chatgpt-plus' && p.visible !== false);
+                if (chatgpt) relatedProds.push(chatgpt);
+            }
+
+            // Fallback to other category items if curated suggestions are not in catalog
+            if (relatedProds.length === 0) {
+                relatedProds = activeProducts.filter(p => p.id !== selectedConfigureProduct.id && p.visible !== false).slice(0, 2);
+            }
             
             if (relatedProds.length > 0) {
                 relatedSection.style.display = 'block';
@@ -2644,18 +2776,18 @@ function setupConfigureModal() {
                             // Add first plan of the product to cart
                             const firstPlan = prod.plans[0];
                             const cartItem = {
-                                id: prod.id,
+                                productId: prod.id,
                                 name: prod.name,
                                 icon: prod.icon,
                                 iconColor: prod.iconColor,
                                 planLabel: firstPlan.label,
-                                validity: firstPlan.validity,
                                 price: firstPlan.price,
+                                retail: firstPlan.retail || firstPlan.price,
                                 qty: 1
                             };
                             
                             // Check if already in cart
-                            const existingIdx = cart.findIndex(item => item.id === cartItem.id && item.planLabel === cartItem.planLabel);
+                            const existingIdx = cart.findIndex(item => item.productId === cartItem.productId && item.planLabel === cartItem.planLabel);
                             if (existingIdx > -1) {
                                 cart[existingIdx].qty++;
                             } else {
@@ -2664,6 +2796,15 @@ function setupConfigureModal() {
                             
                             localStorage.setItem('lightning_deals_cart', JSON.stringify(cart));
                             updateCartBadge();
+
+                            if (typeof gtag === 'function') {
+                                gtag('event', 'add_to_cart', {
+                                    item_name: prod.name,
+                                    value: firstPlan.price,
+                                    currency: 'INR'
+                                });
+                            }
+
                             showToast(`${prod.name} added to cart!`, 'success');
                             
                             // Disable button or update text to Added
@@ -2756,6 +2897,14 @@ function setupConfigureModal() {
 
             localStorage.setItem('lightning_deals_cart', JSON.stringify(cart));
             updateCartBadge();
+
+            if (typeof gtag === 'function') {
+                gtag('event', 'add_to_cart', {
+                    item_name: selectedConfigureProduct.name,
+                    value: plan.price * qty,
+                    currency: 'INR'
+                });
+            }
 
             showToast(`${selectedConfigureProduct.name} (${plan.label}) added to cart!`, 'success');
             closeConfigModal();
