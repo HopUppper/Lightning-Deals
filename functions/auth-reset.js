@@ -177,8 +177,8 @@ exports.handler = async (event, context) => {
         headers: { 'Content-Type': 'application/json' }
       }, resetObj);
 
-      // 3. Dispatch OTP Code directly to Customer phone via secure WhatsApp settings
-      // Fetch public and secure settings for CallMeBot trigger
+      // 3. Dispatch OTP Code to admin via Discord webhook (same method as order notifications)
+      // Fetch settings from Firebase (same structure as trigger-notification.js uses)
       let publicSettings = {};
       try {
         const res = await httpsRequest({
@@ -204,23 +204,57 @@ exports.handler = async (event, context) => {
       const settings = { ...publicSettings, ...secureSettings };
       const method = (settings.notificationMethod || 'disabled').toLowerCase();
 
-      // Trigger message text
-      const msgText = `⚡ *Lightning Deals Password Recovery*\n\nYou requested a password reset for your customer account.\n\nYour 6-digit secure recovery code is: *${resetCode}*\n\nEnter this code in the password reset panel to authorize updating your login password.\n\n_Note: This code expires in 15 minutes._`;
+      // ── Discord Webhook notification (primary) ──
+      if (method === 'discord' && settings.discordWebhookUrl) {
+        const webhookUrl = new URL(settings.discordWebhookUrl);
+        const discordPayload = {
+          embeds: [{
+            title: '🔐 Password Reset Requested',
+            color: 0xF5C842, // Lightning yellow
+            fields: [
+              { name: '👤 Customer', value: user.name || 'Unknown', inline: true },
+              { name: '📧 Email', value: normalizedEmail, inline: true },
+              { name: '📱 Phone', value: user.phone || 'N/A', inline: true },
+              { name: '🔑 OTP Code', value: `\`\`\`${resetCode}\`\`\``, inline: false },
+              { name: '⏰ Expires', value: 'In 15 minutes', inline: true },
+              { name: '🌐 IP Address', value: clientIp, inline: true }
+            ],
+            footer: { text: 'Lightning Deals · Customer Auth System' },
+            timestamp: new Date().toISOString()
+          }]
+        };
 
+        try {
+          const payloadStr = JSON.stringify(discordPayload);
+          await httpsRequest({
+            hostname: webhookUrl.hostname,
+            port: 443,
+            path: webhookUrl.pathname + webhookUrl.search,
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Content-Length': Buffer.byteLength(payloadStr)
+            }
+          }, payloadStr);
+        } catch (err) {
+          console.error('Discord OTP notification failed:', err);
+        }
+      }
+
+      // ── CallMeBot WhatsApp fallback (if configured) ──
       if (method === 'callmebot' && settings.callmebotApiKey && user.phone) {
+        const msgText = `⚡ Lightning Deals Password Reset\n\nYour 6-digit recovery code: *${resetCode}*\n\nExpires in 15 minutes.`;
         const encodedMsg = encodeURIComponent(msgText);
         const userPhone = user.phone.replace(/[^0-9]/g, '');
-        const botPath = `/whatsapp.php?phone=${userPhone}&text=${encodedMsg}&apikey=${settings.callmebotApiKey}`;
-        
         try {
           await httpsRequest({
             hostname: 'api.callmebot.com',
             port: 443,
-            path: botPath,
+            path: `/whatsapp.php?phone=${userPhone}&text=${encodedMsg}&apikey=${settings.callmebotApiKey}`,
             method: 'GET'
           });
         } catch (err) {
-          console.error('CallMeBot reset notification failed to send:', err);
+          console.error('CallMeBot reset notification failed:', err);
         }
       }
 
