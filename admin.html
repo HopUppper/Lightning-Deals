@@ -1384,6 +1384,7 @@
                                     <th>Lifetime Value (LTV)</th>
                                     <th>Last Order Date</th>
                                     <th>Customer Status</th>
+                                    <th style="width: 180px; text-align: center;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="crm-table-body">
@@ -1466,6 +1467,21 @@
                 </button>
             </div>
             <div class="admin-drawer-body" id="drawer-body-content">
+                <!-- Rendered dynamically by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer CRM Sliding Detail Drawer Modal -->
+    <div id="customer-detail-drawer" class="admin-drawer-overlay">
+        <div class="admin-drawer-card">
+            <div class="admin-drawer-header">
+                <h3 class="admin-drawer-title">Customer CRM Profile</h3>
+                <button class="admin-drawer-close" id="close-customer-drawer-btn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="admin-drawer-body" id="customer-drawer-body-content" style="padding: 1.5rem;">
                 <!-- Rendered dynamically by JS -->
             </div>
         </div>

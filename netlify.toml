@@ -29,3 +29,27 @@
   to = "/.netlify/functions/verify-admin"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/api/auth-signup"
+  to = "/.netlify/functions/auth-signup"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/auth-login"
+  to = "/.netlify/functions/auth-login"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/auth-session"
+  to = "/.netlify/functions/auth-session"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/auth-reset"
+  to = "/.netlify/functions/auth-reset"
+  status = 200
+  force = true

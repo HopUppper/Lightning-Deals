@@ -721,6 +721,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupMobileBottomNav();
     setupWishlistModal();
     initSearchSuggestions();
+    customerAuthStore.init();
     updateWishlistUI();
     startLightningPulse();
     setupCustomerPortal();
@@ -2898,11 +2899,15 @@ function updateCartBadge() {
         badge.classList.remove('pulse');
     }
 
-    // Sync mobile bottom nav cart badge
     const mobBadge = document.getElementById('mob-cart-badge');
     if (mobBadge) {
         mobBadge.innerText = count;
         mobBadge.style.display = count > 0 ? 'flex' : 'none';
+    }
+
+    // Auto-sync cart changes to cloud when authenticated
+    if (typeof syncCartAndWishlist === 'function') {
+        syncCartAndWishlist();
     }
 }
 
@@ -3385,7 +3390,6 @@ function updateWishlistUI() {
         }
     }
 
-    // Toggle active state on all wishlist buttons matching the page products
     document.querySelectorAll('.wishlist-btn').forEach(btn => {
         const id = btn.getAttribute('data-id');
         if (wishlist.includes(id)) {
@@ -3394,6 +3398,11 @@ function updateWishlistUI() {
             btn.classList.remove('active');
         }
     });
+
+    // Auto-sync wishlist changes to cloud when authenticated
+    if (typeof syncCartAndWishlist === 'function') {
+        syncCartAndWishlist();
+    }
 }
 
 function renderWishlistItems() {
@@ -4525,6 +4534,234 @@ function startLightningPulse() {
 }
 
 // --- 13. My Orders & Customer Portal Dashboard Implementation ---
+// --- 13. Customer Authentication & Account Platform ---
+
+// --- customerAuthStore: Session & profile caching controller ---
+const customerAuthStore = {
+    token: localStorage.getItem('lightning_deals_auth_token') || sessionStorage.getItem('lightning_deals_auth_token') || null,
+    customer: null,
+    
+    isLoggedIn() {
+        return !!this.token;
+    },
+    
+    login(token, customer, rememberMe = false) {
+        this.token = token;
+        this.customer = customer;
+        if (rememberMe) {
+            localStorage.setItem('lightning_deals_auth_token', token);
+        } else {
+            sessionStorage.setItem('lightning_deals_auth_token', token);
+        }
+        // Save customer details in local cache
+        localStorage.setItem('lightning_deals_auth_customer', JSON.stringify(customer));
+        
+        // Merge client cart and wishlist
+        if (customer.cart && customer.cart.length > 0) {
+            // Merge database cart with local cart
+            const mergedCart = [...cart];
+            customer.cart.forEach(dbItem => {
+                const existing = mergedCart.find(item => item.productId === dbItem.productId && item.planLabel === dbItem.planLabel);
+                if (existing) {
+                    existing.qty = Math.max(existing.qty, dbItem.qty);
+                } else {
+                    mergedCart.push(dbItem);
+                }
+            });
+            cart = mergedCart;
+            localStorage.setItem('lightning_deals_cart', JSON.stringify(cart));
+            updateCartBadge();
+            if (typeof renderCartItems === 'function') renderCartItems();
+        }
+        
+        if (customer.wishlist) {
+            // Merge database wishlist with local wishlist
+            const localWish = safeGetLocalStorage('lightning_deals_wishlist', []);
+            const dbWishKeys = Object.keys(customer.wishlist);
+            const mergedWish = Array.from(new Set([...localWish, ...dbWishKeys]));
+            localStorage.setItem('lightning_deals_wishlist', JSON.stringify(mergedWish));
+            updateWishlistUI();
+            if (typeof renderWishlistItems === 'function') renderWishlistItems();
+        }
+        
+        // Push initial merged state to server
+        syncCartAndWishlist();
+        
+        // Update header profile button states
+        this.updateHeaderUI();
+    },
+    
+    logout() {
+        // Log out securely
+        if (this.token) {
+            fetch('/api/auth-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                },
+                body: JSON.stringify({
+                    action: 'terminate_session',
+                    targetSessionId: this.parseJwtSessionId(this.token)
+                })
+            }).catch(err => console.warn(err));
+        }
+
+        this.token = null;
+        this.customer = null;
+        localStorage.removeItem('lightning_deals_auth_token');
+        sessionStorage.removeItem('lightning_deals_auth_token');
+        localStorage.removeItem('lightning_deals_auth_customer');
+        
+        // Reset local cart and wishlist cache to default empty on sign-out
+        cart = [];
+        localStorage.removeItem('lightning_deals_cart');
+        localStorage.removeItem('lightning_deals_wishlist');
+        updateCartBadge();
+        updateWishlistUI();
+        if (typeof renderCartItems === 'function') renderCartItems();
+        if (typeof renderWishlistItems === 'function') renderWishlistItems();
+
+        this.updateHeaderUI();
+    },
+    
+    parseJwtSessionId(token) {
+        try {
+            const parts = token.split('.');
+            if (parts.length < 2) return '';
+            const payload = JSON.parse(atob(parts[0]));
+            return payload.sessionId || '';
+        } catch (e) {
+            return '';
+        }
+    },
+
+    updateHeaderUI() {
+        const btnHeaderOrders = document.getElementById('header-orders-btn');
+        const btnMobOrders = document.getElementById('mob-nav-orders-btn');
+        const btnMobOrdersFooter = document.getElementById('mob-nav-orders-btn-footer');
+        
+        const cust = this.customer || JSON.parse(localStorage.getItem('lightning_deals_auth_customer') || '{}');
+        const initials = cust.name ? cust.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'U';
+
+        const loggedInHTML = `<span style="width: 24px; height: 24px; background: var(--clr-cyan); color: #000; font-size: 0.72rem; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); margin-right: 4px; box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);">${initials}</span> <span style="font-size: 0.8rem; font-weight: 600;">Dashboard</span>`;
+        const loggedInMobHTML = `<span style="width: 20px; height: 20px; background: var(--clr-cyan); color: #000; font-size: 0.65rem; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2px;">${initials}</span> Portal`;
+
+        if (btnHeaderOrders) {
+            btnHeaderOrders.innerHTML = this.isLoggedIn() ? loggedInHTML : `<i data-lucide="shield-check"></i> <span>My Orders</span>`;
+        }
+        if (btnMobOrders) {
+            btnMobOrders.innerHTML = this.isLoggedIn() ? loggedInMobHTML : `<i data-lucide="shield-check"></i> Portal`;
+        }
+        if (btnMobOrdersFooter) {
+            btnMobOrdersFooter.innerHTML = this.isLoggedIn() ? loggedInHTML : `<i data-lucide="shield-check"></i> <span>My Orders</span>`;
+        }
+        
+        if (window.lucide) window.lucide.createIcons();
+    },
+    
+    init() {
+        const cachedCust = localStorage.getItem('lightning_deals_auth_customer');
+        if (cachedCust) {
+            this.customer = JSON.parse(cachedCust);
+        }
+        this.updateHeaderUI();
+        
+        // Verify active token sessions in background
+        if (this.token) {
+            fetch('/api/auth-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`
+                },
+                body: JSON.stringify({ action: 'verify' })
+            })
+            .then(res => {
+                if (res.status === 401 || res.status === 403) {
+                    this.logout();
+                } else {
+                    return res.json();
+                }
+            })
+            .then(data => {
+                if (data && data.success) {
+                    this.customer = data.customer;
+                    localStorage.setItem('lightning_deals_auth_customer', JSON.stringify(data.customer));
+                    this.updateHeaderUI();
+                    
+                    // Sync up cart / wishlist with DB state
+                    if (data.customer.cart) {
+                        cart = data.customer.cart;
+                        localStorage.setItem('lightning_deals_cart', JSON.stringify(cart));
+                        updateCartBadge();
+                        if (typeof renderCartItems === 'function') renderCartItems();
+                    }
+                    if (data.customer.wishlist) {
+                        const dbWish = Object.keys(data.customer.wishlist);
+                        localStorage.setItem('lightning_deals_wishlist', JSON.stringify(dbWish));
+                        updateWishlistUI();
+                        if (typeof renderWishlistItems === 'function') renderWishlistItems();
+                    }
+                }
+            })
+            .catch(err => console.error("Session verification network failure:", err));
+        }
+    }
+};
+
+// Sync client cart and wishlist state securely to database
+function syncCartAndWishlist() {
+    if (customerAuthStore.isLoggedIn()) {
+        const wishlistArr = safeGetLocalStorage('lightning_deals_wishlist', []);
+        // Transform array into Firebase key-map style
+        const wishlistMap = {};
+        wishlistArr.forEach(id => wishlistMap[id] = true);
+
+        fetch('/api/auth-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${customerAuthStore.token}`
+            },
+            body: JSON.stringify({
+                action: 'sync_data',
+                wishlist: wishlistMap,
+                cart: cart
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                console.warn("Cart/Wishlist database sync rejected:", data.error);
+            }
+        })
+        .catch(err => console.error("Sync network failure:", err));
+    }
+}
+
+// User-agent parser utility for Device Sessions tab
+function parseUserAgent(ua) {
+    if (!ua) return { os: 'Unknown OS', browser: 'Unknown Browser' };
+    let os = 'Unknown OS';
+    let browser = 'Unknown Browser';
+    
+    if (ua.includes('Windows')) os = 'Windows';
+    else if (ua.includes('Macintosh')) os = 'macOS';
+    else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+    else if (ua.includes('Android')) os = 'Android';
+    else if (ua.includes('Linux')) os = 'Linux';
+    
+    if (ua.includes('Chrome')) browser = 'Chrome';
+    else if (ua.includes('Firefox')) browser = 'Firefox';
+    else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+    else if (ua.includes('Edge')) browser = 'Edge';
+    else if (ua.includes('Opera')) browser = 'Opera';
+    
+    return { os, browser };
+}
+
+// Complete setup customer portal workflow
 function setupCustomerPortal() {
     const portalModal = document.getElementById('orders-portal-modal');
     const btnHeaderOrders = document.getElementById('header-orders-btn');
@@ -4532,45 +4769,30 @@ function setupCustomerPortal() {
     const btnMobOrdersFooter = document.getElementById('mob-nav-orders-btn-footer');
     const btnClosePortal = document.getElementById('close-orders-portal-modal-btn');
     
-    // Panel Views
-    const lookupPane = document.getElementById('portal-lookup-pane');
+    // Panel views
+    const authPane = document.getElementById('portal-auth-pane');
     const dashboardPane = document.getElementById('portal-dashboard-pane');
     
-    // Forms & Inputs
-    const lookupForm = document.getElementById('portal-lookup-form');
-    const identityInput = document.getElementById('portal-lookup-identity');
-    const lookupUtrInput = document.getElementById('portal-lookup-utr');
-    const btnSubmitLookup = document.getElementById('btn-submit-portal-lookup');
-    const btnPortalLogout = document.getElementById('btn-portal-logout');
+    // Auth Toggles & Forms
+    const loginView = document.getElementById('portal-login-view');
+    const signupView = document.getElementById('portal-signup-view');
+    const forgotView = document.getElementById('portal-forgot-view');
     
-    // Filters & List Containers
-    const searchInput = document.getElementById('portal-search-input');
-    const statusFilter = document.getElementById('portal-status-filter');
-    const sortOrder = document.getElementById('portal-sort-order');
-    const cardsContainer = document.getElementById('portal-orders-cards-container');
-    const crossSellDrawer = document.getElementById('portal-cross-sell');
-    const crossSellList = document.getElementById('portal-recommendations-list');
+    const loginForm = document.getElementById('portal-login-form');
+    const signupForm = document.getElementById('portal-signup-form');
+    const forgotReqForm = document.getElementById('portal-forgot-request-form');
+    const forgotVerifyForm = document.getElementById('portal-forgot-verify-form');
     
     if (!portalModal) return;
 
     let customerOrders = [];
-    let currentSessionUser = null; // Email or Phone looked up
 
-    // 1. Open Portal Modal
+    // Open Portal Modal
     function openPortal() {
         portalModal.classList.add('active');
         document.body.classList.add('modal-open');
         
-        // Auto-fill active session if exists
-        const savedUser = localStorage.getItem('lightning_deals_portal_user');
-        if (savedUser) {
-            currentSessionUser = savedUser;
-            fetchCustomerOrders(savedUser);
-        } else {
-            showLookupView();
-        }
-        
-        if (window.lucide) window.lucide.createIcons();
+        renderPortalView();
     }
 
     function closePortal() {
@@ -4589,41 +4811,338 @@ function setupCustomerPortal() {
         if (e.target === portalModal) closePortal();
     });
 
-    // Logout/Switch Account
+    // Logout Click
+    const btnPortalLogout = document.getElementById('btn-portal-logout');
     if (btnPortalLogout) {
         btnPortalLogout.addEventListener('click', () => {
-            localStorage.removeItem('lightning_deals_portal_user');
-            currentSessionUser = null;
-            customerOrders = [];
-            showLookupView();
+            customerAuthStore.logout();
+            showToast("Successfully signed out.", "success");
+            renderPortalView();
         });
     }
 
-    function showLookupView() {
-        lookupPane.style.display = 'block';
-        dashboardPane.style.display = 'none';
-        if (identityInput) identityInput.value = '';
-        if (lookupUtrInput) lookupUtrInput.value = '';
-    }
-
-    function showDashboardView(username) {
-        lookupPane.style.display = 'none';
-        dashboardPane.style.display = 'block';
-        
-        const greeting = document.getElementById('portal-greeting-text');
-        const subMeta = document.getElementById('portal-subscriber-meta');
-        if (greeting) greeting.innerText = `Hello Subscriber! 👋`;
-        if (subMeta) subMeta.innerText = `Secured session: ${username}`;
-    }
-
-    // 2. Fetch Customer Orders from Firebase Realtime Database
-    function fetchCustomerOrders(identity) {
-        if (btnSubmitLookup) {
-            btnSubmitLookup.disabled = true;
-            btnSubmitLookup.innerHTML = `<span>Verifying details...</span> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 14px; height: 14px; display: inline-block; animation: spin 1s linear infinite; vertical-align: middle;"></span>`;
+    // Render Portal Views (Auth Gate vs Dashboard Workspace)
+    function renderPortalView() {
+        if (customerAuthStore.isLoggedIn()) {
+            authPane.style.display = 'none';
+            dashboardPane.style.display = 'flex';
+            
+            // Set dynamic greetings
+            const greeting = document.getElementById('portal-greeting-text');
+            const subMeta = document.getElementById('portal-subscriber-meta');
+            if (greeting) greeting.innerText = `Welcome Back, ${customerAuthStore.customer.name.split(' ')[0]}! 👋`;
+            if (subMeta) subMeta.innerText = `Secured session: ${customerAuthStore.customer.email}`;
+            
+            // Open default active tab (My Orders)
+            switchTab('orders');
+            fetchCustomerOrders();
+        } else {
+            authPane.style.display = 'block';
+            dashboardPane.style.display = 'none';
+            showAuthView('login');
         }
+        if (window.lucide) window.lucide.createIcons();
+    }
 
-        const normalizedIdentity = identity.trim().toLowerCase();
+    // Toggle sub-auth panes (login, signup, forgot password)
+    function showAuthView(viewName) {
+        loginView.style.display = viewName === 'login' ? 'block' : 'none';
+        signupView.style.display = viewName === 'signup' ? 'block' : 'none';
+        forgotView.style.display = viewName === 'forgot' ? 'block' : 'none';
+        
+        // Reset sub-forgot password state
+        if (viewName === 'forgot') {
+            document.getElementById('forgot-pane-request').style.display = 'block';
+            document.getElementById('forgot-pane-verify').style.display = 'none';
+        }
+    }
+
+    // Switch View Switches triggers
+    document.getElementById('btn-switch-to-signup').addEventListener('click', () => showAuthView('signup'));
+    document.getElementById('btn-switch-to-login').addEventListener('click', () => showAuthView('login'));
+    document.getElementById('btn-switch-to-forgot').addEventListener('click', () => showAuthView('forgot'));
+    document.getElementById('btn-switch-to-login-from-forgot').addEventListener('click', () => showAuthView('login'));
+
+    // Reveal/Hide Password Buttons
+    function togglePassVisibility(inputId, buttonId) {
+        const input = document.getElementById(inputId);
+        const btn = document.getElementById(buttonId);
+        if (input && btn) {
+            btn.addEventListener('click', () => {
+                const isPass = input.getAttribute('type') === 'password';
+                input.setAttribute('type', isPass ? 'text' : 'password');
+                btn.innerHTML = isPass ? `<i data-lucide="eye-off" style="width: 16px; height: 16px;"></i>` : `<i data-lucide="eye" style="width: 16px; height: 16px;"></i>`;
+                if (window.lucide) window.lucide.createIcons();
+            });
+        }
+    }
+    togglePassVisibility('portal-login-password', 'portal-login-toggle-password');
+    togglePassVisibility('portal-signup-password', 'portal-signup-toggle-password');
+    togglePassVisibility('portal-forgot-new-password', 'portal-forgot-toggle-password');
+
+    // Signup password strength meter calculation
+    const signupPassInput = document.getElementById('portal-signup-password');
+    const strengthLabel = document.getElementById('password-strength-label');
+    if (signupPassInput && strengthLabel) {
+        signupPassInput.addEventListener('input', (e) => {
+            const val = e.target.value;
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (/[A-Z]/.test(val)) score++;
+            if (/[0-9]/.test(val)) score++;
+            if (/[^A-Za-z0-9]/.test(val)) score++;
+            
+            // Render strength UI
+            const bars = [1, 2, 3, 4].map(i => document.getElementById(`strength-bar-${i}`));
+            bars.forEach(b => b.style.backgroundColor = 'transparent');
+            
+            let labelText = "Very Weak";
+            let color = "#ff4d4d"; // Red
+            
+            if (val.length === 0) {
+                strengthLabel.innerText = "Empty";
+                return;
+            }
+
+            if (score === 1) {
+                labelText = "Weak";
+                bars[0].style.backgroundColor = color;
+            } else if (score === 2) {
+                labelText = "Medium";
+                color = "#ffa64d"; // Orange
+                bars[0].style.backgroundColor = color;
+                bars[1].style.backgroundColor = color;
+            } else if (score === 3) {
+                labelText = "Strong";
+                color = "#2ecc71"; // Green
+                bars[0].style.backgroundColor = color;
+                bars[1].style.backgroundColor = color;
+                bars[2].style.backgroundColor = color;
+            } else if (score === 4) {
+                labelText = "Very Strong";
+                color = "#00f2fe"; // Cyan
+                bars.forEach(b => b.style.backgroundColor = color);
+            }
+            
+            strengthLabel.innerText = labelText;
+            strengthLabel.style.color = color;
+        });
+    }
+
+    // ==================================================
+    // AUTHENTICATION FORMS DISPATCH HANDLERS
+    // ==================================================
+
+    // 1. Log In form submission
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('portal-login-email').value.trim();
+            const password = document.getElementById('portal-login-password').value;
+            const rememberMe = document.getElementById('portal-login-remember').checked;
+            const btn = document.getElementById('btn-portal-login');
+            
+            btn.disabled = true;
+            btn.innerHTML = `<span>Signing in...</span> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 14px; height: 14px; display: inline-block; animation: spin 1s linear infinite; vertical-align: middle;"></span>`;
+
+            fetch('/api/auth-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, rememberMe })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || "Authentication rejected.") });
+                }
+                return res.json();
+            })
+            .then(data => {
+                customerAuthStore.login(data.sessionToken, data.customer, rememberMe);
+                showToast("Signed in successfully!", "success");
+                renderPortalView();
+            })
+            .catch(err => {
+                showToast(err.message, "error");
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<span>Sign In to Platform</span> <i data-lucide="log-in" style="width: 16px; height: 16px;"></i>`;
+                if (window.lucide) window.lucide.createIcons();
+            });
+        });
+    }
+
+    // 2. Sign Up form submission
+    if (signupForm) {
+        signupForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('portal-signup-name').value.trim();
+            const email = document.getElementById('portal-signup-email').value.trim();
+            const phone = document.getElementById('portal-signup-phone').value.trim();
+            const password = document.getElementById('portal-signup-password').value;
+            const btn = document.getElementById('btn-portal-signup');
+            
+            if (password.length < 6) {
+                showToast("Password must be at least 6 characters long.", "warning");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<span>Registering...</span> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 14px; height: 14px; display: inline-block; animation: spin 1s linear infinite; vertical-align: middle;"></span>`;
+
+            fetch('/api/auth-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, phone, password })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || "Failed to create account.") });
+                }
+                return res.json();
+            })
+            .then(data => {
+                customerAuthStore.login(data.sessionToken, data.customer, false);
+                showToast("Account created successfully!", "success");
+                renderPortalView();
+            })
+            .catch(err => {
+                showToast(err.message, "error");
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<span>Create Platform Account</span> <i data-lucide="user-plus" style="width: 16px; height: 16px;"></i>`;
+                if (window.lucide) window.lucide.createIcons();
+            });
+        });
+    }
+
+    // 3. Request Password Recovery OTP Code
+    if (forgotReqForm) {
+        forgotReqForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('portal-forgot-email').value.trim();
+            const btn = document.getElementById('btn-portal-request-reset');
+            
+            btn.disabled = true;
+            btn.innerHTML = `<span>Sending...</span> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 14px; height: 14px; display: inline-block; animation: spin 1s linear infinite; vertical-align: middle;"></span>`;
+
+            fetch('/api/auth-reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'request_reset', email })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || "Failed to dispatch recovery code.") });
+                }
+                return res.json();
+            })
+            .then(data => {
+                showToast(data.message, "success");
+                document.getElementById('forgot-pane-request').style.display = 'none';
+                document.getElementById('forgot-pane-verify').style.display = 'block';
+            })
+            .catch(err => {
+                showToast(err.message, "error");
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<span>Send Recovery Code</span> <i data-lucide="send" style="width: 16px; height: 16px;"></i>`;
+                if (window.lucide) window.lucide.createIcons();
+            });
+        });
+    }
+
+    // 4. Verify Recovery OTP and Save New Password
+    if (forgotVerifyForm) {
+        forgotVerifyForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('portal-forgot-email').value.trim();
+            const code = document.getElementById('portal-forgot-code').value.trim();
+            const newPassword = document.getElementById('portal-forgot-new-password').value;
+            const btn = document.getElementById('btn-portal-verify-reset');
+            
+            if (newPassword.length < 6) {
+                showToast("Password must be at least 6 characters long.", "warning");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<span>Saving...</span> <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="border: 2px solid #fff; border-top: 2px solid transparent; border-radius: 50%; width: 14px; height: 14px; display: inline-block; animation: spin 1s linear infinite; vertical-align: middle;"></span>`;
+
+            fetch('/api/auth-reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'verify_reset', email, code, newPassword })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || "Password update rejected.") });
+                }
+                return res.json();
+            })
+            .then(data => {
+                showToast(data.message, "success");
+                showAuthView('login');
+                
+                // Clear fields
+                document.getElementById('portal-forgot-code').value = "";
+                document.getElementById('portal-forgot-new-password').value = "";
+            })
+            .catch(err => {
+                showToast(err.message, "error");
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<span>Reset Password & Log In</span> <i data-lucide="check" style="width: 16px; height: 16px;"></i>`;
+                if (window.lucide) window.lucide.createIcons();
+            });
+        });
+    }
+
+    // ==================================================
+    // ACCOUNT DASHBOARD TAB TRIGGERS
+    // ==================================================
+    function switchTab(tabId) {
+        document.querySelectorAll('.portal-tab-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+        });
+        document.querySelectorAll('.portal-tab-content-pane').forEach(pane => {
+            pane.classList.toggle('active', pane.getAttribute('id') === `portal-tab-${tabId}`);
+        });
+
+        // Trigger dynamic tab panel loaders
+        if (tabId === 'orders') renderPortalDashboard();
+        else if (tabId === 'wishlist') renderWishlistTab();
+        else if (tabId === 'cart') renderCartTab();
+        else if (tabId === 'settings') renderSettingsTab();
+        else if (tabId === 'sessions') renderSessionsTab();
+        else if (tabId === 'activity') renderActivityLogsTab();
+    }
+
+    document.querySelectorAll('.portal-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            switchTab(btn.getAttribute('data-tab'));
+        });
+    });
+
+    // ==================================================
+    // PORTAL TABS RENDERERS
+    // ==================================================
+
+    // Tab 1: Orders (Refactored to fetch based on active email securely)
+    const cardsContainer = document.getElementById('portal-orders-cards-container');
+    const searchInput = document.getElementById('portal-search-input');
+    const statusFilter = document.getElementById('portal-status-filter');
+    const sortOrder = document.getElementById('portal-sort-order');
+    const crossSellDrawer = document.getElementById('portal-cross-sell');
+    const crossSellList = document.getElementById('portal-recommendations-list');
+
+    function fetchCustomerOrders() {
+        if (!customerAuthStore.isLoggedIn()) return;
+
+        const normalizedEmail = customerAuthStore.customer.email.trim().toLowerCase();
         
         if (database) {
             database.ref('orders').once('value')
@@ -4633,8 +5152,8 @@ function setupCustomerPortal() {
                     if (data) {
                         Object.values(data).forEach(o => {
                             if (!o) return;
-                            const emailMatch = o.email && o.email.toLowerCase().trim() === normalizedIdentity;
-                            const phoneMatch = o.phone && o.phone.replace(/[^0-9]/g, '').includes(normalizedIdentity.replace(/[^0-9]/g, ''));
+                            const emailMatch = o.email && o.email.toLowerCase().trim() === normalizedEmail;
+                            const phoneMatch = o.phone && o.phone.replace(/[^0-9]/g, '').includes(customerAuthStore.customer.phone);
                             
                             if (emailMatch || phoneMatch) {
                                 list.push(o);
@@ -4643,57 +5162,15 @@ function setupCustomerPortal() {
                     }
                     
                     customerOrders = list;
-                    localStorage.setItem('lightning_deals_portal_user', identity);
-                    currentSessionUser = identity;
-                    
-                    // Check if an instant UTR was supplied in the form and auto-verify it
-                    const formUtr = lookupUtrInput ? lookupUtrInput.value.trim() : "";
-                    if (formUtr.length >= 8) {
-                        customerOrders.forEach(o => {
-                            if (o.utr && (o.utr.toLowerCase() === formUtr.toLowerCase() || o.razorpay_payment_id === formUtr)) {
-                                sessionStorage.setItem(`lightning_deals_portal_utr_verified_${o.id}`, 'true');
-                            }
-                        });
-                    }
-
-                    showDashboardView(identity);
                     renderPortalDashboard();
                     renderCrossSells();
                 })
                 .catch(err => {
-                    console.error("Firebase portal fetch failed:", err);
-                    showToast("Failed to connect to orders database. Please try again.", "error");
-                })
-                .finally(() => {
-                    if (btnSubmitLookup) {
-                        btnSubmitLookup.disabled = false;
-                        btnSubmitLookup.innerHTML = `<span>Access Subscription Hub</span> <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>`;
-                        if (window.lucide) window.lucide.createIcons();
-                    }
+                    console.error("Firebase orders fetch failed:", err);
                 });
-        } else {
-            showToast("Database offline. Active subscriptions cannot be fetched.", "error");
-            if (btnSubmitLookup) {
-                btnSubmitLookup.disabled = false;
-                btnSubmitLookup.innerHTML = `<span>Access Subscription Hub</span> <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>`;
-            }
         }
     }
 
-    // Lookup Form Submission
-    if (lookupForm) {
-        lookupForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const val = identityInput.value.trim();
-            if (val.length < 4) {
-                showToast("Please enter a valid email or phone number.", "warning");
-                return;
-            }
-            fetchCustomerOrders(val);
-        });
-    }
-
-    // 3. Render Portal Dashboard UI
     function renderPortalDashboard() {
         if (!cardsContainer) return;
         
@@ -4732,7 +5209,7 @@ function setupCustomerPortal() {
             return orderSort === 'newest' ? dateB - dateA : dateA - dateB;
         });
 
-        // Update top stats cards count
+        // Update stats counters
         const statTotalEl = document.getElementById('portal-stat-total');
         const statActiveEl = document.getElementById('portal-stat-active');
         const statExpiringEl = document.getElementById('portal-stat-expiring');
@@ -4757,13 +5234,12 @@ function setupCustomerPortal() {
         // Render Cards
         if (filtered.length === 0) {
             cardsContainer.innerHTML = `
-                <div style="text-align: center; padding: 3rem 1.5rem; background: rgba(255,255,255,0.01); border: 1px dashed rgba(255,255,255,0.05); border-radius: 12px;">
+                <div style="text-align: center; padding: 3rem 1.5rem; background: rgba(255,255,255,0.015); border: 1px dashed rgba(255,255,255,0.05); border-radius: 12px;">
                     <i data-lucide="folder-open" style="width: 40px; height: 40px; color: var(--text-muted); margin: 0 auto 12px; display: block;"></i>
-                    <h5 style="color: #fff; font-size: 0.95rem; font-weight: 600; margin-bottom: 4px;">No Matching Orders Found</h5>
+                    <h5 style="color: #fff; font-size: 0.95rem; font-weight: 600; margin-bottom: 4px;">No Orders Found</h5>
                     <p style="color: var(--text-muted); font-size: 0.8rem; max-width: 320px; margin: 0 auto 1.5rem; line-height: 1.4;">
-                        ${totalCount === 0 ? "You haven't placed any orders with this email/phone yet." : "No orders matching your filters in this account."}
+                        ${totalCount === 0 ? "You haven't placed any orders with this account yet." : "No orders matching your filters in this account."}
                     </p>
-                    ${totalCount === 0 ? `<a href="#products" class="btn btn-secondary btn-sm" onclick="document.getElementById('close-orders-portal-modal-btn').click();" style="font-size: 0.75rem; padding: 6px 16px; border-radius: 6px;">Explore Premium Deals</a>` : ""}
                 </div>
             `;
             if (window.lucide) window.lucide.createIcons();
@@ -4772,6 +5248,11 @@ function setupCustomerPortal() {
 
         cardsContainer.innerHTML = filtered.map(o => renderOrderCardHTML(o)).join('');
         
+        // Bind Actions
+        bindOrderCardActions();
+    }
+
+    function bindOrderCardActions() {
         // Bind Copy Credentials Event handlers
         document.querySelectorAll('.portal-btn-copy-code').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -4780,7 +5261,7 @@ function setupCustomerPortal() {
                     const originalHTML = btn.innerHTML;
                     btn.innerHTML = `<i data-lucide="check" style="width: 14px; height: 14px; color: #10b981;"></i>`;
                     if (window.lucide) window.lucide.createIcons();
-                    showToast("Copied to clipboard!", "success");
+                    showToast("Copied!", "success");
                     setTimeout(() => {
                         btn.innerHTML = originalHTML;
                         if (window.lucide) window.lucide.createIcons();
@@ -4822,7 +5303,6 @@ function setupCustomerPortal() {
                 
                 if (!matchedOrder) return;
                 
-                // Validate match with order UTR or payment ID
                 const orderUtr = matchedOrder.utr ? matchedOrder.utr.toLowerCase().trim() : "";
                 const rzpPayId = matchedOrder.razorpay_payment_id ? matchedOrder.razorpay_payment_id.toLowerCase().trim() : "";
                 
@@ -4848,17 +5328,12 @@ function setupCustomerPortal() {
 
                 const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
                 
-                // Write OTP verification record to Firebase with 5 min expiration
                 if (database) {
                     database.ref(`otp_verifications/${orderId}`).set({
                         code: generatedOtp,
                         createdAt: Date.now()
                     })
                     .then(() => {
-                        // Ping their WhatsApp using our secure trigger Netlify function or CallMeBot
-                        const messageText = `⚡ *Lightning Deals Verification Code*\n\nYour 6-digit access code is: *${generatedOtp}*\n\nEnter this code in your customer dashboard to securely unlock your Canva/Netflix/Adobe credentials.\n\nCode expires in 5 minutes.`;
-                        
-                        // We use trigger-notification for this by creating a mock order!
                         fetch('/.netlify/functions/trigger-notification', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -4882,14 +5357,13 @@ function setupCustomerPortal() {
                             if (maskPrompt) {
                                 maskPrompt.innerHTML = `
                                     <h5 style="font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 2px;">Enter 6-Digit WhatsApp Code</h5>
-                                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 10px;">Verification code sent to +${matchedOrder.phone.substring(0, 4)}••••${matchedOrder.phone.slice(-3)}</p>
+                                    <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 10px;">Sent to: +${matchedOrder.phone.substring(0, 4)}••••${matchedOrder.phone.slice(-3)}</p>
                                     <div style="display: flex; gap: 6px; justify-content: center; max-width: 260px; width: 100%;">
                                         <input type="text" id="otp-input-${orderId}" maxlength="6" placeholder="••••••" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px; color: #fff; text-align: center; font-size: 0.85rem; font-family: monospace; letter-spacing: 0.25em; width: 100px; outline: none;">
                                         <button class="btn btn-primary btn-xs btn-verify-otp-submit" data-order-id="${orderId}" style="padding: 6px 12px; font-size: 0.72rem;">Verify</button>
                                     </div>
                                 `;
                                 
-                                // Bind OTP Submit check
                                 maskPrompt.querySelector('.btn-verify-otp-submit').addEventListener('click', () => {
                                     const otpInput = document.getElementById(`otp-input-${orderId}`);
                                     if (!otpInput) return;
@@ -4901,7 +5375,7 @@ function setupCustomerPortal() {
                                             if (otpData && otpData.code === enteredCode && (Date.now() - otpData.createdAt < 300000)) {
                                                 sessionStorage.setItem(`lightning_deals_portal_utr_verified_${orderId}`, 'true');
                                                 showToast("Verified! Access details unlocked.", "success");
-                                                database.ref(`otp_verifications/${orderId}`).remove(); // Clean up
+                                                database.ref(`otp_verifications/${orderId}`).remove();
                                                 renderPortalDashboard();
                                             } else {
                                                 showToast("Invalid or expired OTP code. Please try again.", "error");
@@ -4954,15 +5428,10 @@ function setupCustomerPortal() {
         document.querySelectorAll('.btn-portal-renew-sub').forEach(btn => {
             btn.addEventListener('click', () => {
                 const prodName = btn.getAttribute('data-prod-name').toLowerCase();
-                
-                // Attempt to find original product in store products list
                 const prod = products.find(p => p.name.toLowerCase() === prodName || p.id.toLowerCase() === prodName.replace(/[^a-z0-9]/g, '-'));
                 
                 if (prod) {
-                    // Close portal modal
                     closePortal();
-                    
-                    // Trigger config modal of storefront to add to cart
                     const ctaTrigger = document.querySelector(`.cta-purchase-trigger[data-id="${prod.id}"]`);
                     if (ctaTrigger) {
                         ctaTrigger.click();
@@ -4980,16 +5449,15 @@ function setupCustomerPortal() {
                             qty: 1
                         };
                         cart.push(cartItem);
-                        saveCartToStorage();
+                        localStorage.setItem('lightning_deals_cart', JSON.stringify(cart));
                         updateCartBadge();
+                        if (typeof renderCartItems === 'function') renderCartItems();
                         
-                        // Open cart
                         const cartBtn = document.getElementById('header-cart-btn');
                         if (cartBtn) cartBtn.click();
                         showToast(`Added ${prod.name} to cart for renewal!`, "success");
                     }
                 } else {
-                    // Fallback directly to support whatsapp chat
                     const waUrl = `https://wa.me/917695956938?text=Hi,%20I'd%20like%20to%20renew%20my%20subscription%20for%20${encodeURIComponent(btn.getAttribute('data-prod-name'))}!`;
                     window.open(waUrl, '_blank');
                 }
@@ -5003,7 +5471,6 @@ function setupCustomerPortal() {
     function renderOrderCardHTML(o) {
         const dateStr = o.date ? o.date.split(',')[0].trim() : "N/A";
         
-        // Brand logo icons & gradient coloring presets
         let logoBg = "linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%)";
         let logoText = "P";
         
@@ -5028,49 +5495,43 @@ function setupCustomerPortal() {
             logoText = "C";
         }
         
-        // Map dynamic badge status
         const rawStatus = (o.status || 'Pending').toLowerCase();
-        let statusBadgeHTML = `<span class="portal-badge portal-badge-pending"><i data-lucide="hourglass" style="width: 12px; height: 12px;"></i> Verification Pending</span>`;
-        let timelinePercent = 20;
-        let stepPlacedClass = "completed";
+        let statusBadgeHTML = `<span class="portal-badge portal-badge-pending"><i data-lucide="hourglass" style="width: 12px; height: 12px;"></i> Pending</span>`;
+        let timelinePercent = 25;
         let stepProcessingClass = "";
         let stepSetupClass = "";
         let stepDeliveredClass = "";
-        let stepCompletedClass = "";
         
         if (rawStatus === 'paid') {
-            statusBadgeHTML = `<span class="portal-badge portal-badge-processing"><i data-lucide="circle-dot" style="width: 12px; height: 12px; animation: pulse 1.5s infinite;"></i> Paid · Processing</span>`;
-            timelinePercent = 40;
+            statusBadgeHTML = `<span class="portal-badge portal-badge-processing"><i data-lucide="circle-dot" style="width: 12px; height: 12px; animation: pulse 1.5s infinite;"></i> Paid</span>`;
+            timelinePercent = 50;
             stepProcessingClass = "active";
         } else if (rawStatus === 'processing') {
             statusBadgeHTML = `<span class="portal-badge portal-badge-processing"><i data-lucide="circle-dot" style="width: 12px; height: 12px; animation: pulse 1.5s infinite;"></i> In Setup</span>`;
-            timelinePercent = 60;
+            timelinePercent = 75;
             stepProcessingClass = "completed";
             stepSetupClass = "active";
         } else if (rawStatus === 'active' || rawStatus === 'delivered') {
-            statusBadgeHTML = `<span class="portal-badge portal-badge-active"><i data-lucide="check" style="width: 12px; height: 12px;"></i> Access Delivered</span>`;
+            statusBadgeHTML = `<span class="portal-badge portal-badge-active"><i data-lucide="check" style="width: 12px; height: 12px;"></i> Active</span>`;
             timelinePercent = 100;
             stepProcessingClass = "completed";
             stepSetupClass = "completed";
             stepDeliveredClass = "completed";
-            stepCompletedClass = "completed";
         } else if (rawStatus === 'expired') {
             statusBadgeHTML = `<span class="portal-badge portal-badge-expired"><i data-lucide="alert-triangle" style="width: 12px; height: 12px;"></i> Expired</span>`;
             timelinePercent = 100;
         }
 
-        // Expected delivery delay/eta alerts
         let etaAlertHTML = "";
         if (rawStatus === 'pending' || rawStatus === 'paid' || rawStatus === 'processing') {
             etaAlertHTML = `
                 <div style="font-size: 0.76rem; color: var(--text-secondary); margin-top: 8px; display: flex; align-items: center; gap: 6px;">
                     <i data-lucide="clock" style="width: 13px; height: 13px; color: var(--clr-cyan);"></i>
-                    <span>Estimated activation completion: <strong>5 - 15 mins</strong>. Running auto-verification triggers...</span>
+                    <span>Estimated activation completion: <strong>5 - 15 mins</strong>.</span>
                 </div>
             `;
         }
 
-        // Warranty Expiration Countdown Ticker
         let expiryDateStr = "N/A (Lifetime)";
         let renewalBannerHTML = "";
         const daysLeft = calculateExpiryDays(o);
@@ -5081,7 +5542,7 @@ function setupCustomerPortal() {
             if (daysLeft <= 12 && daysLeft >= 0) {
                 renewalBannerHTML = `
                     <div style="background: rgba(245, 166, 35, 0.08); border: 1px solid rgba(245, 166, 35, 0.15); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px;">
-                        <span style="font-size: 0.78rem; color: #F5A623;">⚠️ Your <strong>${o.product}</strong> subscription expires in <strong>${daysLeft} days</strong>. Renew now to avoid service interruption!</span>
+                        <span style="font-size: 0.78rem; color: #F5A623;">⚠️ Your <strong>${o.product}</strong> subscription expires in <strong>${daysLeft} days</strong>.</span>
                         <button class="btn btn-primary btn-xs btn-portal-renew-sub" data-prod-name="${o.product}" style="background: #F5A623; color: #000; border: none; font-weight: 600; padding: 4px 10px; font-size: 0.7rem; border-radius: 4px; flex-shrink: 0;">Renew Now</button>
                     </div>
                 `;
@@ -5089,50 +5550,44 @@ function setupCustomerPortal() {
                 expiryDateStr = "Expired";
                 renewalBannerHTML = `
                     <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px;">
-                        <span style="font-size: 0.78rem; color: #ef4444;">❌ Your <strong>${o.product}</strong> subscription has expired. Re-order now to restore premium access.</span>
-                        <button class="btn btn-primary btn-xs btn-portal-renew-sub" data-prod-name="${o.product}" style="background: #ef4444; color: #fff; border: none; font-weight: 600; padding: 4px 10px; font-size: 0.7rem; border-radius: 4px; flex-shrink: 0;">Re-order Now</button>
+                        <span style="font-size: 0.78rem; color: #ef4444;">❌ Your <strong>${o.product}</strong> subscription has expired.</span>
+                        <button class="btn btn-primary btn-xs btn-portal-renew-sub" data-prod-name="${o.product}" style="background: #ef4444; color: #fff; border: none; font-weight: 600; padding: 4px 10px; font-size: 0.7rem; border-radius: 4px; flex-shrink: 0;">Reorder</button>
                     </div>
                 `;
             }
         }
 
-        // 4. Secure Frosted Glass Credentials Mask Logic
         let credentialsMaskHTML = "";
         const isDelivered = rawStatus === 'active' || rawStatus === 'delivered';
         
         if (isDelivered && o.notes && o.notes.trim().length > 0) {
-            // Check if user has unlocked credentials using UTR in this session
             const isVerified = sessionStorage.getItem(`lightning_deals_portal_utr_verified_${o.id}`) === 'true';
             
             if (!isVerified) {
-                // RENDER FROSTED MASK GATE
                 credentialsMaskHTML = `
-                    <div class="portal-credential-mask">
-                        <div class="portal-credential-mask-frosted" id="mask-prompt-${o.id}">
-                            <i data-lucide="lock" style="width: 24px; height: 24px; color: var(--clr-cyan); margin-bottom: 2px;"></i>
+                    <div class="portal-credential-mask" style="margin-top: 1rem;">
+                        <div class="portal-credential-mask-frosted" id="mask-prompt-${o.id}" style="padding: 1.5rem; text-align: center;">
+                            <i data-lucide="lock" style="width: 24px; height: 24px; color: var(--clr-cyan); margin-bottom: 8px;"></i>
                             <h5 style="font-family: 'Outfit', sans-serif; font-size: 0.9rem; font-weight: 600; color: #fff; margin-bottom: 2px;">Activation Details Encrypted</h5>
-                            <p style="font-size: 0.75rem; color: var(--text-muted); max-width: 320px; line-height: 1.4; margin-bottom: 6px;">
-                                Provide the 12-digit transaction UTR code from your payment app (GPay/Paytm/PhonePe) or verify with WhatsApp OTP to unlock.
+                            <p style="font-size: 0.75rem; color: var(--text-muted); max-width: 320px; line-height: 1.4; margin-bottom: 12px;">
+                                Provide the 12-digit payment UTR reference code or verify using WhatsApp OTP access credentials to decrypt.
                             </p>
                             
-                            <!-- Input unlock fields -->
-                            <div style="display: flex; gap: 6px; width: 100%; max-width: 380px;">
+                            <div style="display: flex; gap: 6px; width: 100%; max-width: 380px; margin: 0 auto 8px;">
                                 <input type="text" id="utr-unlock-input-${o.id}" placeholder="Enter payment UTR ID..." style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 12px; color: #fff; font-size: 0.8rem; flex: 1; outline: none;">
-                                <button class="btn btn-primary btn-xs btn-portal-unlock-utr" data-order-id="${o.id}" style="padding: 6px 14px; font-size: 0.72rem; font-weight: 600;">Unlock Access</button>
+                                <button class="btn btn-primary btn-xs btn-portal-unlock-utr" data-order-id="${o.id}" style="padding: 6px 14px; font-size: 0.72rem; font-weight: 600;">Decrypt</button>
                             </div>
                             
-                            <button class="btn btn-secondary btn-xs btn-portal-req-otp" data-order-id="${o.id}" style="font-size: 0.68rem; margin-top: 4px; padding: 2px 10px; border-color: rgba(0, 242, 254, 0.1); color: var(--clr-cyan);">
+                            <button class="btn btn-secondary btn-xs btn-portal-req-otp" data-order-id="${o.id}" style="font-size: 0.68rem; padding: 2px 10px; border-color: rgba(0, 242, 254, 0.1); color: var(--clr-cyan);">
                                 Verify via WhatsApp OTP
                             </button>
                         </div>
                     </div>
                 `;
             } else {
-                // RENDER SECURE UNLOCKED DECRYPTED DETAILS
                 let linesText = o.notes || "";
                 let compiledHTML = "";
                 
-                // Parse standard welcome templates details cleanly
                 const emailMatch = linesText.match(/Email:\s*([^\n\r]+)/i);
                 const passMatch = linesText.match(/Password:\s*([^\n\r]+)/i);
                 const pinMatch = linesText.match(/Profile PIN:\s*([^\n\r]+)/i);
@@ -5185,7 +5640,6 @@ function setupCustomerPortal() {
                         </div>
                     `;
                 } else {
-                    // Fallback standard text copy block
                     compiledHTML = `
                         <div class="portal-code-box" style="align-items: flex-start; flex-direction: column; text-align: left;">
                             <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block;">Setup Instructions</span>
@@ -5199,7 +5653,7 @@ function setupCustomerPortal() {
                 }
 
                 credentialsMaskHTML = `
-                    <div class="glass-card" style="padding: 1.25rem; border-color: rgba(0, 242, 254, 0.1); background: rgba(0,0,0,0.1); border-radius: 8px;">
+                    <div class="glass-card" style="padding: 1.25rem; border-color: rgba(0, 242, 254, 0.1); background: rgba(0,0,0,0.1); border-radius: 8px; margin-top: 1rem;">
                         <h5 style="font-family: 'Outfit', sans-serif; font-size: 0.85rem; font-weight: 600; color: var(--clr-cyan); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
                             <i data-lucide="unlock" style="width: 14px; height: 14px;"></i>
                             <span>Decrypted Activation Log</span>
@@ -5224,10 +5678,7 @@ function setupCustomerPortal() {
                     ${statusBadgeHTML}
                 </div>
 
-                <!-- Expiry Renewal Banner -->
                 ${renewalBannerHTML}
-
-                <!-- Expected Delivery Eta -->
                 ${etaAlertHTML}
 
                 <!-- Metadata details Grid -->
@@ -5251,7 +5702,7 @@ function setupCustomerPortal() {
                 </div>
 
                 <!-- Real-Time Journey Tracker -->
-                <div style="background: rgba(0, 0, 0, 0.15); border-radius: 8px; padding: 1.25rem 1rem; border: 1px solid rgba(255,255,255,0.01);">
+                <div style="background: rgba(0, 0, 0, 0.15); border-radius: 8px; padding: 1.25rem 1rem; border: 1px solid rgba(255,255,255,0.01); margin-top: 1rem;">
                     <div class="portal-timeline-track">
                         <div class="portal-timeline-progress-bar">
                             <div class="portal-timeline-progress-active" style="width: ${timelinePercent}%;"></div>
@@ -5262,11 +5713,11 @@ function setupCustomerPortal() {
                         </div>
                         <div class="portal-timeline-step ${stepProcessingClass}">
                             <div class="portal-timeline-node"></div>
-                            <span class="portal-timeline-step-label">Processing</span>
+                            <span class="portal-timeline-step-label">Paid</span>
                         </div>
                         <div class="portal-timeline-step ${stepSetupClass}">
                             <div class="portal-timeline-node"></div>
-                            <span class="portal-timeline-step-label">Setup</span>
+                            <span class="portal-timeline-step-label">In Setup</span>
                         </div>
                         <div class="portal-timeline-step ${stepDeliveredClass}">
                             <div class="portal-timeline-node"></div>
@@ -5275,11 +5726,10 @@ function setupCustomerPortal() {
                     </div>
                 </div>
 
-                <!-- Unlocked Logins / Frosted Credentials Gate -->
                 ${credentialsMaskHTML}
 
                 <!-- Quick Help / Support Action Drawer -->
-                <div class="portal-quick-help-wrapper">
+                <div class="portal-quick-help-wrapper" style="margin-top: 1rem;">
                     <span class="portal-quick-help-title">Need help with this order?</span>
                     <div class="portal-quick-help-buttons">
                         <button class="btn-portal-help-action" data-order-id="${o.id}" data-issue="not-received">
@@ -5300,12 +5750,10 @@ function setupCustomerPortal() {
                         </button>
                     </div>
                 </div>
-
             </div>
         `;
     }
 
-    // Helper: Calculate warranty expiration countdown in days
     function calculateExpiryDays(order) {
         if (!order.activationDate || !order.warrantyTerm || order.warrantyTerm === 9999) return null;
         
@@ -5320,14 +5768,10 @@ function setupCustomerPortal() {
         return diffDays;
     }
 
-    // 5. Cross-Sells & Recommendations Logic
     function renderCrossSells() {
         if (!crossSellDrawer || !crossSellList) return;
         
-        // Find what they already bought
         const purchasedItems = customerOrders.map(o => (o.product || '').toLowerCase());
-        
-        // Curate related recommendation cards
         const recList = [];
         
         const recommendations = [
@@ -5352,7 +5796,7 @@ function setupCustomerPortal() {
                         <div class="portal-card-logo-box" style="background: ${r.bg}; width: 32px; height: 32px; font-size: 0.95rem; border-radius: 6px;">${r.icon}</div>
                         <div>
                             <h6 style="color: #fff; font-size: 0.78rem; font-weight: 600; margin: 0;">${r.name}</h6>
-                            <span style="font-size: 0.65rem; color: var(--text-muted);">Stacked checkout discount</span>
+                            <span style="font-size: 0.65rem; color: var(--text-muted);">stacked discounts active</span>
                         </div>
                     </div>
                     <button class="btn btn-primary btn-xs btn-portal-renew-sub" data-prod-name="${r.name}" style="padding: 4px 8px; font-size: 0.68rem; border-radius: 4px;">Get Deal</button>
@@ -5365,15 +5809,462 @@ function setupCustomerPortal() {
         if (window.lucide) window.lucide.createIcons();
     }
 
-    // Filter Tool Belt Event Triggers
-    if (searchInput) {
-        searchInput.addEventListener('input', () => renderPortalDashboard());
+    if (searchInput) searchInput.addEventListener('input', () => renderPortalDashboard());
+    if (statusFilter) statusFilter.addEventListener('change', () => renderPortalDashboard());
+    if (sortOrder) sortOrder.addEventListener('change', () => renderPortalDashboard());
+
+    // Tab 2: Wishlist Renderer
+    const wishlistItemsGrid = document.getElementById('wishlist-items-grid');
+    function renderWishlistTab() {
+        if (!wishlistItemsGrid) return;
+        const localWish = safeGetLocalStorage('lightning_deals_wishlist', []);
+        
+        // Update wishlist tab badge count
+        const badge = document.getElementById('wishlist-tab-badge');
+        if (badge) {
+            badge.innerText = localWish.length;
+            badge.style.display = localWish.length > 0 ? 'flex' : 'none';
+        }
+
+        if (localWish.length === 0) {
+            wishlistItemsGrid.innerHTML = `
+                <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem; background: rgba(255,255,255,0.015); border: 1px dashed rgba(255,255,255,0.05); border-radius: 12px;">
+                    <i data-lucide="heart" style="width: 40px; height: 40px; color: var(--text-muted); margin: 0 auto 12px; display: block;"></i>
+                    <h5 style="color: #fff; font-size: 0.95rem; font-weight: 600; margin-bottom: 4px;">Your Wishlist is Empty</h5>
+                    <p style="color: var(--text-muted); font-size: 0.8rem; max-width: 320px; margin: 0 auto 1.5rem; line-height: 1.4;">
+                        Save premium deal licenses from our main display cards.
+                    </p>
+                </div>
+            `;
+            if (window.lucide) window.lucide.createIcons();
+            return;
+        }
+
+        wishlistItemsGrid.innerHTML = localWish.map(id => {
+            const prod = activeProducts.find(p => p.id === id);
+            if (!prod) return '';
+            
+            let logoBg = "linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%)";
+            let logoText = "P";
+            const prodLower = prod.name.toLowerCase();
+            if (prodLower.includes('canva')) { logoBg = "linear-gradient(135deg, #FF3366 0%, #7F2BFF 100%)"; logoText = "C"; }
+            else if (prodLower.includes('adobe')) { logoBg = "linear-gradient(135deg, #00C6FF 0%, #0072FF 100%)"; logoText = "A"; }
+            else if (prodLower.includes('spotify')) { logoBg = "linear-gradient(135deg, #1ED760 0%, #159342 100%)"; logoText = "S"; }
+            else if (prodLower.includes('netflix')) { logoBg = "linear-gradient(135deg, #E50914 0%, #8E060D 100%)"; logoText = "N"; }
+            
+            const firstPlan = prod.plans && prod.plans.length > 0 ? prod.plans[0] : { label: 'Premium', price: 199 };
+            const retail = prod.retailPrice || (firstPlan.price * 2);
+
+            return `
+                <div class="portal-wishlist-card">
+                    <button class="portal-wishlist-delete-btn" data-id="${prod.id}" title="Remove"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i></button>
+                    <div class="portal-wishlist-card-logo" style="background: ${logoBg};">${logoText}</div>
+                    <h5 style="margin-top: 4px;">${escapeHTML(prod.name)}</h5>
+                    <p>${escapeHTML(prod.description || 'Enterprise grade credentials license key dispatch.')}</p>
+                    <div class="portal-wishlist-price-row">
+                        <div>
+                            <span class="portal-wishlist-price">₹${firstPlan.price}</span>
+                            <span class="portal-wishlist-retail">₹${retail}</span>
+                        </div>
+                        <button class="btn btn-primary btn-xs btn-wishlist-buy" data-id="${prod.id}" style="padding: 4px 10px; font-size: 0.72rem;">Buy Now</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Bind Wishlist Actions
+        document.querySelectorAll('.portal-wishlist-delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                const idx = localWish.indexOf(id);
+                if (idx !== -1) {
+                    localWish.splice(idx, 1);
+                    localStorage.setItem('lightning_deals_wishlist', JSON.stringify(localWish));
+                    updateWishlistUI();
+                    renderWishlistTab();
+                    showToast("Removed from wishlist.", "success");
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-wishlist-buy').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                closePortal();
+                const cta = document.querySelector(`.cta-purchase-trigger[data-id="${id}"]`);
+                if (cta) cta.click();
+            });
+        });
+
+        if (window.lucide) window.lucide.createIcons();
     }
-    if (statusFilter) {
-        statusFilter.addEventListener('change', () => renderPortalDashboard());
+
+    // Tab 3: Persistent Cart Renderer
+    const cartItemsList = document.getElementById('portal-cart-items-list');
+    const cartTotalPrice = document.getElementById('portal-cart-total-price');
+    const btnCheckoutCart = document.getElementById('btn-portal-checkout-cart');
+
+    function renderCartTab() {
+        if (!cartItemsList || !cartTotalPrice) return;
+
+        // Update Cart tab badge
+        const badge = document.getElementById('cart-tab-badge');
+        const count = cart.reduce((sum, item) => sum + item.qty, 0);
+        if (badge) {
+            badge.innerText = count;
+            badge.style.display = count > 0 ? 'flex' : 'none';
+        }
+
+        if (cart.length === 0) {
+            cartItemsList.innerHTML = `
+                <div style="text-align: center; padding: 2rem 0; opacity: 0.7;">
+                    <i data-lucide="shopping-cart" style="width: 32px; height: 32px; color: var(--text-muted); margin: 0 auto 8px; display: block;"></i>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Your shopping cart is currently empty.</p>
+                </div>
+            `;
+            cartTotalPrice.innerText = "₹0";
+            if (btnCheckoutCart) btnCheckoutCart.style.display = 'none';
+            if (window.lucide) window.lucide.createIcons();
+            return;
+        }
+
+        if (btnCheckoutCart) btnCheckoutCart.style.display = 'block';
+
+        cartItemsList.innerHTML = cart.map((item, idx) => {
+            let logoBg = "linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%)";
+            let logoText = "P";
+            const nameLower = item.name.toLowerCase();
+            if (nameLower.includes('canva')) { logoBg = "linear-gradient(135deg, #FF3366 0%, #7F2BFF 100%)"; logoText = "C"; }
+            else if (nameLower.includes('adobe')) { logoBg = "linear-gradient(135deg, #00C6FF 0%, #0072FF 100%)"; logoText = "A"; }
+            else if (nameLower.includes('spotify')) { logoBg = "linear-gradient(135deg, #1ED760 0%, #159342 100%)"; logoText = "S"; }
+            else if (nameLower.includes('netflix')) { logoBg = "linear-gradient(135deg, #E50914 0%, #8E060D 100%)"; logoText = "N"; }
+
+            return `
+                <div class="portal-cart-item-row">
+                    <div class="portal-cart-item-left">
+                        <div class="portal-cart-item-logo" style="background: ${logoBg};">${logoText}</div>
+                        <div class="portal-cart-item-name">
+                            <h6>${escapeHTML(item.name)}</h6>
+                            <span>${escapeHTML(item.planLabel)} x ${item.qty}</span>
+                        </div>
+                    </div>
+                    <div class="portal-cart-item-right">
+                        <span class="portal-cart-item-price">₹${item.price * item.qty}</span>
+                        <button class="portal-cart-item-remove" data-idx="${idx}" title="Remove Item"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i></button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Compute Grand Total
+        const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        cartTotalPrice.innerText = `₹${total.toLocaleString('en-IN')}`;
+
+        // Bind Remove Clicks
+        document.querySelectorAll('.portal-cart-item-remove').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.getAttribute('data-idx'));
+                cart.splice(idx, 1);
+                localStorage.setItem('lightning_deals_cart', JSON.stringify(cart));
+                updateCartBadge();
+                if (typeof renderCartItems === 'function') renderCartItems();
+                renderCartTab();
+                showToast("Removed from cart.", "success");
+            });
+        });
+
+        if (window.lucide) window.lucide.createIcons();
     }
-    if (sortOrder) {
-        sortOrder.addEventListener('change', () => renderPortalDashboard());
+
+    if (btnCheckoutCart) {
+        btnCheckoutCart.addEventListener('click', () => {
+            closePortal();
+            const checkoutSection = document.getElementById('checkout');
+            if (checkoutSection) {
+                checkoutSection.scrollIntoView({ behavior: 'smooth' });
+                // If direct modal exists, trigger click
+                const btnPay = document.getElementById('btn-checkout-pay');
+                if (btnPay) showToast("Complete checkout payment form.", "info");
+            }
+        });
+    }
+
+    // Tab 4: Profile Settings Forms
+    const profileForm = document.getElementById('portal-settings-profile-form');
+    const passwordForm = document.getElementById('portal-settings-password-form');
+
+    function renderSettingsTab() {
+        if (!customerAuthStore.isLoggedIn()) return;
+
+        const cust = customerAuthStore.customer;
+        
+        document.getElementById('portal-settings-name').value = cust.name || "";
+        document.getElementById('portal-settings-phone').value = cust.phone || "";
+        
+        const pref = cust.preferences || { marketingEmails: true, whatsappUpdates: true };
+        document.getElementById('portal-settings-pref-marketing').checked = !!pref.marketingEmails;
+        document.getElementById('portal-settings-pref-whatsapp').checked = !!pref.whatsappUpdates;
+    }
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('portal-settings-name').value.trim();
+            const phone = document.getElementById('portal-settings-phone').value.trim();
+            const marketing = document.getElementById('portal-settings-pref-marketing').checked;
+            const whatsapp = document.getElementById('portal-settings-pref-whatsapp').checked;
+            
+            const btn = document.getElementById('btn-save-portal-profile');
+            btn.disabled = true;
+            btn.innerText = "Saving...";
+
+            fetch('/api/auth-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${customerAuthStore.token}`
+                },
+                body: JSON.stringify({
+                    action: 'update_profile',
+                    name: name,
+                    phone: phone,
+                    preferences: {
+                        marketingEmails: marketing,
+                        whatsappUpdates: whatsapp
+                    }
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("Failed to save profile changes.");
+                return res.json();
+            })
+            .then(data => {
+                showToast("Profile details updated successfully!", "success");
+                
+                // Update local cached copy
+                customerAuthStore.customer.name = name;
+                customerAuthStore.customer.phone = phone.replace(/[^0-9]/g, '');
+                customerAuthStore.customer.preferences = { marketingEmails: marketing, whatsappUpdates: whatsapp };
+                localStorage.setItem('lightning_deals_auth_customer', JSON.stringify(customerAuthStore.customer));
+                customerAuthStore.updateHeaderUI();
+                renderPortalView();
+            })
+            .catch(err => showToast(err.message, "error"))
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = "Save Settings";
+            });
+        });
+    }
+
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById('portal-settings-old-pass').value;
+            const newPassword = document.getElementById('portal-settings-new-pass').value;
+            const btn = document.getElementById('btn-save-portal-password');
+
+            if (newPassword.length < 6) {
+                showToast("New password must be at least 6 characters.", "warning");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Updating...";
+
+            fetch('/api/auth-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${customerAuthStore.token}`
+                },
+                body: JSON.stringify({ action: 'change_password', currentPassword, newPassword })
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.json().then(err => { throw new Error(err.error || "Password change failed.") });
+                }
+                return res.json();
+            })
+            .then(data => {
+                showToast("Password updated successfully!", "success");
+                document.getElementById('portal-settings-old-pass').value = "";
+                document.getElementById('portal-settings-new-pass').value = "";
+            })
+            .catch(err => showToast(err.message, "error"))
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = "Update Password";
+            });
+        });
+    }
+
+    // Tab 5: Device Sessions Auditor
+    const devicesList = document.getElementById('portal-devices-list');
+    function renderSessionsTab() {
+        if (!devicesList || !customerAuthStore.isLoggedIn()) return;
+
+        // Fetch direct verifying sessions from DB
+        fetch('/api/auth-session', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${customerAuthStore.token}`
+            },
+            body: JSON.stringify({ action: 'verify' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success) {
+                const sessions = data.customer.sessions || {};
+                const list = Object.values(sessions);
+                
+                // sort by date descending
+                list.sort((a,b) => b.createdAt - a.createdAt);
+                
+                const currentSessionId = customerAuthStore.parseJwtSessionId(customerAuthStore.token);
+
+                devicesList.innerHTML = list.map(sess => {
+                    const parsedUA = parseUserAgent(sess.userAgent);
+                    const isSelf = sess.id === currentSessionId;
+                    const logDate = new Date(sess.createdAt).toLocaleDateString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                    
+                    let deviceIcon = "monitor";
+                    if (parsedUA.os === 'iOS' || parsedUA.os === 'Android') deviceIcon = "smartphone";
+
+                    return `
+                        <div class="portal-device-card ${isSelf ? 'current-session' : ''}">
+                            <div class="portal-device-info">
+                                <div class="portal-device-icon-box"><i data-lucide="${deviceIcon}"></i></div>
+                                <div class="portal-device-details">
+                                    <h6>${escapeHTML(parsedUA.os)} · ${escapeHTML(parsedUA.browser)} ${isSelf ? '<span style="font-size: 0.65rem; color: var(--clr-cyan); background: rgba(0, 242, 254, 0.08); padding: 2px 6px; border-radius: 4px;">Current Session</span>' : ''}</h6>
+                                    <p>IP Address: <code>${escapeHTML(sess.ip)}</code> · Logged in: ${logDate}</p>
+                                </div>
+                            </div>
+                            <button class="portal-btn-terminate" data-sess-id="${sess.id}">${isSelf ? 'Log Out' : 'Revoke Access'}</button>
+                        </div>
+                    `;
+                }).join('');
+
+                // Bind Terminate
+                document.querySelectorAll('.portal-btn-terminate').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const sessId = btn.getAttribute('data-sess-id');
+                        
+                        fetch('/api/auth-session', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${customerAuthStore.token}`
+                            },
+                            body: JSON.stringify({ action: 'terminate_session', targetSessionId: sessId })
+                        })
+                        .then(res => res.json())
+                        .then(resp => {
+                            if (resp.success) {
+                                if (resp.selfTerminated) {
+                                    customerAuthStore.logout();
+                                    showToast("Session logged out.", "success");
+                                    renderPortalView();
+                                } else {
+                                    showToast("Device session revoked successfully.", "success");
+                                    renderSessionsTab();
+                                }
+                            }
+                        });
+                    });
+                });
+
+                if (window.lucide) window.lucide.createIcons();
+            }
+        });
+    }
+
+    const btnTerminateOthers = document.getElementById('btn-terminate-other-sessions');
+    if (btnTerminateOthers) {
+        btnTerminateOthers.addEventListener('click', () => {
+            if (!confirm("Are you sure you want to log out of all other devices?")) return;
+
+            const currentSessionId = customerAuthStore.parseJwtSessionId(customerAuthStore.token);
+            
+            fetch('/api/auth-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${customerAuthStore.token}`
+                },
+                body: JSON.stringify({ action: 'verify' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.success) {
+                    const sessionsKeys = Object.keys(data.customer.sessions || {});
+                    const terminatePromises = sessionsKeys
+                        .filter(id => id !== currentSessionId)
+                        .map(id => {
+                            return fetch('/api/auth-session', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${customerAuthStore.token}`
+                                },
+                                body: JSON.stringify({ action: 'terminate_session', targetSessionId: id })
+                            });
+                        });
+                    
+                    Promise.all(terminatePromises).then(() => {
+                        showToast("All other device sessions revoked.", "success");
+                        renderSessionsTab();
+                    });
+                }
+            });
+        });
+    }
+
+    // Tab 6: Audit Activity History Renderer
+    const activityTrailContainer = document.getElementById('portal-activity-trail-container');
+    function renderActivityLogsTab() {
+        if (!activityTrailContainer || !customerAuthStore.isLoggedIn()) return;
+
+        if (database) {
+            database.ref('audit_logs').once('value')
+                .then(snapshot => {
+                    const data = snapshot.val();
+                    const list = [];
+                    if (data) {
+                        Object.values(data).forEach(log => {
+                            if (log && log.customerId === customerAuthStore.customer.id) {
+                                list.push(log);
+                            }
+                        });
+                    }
+                    
+                    // Sort descending
+                    list.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                    if (list.length === 0) {
+                        activityTrailContainer.innerHTML = `
+                            <p style="color: var(--text-muted); font-size: 0.85rem; padding: 2rem 0; text-align: center;">No activity logged yet.</p>
+                        `;
+                        return;
+                    }
+
+                    activityTrailContainer.innerHTML = list.map(log => {
+                        let logClass = "active";
+                        if (log.category === 'security') logClass = "security";
+
+                        return `
+                            <div class="portal-activity-log-item ${logClass}">
+                                <div class="portal-activity-log-meta">
+                                    <span>${escapeHTML(log.category.toUpperCase())}</span>
+                                    <span>${escapeHTML(log.timestamp)}</span>
+                                </div>
+                                <div class="portal-activity-log-text">${escapeHTML(log.message)}</div>
+                            </div>
+                        `;
+                    }).join('');
+                });
+        }
     }
 }
 

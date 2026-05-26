@@ -303,6 +303,7 @@ let productsList = [];
 let ordersList = [];
 let couponsList = [];
 let bundlesList = [];
+let customersList = []; // Real-time CRM Sync cache
 let editingIndex = -1; // -1 means add mode, >=0 means edit mode
 let editingCouponIndex = -1;
 let editingBundleIndex = -1;
@@ -568,6 +569,14 @@ function setupLoginGate() {
     }
 }
 
+function loadCustomersFromStorage() {
+    try {
+        customersList = JSON.parse(localStorage.getItem('lightning_deals_customers_raw') || '[]');
+    } catch (e) {
+        customersList = [];
+    }
+}
+
 function syncAdminData(callback) {
     if (!database) {
         loadProductsFromStorage();
@@ -575,6 +584,7 @@ function syncAdminData(callback) {
         loadCoupons();
         loadBundles();
         loadTemplates();
+        loadCustomersFromStorage();
         if (callback) callback();
         return;
     }
@@ -753,6 +763,46 @@ function syncAdminData(callback) {
             loadOrdersFromStorage();
         })
     );
+
+    // Customers CRM Sync
+    syncPromises.push(
+        database.ref('customers').once('value').then(snapshot => {
+            const data = snapshot.val();
+            if (data) {
+                customersList = Object.values(data);
+            } else {
+                customersList = [];
+            }
+            localStorage.setItem('lightning_deals_customers_raw', JSON.stringify(customersList));
+            
+            // Set up real-time listener for customers updates
+            database.ref('customers').on('value', (snap) => {
+                const updatedData = snap.val();
+                if (updatedData) {
+                    customersList = Object.values(updatedData);
+                } else {
+                    customersList = [];
+                }
+                localStorage.setItem('lightning_deals_customers_raw', JSON.stringify(customersList));
+                renderCRMPanel();
+            });
+        }).catch(err => {
+            console.error("Error syncing customers:", err);
+            loadCustomersFromStorage();
+        })
+    );
+
+    // System Audit Logs Sync
+    database.ref('audit_logs').limitToLast(500).on('value', (snap) => {
+        const data = snap.val();
+        if (data) {
+            const loaded = Object.values(data);
+            localStorage.setItem('lightning_deals_audit_logs', JSON.stringify(loaded));
+        } else {
+            localStorage.setItem('lightning_deals_audit_logs', '[]');
+        }
+        renderLogsPanel();
+    });
 
     Promise.all(syncPromises).then(() => {
         if (callback) callback();
@@ -3845,6 +3895,14 @@ function renderLogsPanel() {
     }).join('');
 }
 
+// --- Loyalty Level Calculator Helper ---
+function getLoyaltyBadge(ordersVerified) {
+    if (ordersVerified >= 6) return { label: 'Platinum', color: '#e2e8f0', bg: 'rgba(226, 232, 240, 0.1)', border: 'rgba(226, 232, 240, 0.2)' };
+    if (ordersVerified >= 4) return { label: 'Gold', color: '#FFD700', bg: 'rgba(255, 215, 0, 0.1)', border: 'rgba(255, 215, 0, 0.2)' };
+    if (ordersVerified >= 2) return { label: 'Silver', color: '#c0c0c0', bg: 'rgba(192, 192, 192, 0.1)', border: 'rgba(192, 192, 192, 0.2)' };
+    return { label: 'Bronze', color: '#CD7F32', bg: 'rgba(205, 127, 50, 0.1)', border: 'rgba(205, 127, 50, 0.2)' };
+}
+
 // --- Compile and Render Customer CRM Panel ---
 function renderCRMPanel() {
     const searchQuery = document.getElementById('crm-search-input').value.toLowerCase().trim();
@@ -3852,50 +3910,79 @@ function renderCRMPanel() {
     const tbody = document.getElementById('crm-table-body');
     if (!tbody) return;
 
-    // Group orders by email (or phone)
+    // Group / Build CRM from both registered users and orders lists
     const customersMap = {};
 
-    ordersList.forEach(order => {
-        if (!order) return;
-        const key = (order.email || '').trim().toLowerCase() || (order.phone || '').trim();
-        if (!key) return;
+    // 1. Initialize registered users in CRM map
+    customersList.forEach(cust => {
+        if (!cust || !cust.email) return;
+        const key = cust.email.trim().toLowerCase();
+        customersMap[key] = {
+            id: cust.id,
+            name: cust.name || 'Unknown platform user',
+            email: cust.email,
+            phone: cust.phone || '',
+            registered: true,
+            registeredAt: cust.createdAt || '',
+            status: cust.status || 'active',
+            sessions: cust.sessions || {},
+            ordersVerified: 0,
+            totalOrders: 0,
+            ltv: 0,
+            lastOrderDate: '',
+            linkedOrders: []
+        };
+    });
 
-        const isVerified = order.status === 'Delivered' || order.status === 'Paid via Stripe' || order.status === 'Paid';
+    // 2. Cross-reference orders matching email to calculate LTV and metrics
+    ordersList.forEach(order => {
+        if (!order || !order.email) return;
+        const key = order.email.trim().toLowerCase();
+        
+        const isVerified = order.status === 'Delivered' || order.status === 'Paid via Stripe' || order.status === 'Paid' || order.status === 'Active';
         const orderPrice = parseFloat(order.price) || 0;
 
         if (!customersMap[key]) {
+            // Guest Checkout Profile
+            const guestId = "guest-" + key.split('@')[0] + "-" + Math.floor(100 + Math.random() * 900);
             customersMap[key] = {
-                name: order.name || 'Unknown Client',
-                email: order.email || '',
+                id: guestId,
+                name: order.name || 'Guest Client',
+                email: order.email,
                 phone: order.phone || '',
+                registered: false,
+                registeredAt: 'N/A',
+                status: 'active',
+                sessions: {},
                 ordersVerified: isVerified ? 1 : 0,
                 totalOrders: 1,
                 ltv: isVerified ? orderPrice : 0,
                 lastOrderDate: order.date || '',
-                status: order.status
+                linkedOrders: [order]
             };
         } else {
             const cust = customersMap[key];
+            cust.totalOrders += 1;
+            cust.linkedOrders.push(order);
             if (isVerified) {
                 cust.ordersVerified += 1;
                 cust.ltv += orderPrice;
             }
-            cust.totalOrders += 1;
             
-            // Get latest name
-            if (order.name) cust.name = order.name;
+            // Sync latest name/phone
+            if (order.name && cust.name.startsWith('Unknown')) cust.name = order.name;
+            if (order.phone && !cust.phone) cust.phone = order.phone;
             
             // Compare dates to get latest lastOrderDate
             if (order.date && (!cust.lastOrderDate || compareDates(order.date, cust.lastOrderDate) > 0)) {
                 cust.lastOrderDate = order.date;
-                cust.status = order.status;
             }
         }
     });
 
     const customers = Object.values(customersMap);
 
-    // Apply search filter
+    // Apply search filter (Name, Email, WhatsApp Phone)
     const filtered = customers.filter(c => {
         return c.name.toLowerCase().includes(searchQuery) ||
                c.email.toLowerCase().includes(searchQuery) ||
@@ -3941,7 +4028,7 @@ function renderCRMPanel() {
     if (filtered.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" style="text-align: center; padding: 3rem; color: var(--text-muted);">No customer profiles compiled yet. Verified orders will build CRM profiles.</td>
+                <td colspan="7" style="text-align: center; padding: 3rem; color: var(--text-muted);">No customer profiles compiled yet. Verified orders will build CRM profiles.</td>
             </tr>
         `;
         return;
@@ -3952,27 +4039,53 @@ function renderCRMPanel() {
         let statusLabel = 'Lead (Pending)';
         let statusClass = 'badge-status-pending';
 
-        if (c.ordersVerified > 0) {
+        if (c.status === 'locked') {
+            statusLabel = 'Account Locked';
+            statusClass = 'badge-status-cancelled';
+        } else if (c.ordersVerified > 0) {
             statusLabel = 'Active Subscriber';
             statusClass = 'badge-status-delivered';
-        } else if (c.status === 'Cancelled') {
-            statusLabel = 'Cancelled Client';
-            statusClass = 'badge-status-cancelled';
         }
+
+        const loyalty = getLoyaltyBadge(c.ordersVerified);
 
         return `
             <tr>
                 <td>
-                    <div style="font-weight: 700; color: #fff;">${escapeHTML(c.name)}</div>
+                    <div style="font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">
+                        <span class="view-customer-btn" data-email="${escapeHTML(c.email)}" style="cursor: pointer; border-bottom: 1px dashed rgba(255,255,255,0.25);">${escapeHTML(c.name)}</span>
+                        ${c.registered ? `<i data-lucide="shield-check" style="width: 14px; height: 14px; color: var(--clr-cyan);" title="Registered Platform Account"></i>` : ''}
+                    </div>
                 </td>
-                <td style="font-size: 0.85rem; line-height: 1.4; color: var(--text-secondary);">
-                    <div><i data-lucide="mail" style="width: 10px; height: 10px; display: inline-block; margin-right: 4px;"></i> ${escapeHTML(c.email || 'No email')}</div>
-                    <div><i data-lucide="message-circle" style="width: 10px; height: 10px; display: inline-block; margin-right: 4px;"></i> +${escapeHTML(c.phone || '')}</div>
+                <td style="font-size: 0.82rem; line-height: 1.4; color: var(--text-secondary);">
+                    <div><i data-lucide="mail" style="width: 11px; height: 11px; display: inline-block; margin-right: 4px; vertical-align: middle; color: var(--clr-cyan);"></i> ${escapeHTML(c.email || 'No email')}</div>
+                    <div><i data-lucide="message-circle" style="width: 11px; height: 11px; display: inline-block; margin-right: 4px; vertical-align: middle; color: var(--clr-green);"></i> +${escapeHTML(c.phone || '')}</div>
                 </td>
-                <td style="font-weight: 600; text-align: center;">${c.ordersVerified} <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">(${c.totalOrders} total)</span></td>
+                <td style="text-align: center;">
+                    <div style="font-weight: 600;">${c.ordersVerified} <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 400;">(${c.totalOrders} total)</span></div>
+                    <span style="font-size: 0.65rem; padding: 1px 6px; border-radius: 99px; background: ${loyalty.bg}; color: ${loyalty.color}; border: 1px solid ${loyalty.border}; font-weight: 700;">${loyalty.label}</span>
+                </td>
                 <td style="font-weight: 700; color: var(--clr-green);">₹${c.ltv.toLocaleString('en-IN')}</td>
                 <td style="font-size: 0.8rem; color: var(--text-secondary);">${escapeHTML(c.lastOrderDate || 'N/A')}</td>
                 <td><span class="badge-status ${statusClass}">${statusLabel}</span></td>
+                <td>
+                    <div class="table-actions" style="justify-content: center; gap: 4px;">
+                        <button class="btn btn-secondary btn-xs view-customer-btn" data-email="${escapeHTML(c.email)}" style="padding: 4px 6px;" title="View Complete CRM Profile">
+                            <i data-lucide="eye" style="width: 12px; height: 12px;"></i>
+                        </button>
+                        ${c.registered ? `
+                            <button class="btn btn-xs ${c.status === 'locked' ? 'btn-success' : 'btn-danger'} lock-customer-btn" data-id="${c.id}" data-status="${c.status}" style="padding: 4px 6px;" title="${c.status === 'locked' ? 'Unlock Account' : 'Lock Account'}">
+                                <i data-lucide="${c.status === 'locked' ? 'lock-open' : 'lock'}" style="width: 12px; height: 12px;"></i>
+                            </button>
+                            <button class="btn btn-secondary btn-xs reset-otp-btn" data-id="${c.id}" data-email="${escapeHTML(c.email)}" style="padding: 4px 6px;" title="Force Password Recovery OTP">
+                                <i data-lucide="key" style="width: 12px; height: 12px;"></i>
+                            </button>
+                            <button class="btn btn-secondary btn-xs terminate-sessions-btn" data-id="${c.id}" style="padding: 4px 6px;" title="Force Logout Other Sessions">
+                                <i data-lucide="smartphone" style="width: 12px; height: 12px;"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                </td>
             </tr>
         `;
     }).join('');
@@ -3991,6 +4104,389 @@ function compareDates(dateStrA, dateStrB) {
     }
 }
 
+// --- Lock/Unlock Customer Account ---
+function toggleCustomerLock(id, currentStatus) {
+    const newStatus = currentStatus === 'locked' ? 'active' : 'locked';
+    if (confirm(`Are you sure you want to ${newStatus === 'locked' ? 'LOCK' : 'UNLOCK'} this customer account?`)) {
+        if (database) {
+            database.ref(`customers/${id}`).update({ status: newStatus })
+                .then(() => {
+                    logEvent('auth', `Customer account administratively ${newStatus}. ID: ${id}`);
+                    alert(`Customer account status successfully updated to: ${newStatus.toUpperCase()}`);
+                    renderCRMPanel();
+                })
+                .catch(err => {
+                    console.error("Firebase update lock status failed:", err);
+                    alert("Failed to update status on Firebase.");
+                });
+        } else {
+            // Local fallback
+            const cust = customersList.find(c => c.id === id);
+            if (cust) {
+                cust.status = newStatus;
+                localStorage.setItem('lightning_deals_customers_raw', JSON.stringify(customersList));
+                logEvent('auth', `[Offline] Customer account administratively ${newStatus}. ID: ${id}`);
+                alert(`[Offline Mode] Customer status successfully updated to: ${newStatus}`);
+                renderCRMPanel();
+            }
+        }
+    }
+}
+
+// --- Force Password Reset OTP generation ---
+function forcePasswordResetOTP(id, email) {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    if (confirm(`Are you sure you want to FORCE generate a 6-digit password recovery OTP for: ${email}? This will allow the customer to bypass the email recovery loop.`)) {
+        const resetObj = {
+            otp: otp,
+            email: email,
+            createdAt: Date.now(),
+            expiresAt: Date.now() + 15 * 60 * 1000
+        };
+
+        if (database) {
+            database.ref(`password_resets/${id}`).set(resetObj)
+                .then(() => {
+                    logEvent('auth', `Administrative reset OTP generated for customer: ${email}`);
+                    prompt(`Recovery OTP Code generated successfully! Deliver this secure code to the customer:`, otp);
+                })
+                .catch(err => {
+                    console.error("Firebase recovery OTP generation failed:", err);
+                    alert("Failed to save recovery OTP to database.");
+                });
+        } else {
+            alert(`[Offline Mode] Generated Recovery OTP Code: ${otp}`);
+        }
+    }
+}
+
+// --- Terminate All Customer Device Sessions ---
+function terminateCustomerSessions(id) {
+    if (confirm("Are you sure you want to FORCE terminate all active logins and devices for this customer?")) {
+        if (database) {
+            database.ref(`customers/${id}/sessions`).remove()
+                .then(() => {
+                    logEvent('auth', `Terminated all active device sessions for customer: ${id}`);
+                    alert("All active customer device sessions have been successfully terminated.");
+                })
+                .catch(err => {
+                    console.error("Firebase terminate sessions failed:", err);
+                    alert("Failed to clear sessions on Firebase.");
+                });
+        } else {
+            alert("Offline mode: cannot terminate remote sessions.");
+        }
+    }
+}
+
+// --- View Customer Complete CRM Profile Drawer ---
+function openCustomerDetailDrawer(email) {
+    const drawer = document.getElementById('customer-detail-drawer');
+    const bodyContent = document.getElementById('customer-drawer-body-content');
+    if (!drawer || !bodyContent) return;
+
+    const normEmail = email.trim().toLowerCase();
+
+    // Compile customer profile
+    let cust = null;
+    const registeredCust = customersList.find(c => (c.email || '').trim().toLowerCase() === normEmail);
+    
+    const linkedOrders = [];
+    let ltv = 0;
+    let ordersVerified = 0;
+    let lastOrderDate = '';
+    
+    ordersList.forEach(order => {
+        if (!order || !order.email) return;
+        const oEmail = order.email.trim().toLowerCase();
+        if (oEmail === normEmail) {
+            linkedOrders.push(order);
+            const isVerified = order.status === 'Delivered' || order.status === 'Paid via Stripe' || order.status === 'Paid' || order.status === 'Active';
+            const price = parseFloat(order.price) || 0;
+            if (isVerified) {
+                ordersVerified++;
+                ltv += price;
+            }
+            if (order.date && (!lastOrderDate || compareDates(order.date, lastOrderDate) > 0)) {
+                lastOrderDate = order.date;
+            }
+        }
+    });
+
+    if (registeredCust) {
+        cust = {
+            id: registeredCust.id,
+            name: registeredCust.name || 'Platform User',
+            email: registeredCust.email,
+            phone: registeredCust.phone || '',
+            registered: true,
+            registeredAt: registeredCust.createdAt || '',
+            status: registeredCust.status || 'active',
+            sessions: registeredCust.sessions || {},
+            ordersVerified: ordersVerified,
+            totalOrders: linkedOrders.length,
+            ltv: ltv,
+            lastOrderDate: lastOrderDate,
+            linkedOrders: linkedOrders
+        };
+    } else {
+        const guestId = "guest-" + normEmail.split('@')[0];
+        cust = {
+            id: guestId,
+            name: linkedOrders.length > 0 ? linkedOrders[0].name : 'Guest Client',
+            email: email,
+            phone: linkedOrders.length > 0 ? linkedOrders[0].phone : '',
+            registered: false,
+            registeredAt: 'N/A',
+            status: 'active',
+            sessions: {},
+            ordersVerified: ordersVerified,
+            totalOrders: linkedOrders.length,
+            ltv: ltv,
+            lastOrderDate: lastOrderDate,
+            linkedOrders: linkedOrders
+        };
+    }
+
+    const loyalty = getLoyaltyBadge(cust.ordersVerified);
+    let nextLevel = 'Silver';
+    let progressPct = 0;
+    let progressText = '';
+
+    if (loyalty.label === 'Bronze') {
+        nextLevel = 'Silver';
+        progressPct = Math.min(100, (cust.ordersVerified / 2) * 100);
+        progressText = `${cust.ordersVerified} / 2 verified orders to Silver`;
+    } else if (loyalty.label === 'Silver') {
+        nextLevel = 'Gold';
+        progressPct = Math.min(100, ((cust.ordersVerified - 2) / 2) * 100);
+        progressText = `${cust.ordersVerified} / 4 verified orders to Gold`;
+    } else if (loyalty.label === 'Gold') {
+        nextLevel = 'Platinum';
+        progressPct = Math.min(100, ((cust.ordersVerified - 4) / 2) * 100);
+        progressText = `${cust.ordersVerified} / 6 verified orders to Platinum`;
+    } else {
+        nextLevel = 'N/A';
+        progressPct = 100;
+        progressText = `Maximum Platinum Loyalty Tier achieved!`;
+    }
+
+    // Read security audit logs matching this customer
+    let logs = [];
+    try {
+        logs = JSON.parse(localStorage.getItem('lightning_deals_audit_logs') || '[]');
+    } catch (e) {}
+
+    const customerLogs = logs.filter(log => {
+        const msg = (log.message || '').toLowerCase();
+        return (log.customerId && log.customerId === cust.id) ||
+               msg.includes(normEmail);
+    }).reverse().slice(0, 10);
+
+    // Active device sessions listing
+    let sessionsHTML = '';
+    const sessionsList = Object.values(cust.sessions || {});
+    if (sessionsList.length === 0) {
+        sessionsHTML = `
+            <div style="padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--clr-border); border-radius: 8px; font-size: 0.76rem; color: var(--text-muted); text-align: center;">
+                No active device login sessions.
+            </div>
+        `;
+    } else {
+        sessionsHTML = sessionsList.map(sess => {
+            const activeTime = new Date(sess.lastActive || sess.createdAt).toLocaleString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' });
+            return `
+                <div style="padding: 8px 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--clr-border); border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="font-weight: 600; font-size: 0.78rem; color: #fff;"><i data-lucide="monitor" style="width: 12px; height: 12px; display: inline-block; margin-right: 4px; vertical-align: middle; color: var(--clr-cyan);"></i> ${escapeHTML(sess.userAgent || 'Web Browser')}</div>
+                        <div style="font-size: 0.68rem; color: var(--text-muted); margin-top: 2px;">IP Address: ${escapeHTML(sess.ip || 'unknown')} &bull; Active: ${activeTime}</div>
+                    </div>
+                    <span style="font-size: 0.62rem; padding: 2px 6px; background: rgba(0, 242, 254, 0.1); color: var(--clr-cyan); border-radius: 4px; font-weight: 700; border: 1px solid rgba(0,242,254,0.15);">Active Live</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Linked orders listing
+    let ordersHTML = '';
+    if (cust.linkedOrders.length === 0) {
+        ordersHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 1.5rem; color: var(--text-muted); font-size: 0.78rem;">No orders placed yet.</td>
+            </tr>
+        `;
+    } else {
+        ordersHTML = cust.linkedOrders.map(order => {
+            const idx = ordersList.findIndex(o => o && o.id === order.id);
+            let statClass = 'badge-status-pending';
+            if (order.status === 'Delivered' || order.status === 'Active' || order.status === 'Paid') {
+                statClass = 'badge-status-delivered';
+            } else if (order.status === 'Expired' || order.status === 'Cancelled') {
+                statClass = 'badge-status-cancelled';
+            }
+
+            return `
+                <tr>
+                    <td style="font-family: monospace; font-size: 0.78rem; font-weight: 700; color: var(--clr-cyan);">${escapeHTML(order.id)}</td>
+                    <td style="font-size: 0.78rem; font-weight: 600; color: #fff;">${escapeHTML(order.product || order.productTitle || 'Premium Plan')}</td>
+                    <td style="font-size: 0.78rem; color: #fff;">₹${(parseFloat(order.price || 0)).toLocaleString('en-IN')}</td>
+                    <td><span class="badge-status ${statClass}" style="font-size: 0.62rem; padding: 1px 6px;">${escapeHTML(order.status)}</span></td>
+                    <td style="text-align: center;">
+                        <button class="btn btn-secondary btn-xs view-linked-order-btn" data-index="${idx}" style="padding: 2px 6px;">
+                            <i data-lucide="receipt" style="width: 10px; height: 10px; vertical-align: middle;"></i> View
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Security activity logs listing
+    let logsHTML = '';
+    if (customerLogs.length === 0) {
+        logsHTML = `
+            <div style="font-size: 0.76rem; color: var(--text-muted); text-align: center; padding: 8px;">
+                No security activities logged for this customer profile.
+            </div>
+        `;
+    } else {
+        logsHTML = customerLogs.map(log => {
+            const logTime = new Date(log.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit', month: 'short', day: 'numeric' });
+            return `
+                <div style="font-size: 0.74rem; border-left: 2px solid rgba(0, 242, 254, 0.25); padding-left: 8px; margin-bottom: 6px;">
+                    <span style="font-weight: 600; color: var(--clr-cyan); font-size: 0.7rem;">${logTime}</span> &bull; 
+                    <span style="font-weight: 700; text-transform: uppercase; font-size: 0.58rem; padding: 0px 4px; background: rgba(255,255,255,0.06); color: #fff; border-radius: 2px;">${log.category}</span>
+                    <div style="color: var(--text-secondary); margin-top: 1px; font-size: 0.72rem; line-height: 1.3;">${escapeHTML(log.message)}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    bodyContent.innerHTML = `
+        <!-- Profile Identity -->
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00f2fe, #4facfe); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 800; text-transform: uppercase; box-shadow: 0 4px 12px rgba(0,242,254,0.25);">
+                ${cust.name.substring(0, 2)}
+            </div>
+            <div>
+                <h3 style="color: white; margin: 0 0 2px 0; font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+                    ${escapeHTML(cust.name)}
+                </h3>
+                <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                    <span class="badge-status ${cust.registered ? 'badge-status-delivered' : 'badge-status-pending'}" style="font-size: 0.6rem; padding: 1px 5px;">
+                        ${cust.registered ? 'Registered Client' : 'Guest Profile'}
+                    </span>
+                    <span class="badge-status ${cust.status === 'locked' ? 'badge-status-cancelled' : 'badge-status-delivered'}" style="font-size: 0.6rem; padding: 1px 5px;">
+                        ${cust.status === 'locked' ? 'Account Locked' : 'Account Active'}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--clr-border); padding: 8px; border-radius: 6px; text-align: center;">
+                <span style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Lifetime Value (LTV)</span>
+                <div style="font-size: 1.1rem; font-weight: 800; color: var(--clr-green); margin-top: 2px;">₹${cust.ltv.toLocaleString('en-IN')}</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--clr-border); padding: 8px; border-radius: 6px; text-align: center;">
+                <span style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Loyalty Status</span>
+                <div style="margin-top: 2px;">
+                    <span style="padding: 1px 6px; border-radius: 10px; background: ${loyalty.bg}; color: ${loyalty.color}; border: 1px solid ${loyalty.border}; font-size: 0.7rem; font-weight: 700;">${loyalty.label} Tier</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loyalty Level Progress -->
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--clr-border); padding: 10px; border-radius: 6px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.72rem; color: #fff; margin-bottom: 4px;">
+                <span style="font-weight: 600;">Tier Badge Progress</span>
+                <span style="color: var(--text-muted); font-size: 0.68rem;">${progressText}</span>
+            </div>
+            <div style="height: 5px; width: 100%; background: rgba(255,255,255,0.04); border-radius: 3px; overflow: hidden;">
+                <div style="width: ${progressPct}%; height: 100%; background: var(--clr-accent-grad); border-radius: 3px;"></div>
+            </div>
+        </div>
+
+        <!-- Basic Contact Information -->
+        <div style="margin-bottom: 16px;">
+            <h4 style="color: var(--clr-cyan); font-size: 0.76rem; margin: 0 0 6px 0; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 2px;">Identity Profile Info</h4>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 6px; font-size: 0.76rem;">
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 2px;">
+                    <span style="color: var(--text-muted);">Email Account:</span>
+                    <span style="font-weight: 600; color: #fff;">${escapeHTML(cust.email)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 2px;">
+                    <span style="color: var(--text-muted);">WhatsApp Mobile:</span>
+                    <span style="font-weight: 600; color: #fff;">+${escapeHTML(cust.phone || 'N/A')}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 2px;">
+                    <span style="color: var(--text-muted);">Joined Date:</span>
+                    <span style="font-weight: 600; color: #fff;">${escapeHTML(cust.registeredAt || 'Guest Checkout')}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.02); padding-bottom: 2px;">
+                    <span style="color: var(--text-muted);">Unique Hex ID:</span>
+                    <span style="font-family: monospace; font-size: 0.68rem; color: var(--text-muted); cursor: pointer;" onclick="navigator.clipboard.writeText('${cust.id}'); alert('Hex ID copied!');">${cust.id} <i data-lucide="copy" style="width: 10px; height: 10px; display: inline-block;"></i></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Device Sessions -->
+        <div style="margin-bottom: 16px;">
+            <h4 style="color: var(--clr-cyan); font-size: 0.76rem; margin: 0 0 6px 0; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 2px;">Active Devices / Sessions</h4>
+            ${sessionsHTML}
+        </div>
+
+        <!-- Placed Orders Pipeline -->
+        <div style="margin-bottom: 16px; overflow-x: auto; width: 100%;">
+            <h4 style="color: var(--clr-cyan); font-size: 0.76rem; margin: 0 0 6px 0; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 2px;">Linked Orders (${cust.totalOrders})</h4>
+            <table class="admin-table" style="width: 100%; border-collapse: collapse; font-size: 0.74rem;">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Product & Plan</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${ordersHTML}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Security Activity Logs -->
+        <div style="margin-bottom: 8px;">
+            <h4 style="color: var(--clr-cyan); font-size: 0.76rem; margin: 0 0 6px 0; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 2px;">Security Audit Logs</h4>
+            <div style="max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.18); padding: 8px; border-radius: 6px; border: 1px solid var(--clr-border);">
+                ${logsHTML}
+            </div>
+        </div>
+    `;
+
+    drawer.classList.add('active');
+
+    // Re-initialize dynamic Lucide icons inside the drawer!
+    if (window.lucide) window.lucide.createIcons();
+
+    // Bind click listener for "View Order" button inside the customer's linked orders list
+    bodyContent.querySelectorAll('.view-linked-order-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.getAttribute('data-index'));
+            drawer.classList.remove('active');
+            
+            // Navigate to orders panel first
+            const ordersBtn = document.getElementById('sidebar-btn-orders');
+            if (ordersBtn) ordersBtn.click();
+            
+            // Open the order detail drawer
+            setTimeout(() => {
+                openOrderDetailDrawer(idx);
+            }, 200);
+        });
+    });
+}
+
 // --- Wire Up CRM & Logs Search/Filters Event Listeners ---
 function setupCRMAndLogs() {
     const crmSearch = document.getElementById('crm-search-input');
@@ -4007,6 +4503,49 @@ function setupCRMAndLogs() {
     if (logsFilter) {
         logsFilter.addEventListener('change', renderLogsPanel);
     }
+    
+    // Bind click actions on CRM TableBody using Event Delegation
+    const crmTableBody = document.getElementById('crm-table-body');
+    if (crmTableBody) {
+        crmTableBody.addEventListener('click', (e) => {
+            const viewBtn = e.target.closest('.view-customer-btn');
+            const lockBtn = e.target.closest('.lock-customer-btn');
+            const resetBtn = e.target.closest('.reset-otp-btn');
+            const termBtn = e.target.closest('.terminate-sessions-btn');
+
+            if (viewBtn) {
+                const email = viewBtn.getAttribute('data-email');
+                openCustomerDetailDrawer(email);
+            } else if (lockBtn) {
+                const id = lockBtn.getAttribute('data-id');
+                const status = lockBtn.getAttribute('data-status');
+                toggleCustomerLock(id, status);
+            } else if (resetBtn) {
+                const id = resetBtn.getAttribute('data-id');
+                const email = resetBtn.getAttribute('data-email');
+                forcePasswordResetOTP(id, email);
+            } else if (termBtn) {
+                const id = termBtn.getAttribute('data-id');
+                terminateCustomerSessions(id);
+            }
+        });
+    }
+
+    // Customer drawer close buttons
+    const customerDrawer = document.getElementById('customer-detail-drawer');
+    const closeCustDrawerBtn = document.getElementById('close-customer-drawer-btn');
+    if (closeCustDrawerBtn && customerDrawer) {
+        closeCustDrawerBtn.addEventListener('click', () => {
+            customerDrawer.classList.remove('active');
+        });
+        
+        customerDrawer.addEventListener('click', (e) => {
+            if (e.target === customerDrawer) {
+                customerDrawer.classList.remove('active');
+            }
+        });
+    }
+
     if (btnClearLogs) {
         btnClearLogs.addEventListener('click', () => {
             if (confirm("Are you sure you want to clear all system audit logs?")) {
