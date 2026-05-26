@@ -109,6 +109,27 @@ exports.handler = async (event, context) => {
       console.error('Failed to load settings from Firebase:', e);
     }
 
+    // 1.2. Fetch secure settings from Firebase and merge them
+    if (settings) {
+      try {
+        const secureSettingsResult = await httpsRequest({
+          hostname: 'lightning-deals-d0adc-default-rtdb.asia-southeast1.firebasedatabase.app',
+          port: 443,
+          path: '/secure_settings.json',
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (secureSettingsResult.statusCode === 200) {
+          const secureSettings = JSON.parse(secureSettingsResult.body);
+          if (secureSettings) {
+            settings = { ...settings, ...secureSettings };
+          }
+        }
+      } catch (e) {
+        console.error('Failed to load secure settings from Firebase:', e);
+      }
+    }
+
     // 1.5. Fetch current reseller templates from Firebase
     let templates = null;
     try {

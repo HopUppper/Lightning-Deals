@@ -670,8 +670,13 @@ function syncAdminData(callback) {
 
     // Settings
     syncPromises.push(
-        database.ref('settings').once('value').then(snapshot => {
-            const data = snapshot.val();
+        Promise.all([
+            database.ref('settings').once('value'),
+            database.ref('secure_settings').once('value')
+        ]).then(([settingsSnap, secureSnap]) => {
+            const publicData = settingsSnap.val() || {};
+            const secureData = secureSnap.val() || {};
+            
             const DEFAULT_SETTINGS = {
                 phone: "917695956938",
                 upiId: "sidhjain9002-1@okhdfcbank",
@@ -681,15 +686,11 @@ function syncAdminData(callback) {
                 telegramBotToken: "",
                 telegramChatId: ""
             };
-            let settings = { ...DEFAULT_SETTINGS };
-            if (data) {
-                settings = { ...DEFAULT_SETTINGS, ...data };
-            } else {
-                database.ref('settings').set(DEFAULT_SETTINGS);
-            }
+            
+            const settings = { ...DEFAULT_SETTINGS, ...publicData, ...secureData };
             localStorage.setItem('lightning_deals_settings', JSON.stringify(settings));
         }).catch(err => {
-            console.error("Error syncing settings:", err);
+            console.error("Error syncing public/secure settings:", err);
         })
     );
 
@@ -2664,7 +2665,7 @@ function setupStoreSettings() {
             }
         }
 
-        const settings = {
+        const publicSettings = {
             storeName,
             supportEmail,
             announcement,
@@ -2676,23 +2677,31 @@ function setupStoreSettings() {
             razorpayKeyId,
             upiFallback,
             notificationMethod,
-            callmebotApiKey,
-            discordWebhookUrl,
-            telegramBotToken,
-            telegramChatId,
             autoReminders,
             autoFollowups,
             fulfillmentWebhook,
             taxRate
         };
 
+        const secureSettings = {
+            callmebotApiKey,
+            discordWebhookUrl,
+            telegramBotToken,
+            telegramChatId
+        };
+
+        const settings = { ...publicSettings, ...secureSettings };
+
         if (database) {
-            database.ref('settings').set(settings)
-                .then(() => console.log("Settings synced to Firebase."))
-                .catch(err => console.error("Firebase settings sync failed:", err));
+            Promise.all([
+                database.ref('settings').set(publicSettings),
+                database.ref('secure_settings').set(secureSettings)
+            ])
+            .then(() => console.log("Public and Secure settings synced to Firebase."))
+            .catch(err => console.error("Firebase settings sync failed:", err));
         }
         localStorage.setItem('lightning_deals_settings', JSON.stringify(settings));
-        logEvent('settings', 'Store configuration settings saved.');
+        logEvent('settings', 'Store configuration settings saved (with split public/secure paths).');
         updateSettingsSummaryCards(settings);
         alert("Store settings saved successfully!");
     });

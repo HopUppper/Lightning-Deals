@@ -430,62 +430,16 @@ function syncSettings(callback) {
 syncSettings();
 
 function sendOrderNotification(order) {
-    loadSettings();
-    const method = CONTACT_SETTINGS.notificationMethod;
-    const adminPhone = CONTACT_SETTINGS.phone || "917695956938";
-
-    let itemsText = "";
-    order.items.forEach(item => {
-        itemsText += `• ${item.name} (${item.planLabel}) x ${item.qty} - ₹${(item.price * item.qty).toLocaleString('en-IN')}\n`;
-    });
-
-    let messageText = `🔔 *New Order Placed!*\n\n`;
-    messageText += `🆔 *Order ID:* ${order.id}\n`;
-    messageText += `👤 *Customer:* ${order.name}\n`;
-    messageText += `📧 *Email:* ${order.email}\n`;
-    messageText += `📞 *WhatsApp:* +${order.phone}\n\n`;
-    messageText += `📦 *Items:*\n${itemsText}\n`;
-    messageText += `💰 *Total Paid:* ₹${order.price.toLocaleString('en-IN')}\n`;
-    messageText += `🔗 *UTR:* ${order.utr}\n`;
-    messageText += `📅 *Date:* ${order.date}`;
-
-    if (method === 'callmebot' && CONTACT_SETTINGS.callmebotApiKey) {
-        const encodedMsg = encodeURIComponent(messageText);
-        const url = `https://api.callmebot.com/whatsapp.php?phone=${adminPhone}&text=${encodedMsg}&apikey=${CONTACT_SETTINGS.callmebotApiKey}`;
-        fetch(url)
-            .then(res => console.log('CallMeBot notification sent', res))
-            .catch(err => console.error('CallMeBot error:', err));
-    } else if (method === 'discord' && CONTACT_SETTINGS.discordWebhookUrl) {
-        const discordPayload = {
-            embeds: [{
-                title: "🔔 New Order Placed!",
-                color: 16750848, // Orange/Gold
-                fields: [
-                    { name: "Order ID", value: order.id, inline: true },
-                    { name: "Customer", value: order.name, inline: true },
-                    { name: "Email", value: order.email, inline: true },
-                    { name: "Phone", value: `+${order.phone}`, inline: true },
-                    { name: "Total Paid", value: `₹${order.price.toLocaleString('en-IN')}`, inline: true },
-                    { name: "UTR ID", value: order.utr, inline: true },
-                    { name: "Items", value: itemsText.trim().substring(0, 1024) }
-                ],
-                timestamp: new Date().toISOString()
-            }]
-        };
-        fetch(CONTACT_SETTINGS.discordWebhookUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(discordPayload)
-        })
-        .then(res => console.log('Discord notification sent', res))
-        .catch(err => console.error('Discord error:', err));
-    } else if (method === 'telegram' && CONTACT_SETTINGS.telegramBotToken && CONTACT_SETTINGS.telegramChatId) {
-        const text = encodeURIComponent(messageText);
-        const url = `https://api.telegram.com/bot${CONTACT_SETTINGS.telegramBotToken}/sendMessage?chat_id=${CONTACT_SETTINGS.telegramChatId}&text=${text}&parse_mode=Markdown`;
-        fetch(url)
-            .then(res => console.log('Telegram notification sent', res))
-            .catch(err => console.error('Telegram error:', err));
-    }
+    // Route manually placed orders through our secure serverless trigger
+    fetch('/.netlify/functions/trigger-notification', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ order })
+    })
+    .then(res => console.log('Secure server-side order notification response:', res.status))
+    .catch(err => console.error('Secure notification trigger failed:', err));
 }
 
 
