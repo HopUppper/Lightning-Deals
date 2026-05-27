@@ -691,10 +691,19 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem('lightning_deals_visits', visits);
 
     // Auto-hide empty recently viewed deals section on load
-    const recentSection = document.querySelector('[id*="recently"], [class*="recently-viewed"]');
-    const recentItems = JSON.parse(localStorage.getItem('lightning_deals_recently_viewed') || localStorage.getItem('recentlyViewed') || '[]');
-    if (recentSection && recentItems.length === 0) {
-        recentSection.style.display = 'none';
+    const recentSection = document.getElementById('recently-viewed-section');
+    const recentItems = JSON.parse(localStorage.getItem('lightning_deals_recently_viewed') || '[]');
+    if (recentSection) {
+        if (recentItems.length === 0) {
+            recentSection.classList.add('hidden');
+            recentSection.style.display = 'none';
+        } else {
+            recentSection.classList.remove('hidden');
+            recentSection.style.display = 'block';
+            setTimeout(() => {
+                if (typeof renderRecentlyViewed === 'function') renderRecentlyViewed();
+            }, 100);
+        }
     }
 
     // Icons initialization
@@ -3586,7 +3595,154 @@ document.addEventListener('click', (e) => {
 
 // --- Recently Viewed Deals ---
 function trackRecentlyViewed(productId) {
-    // No-op - recently viewed feature removed
+    if (!productId) return;
+    let list = [];
+    try {
+        list = JSON.parse(localStorage.getItem('lightning_deals_recently_viewed') || '[]');
+    } catch (e) {}
+    
+    // Move to front
+    list = list.filter(id => id !== productId);
+    list.unshift(productId);
+    list = list.slice(0, 4);
+    
+    localStorage.setItem('lightning_deals_recently_viewed', JSON.stringify(list));
+    
+    const section = document.getElementById('recently-viewed-section');
+    if (section) {
+        section.classList.remove('hidden');
+        section.style.display = 'block';
+    }
+    
+    renderRecentlyViewed();
+}
+
+function renderRecentlyViewed() {
+    const grid = document.getElementById('recently-viewed-grid');
+    const section = document.getElementById('recently-viewed-section');
+    if (!grid || !section) return;
+    
+    let list = [];
+    try {
+        list = JSON.parse(localStorage.getItem('lightning_deals_recently_viewed') || '[]');
+    } catch (e) {}
+    
+    if (list.length === 0) {
+        section.classList.add('hidden');
+        section.style.display = 'none';
+        return;
+    }
+    
+    section.classList.remove('hidden');
+    section.style.display = 'block';
+    
+    const allProducts = safeGetLocalStorage('lightning_deals_products', DEFAULT_PRODUCTS);
+    grid.innerHTML = '';
+    
+    list.forEach(productId => {
+        const prod = allProducts.find(p => p.id === productId);
+        if (!prod || prod.visible === false) return;
+        
+        let selectedPlan = prod.plans.find(p => p.label.toLowerCase().includes('1 month'));
+        if (!selectedPlan) selectedPlan = prod.plans[0];
+        
+        const priceVal = selectedPlan ? selectedPlan.price : 0;
+        const retailVal = selectedPlan && selectedPlan.retail ? selectedPlan.retail : priceVal * 3;
+        const percentSaved = retailVal > priceVal ? Math.round(((retailVal - priceVal) / retailVal) * 100) : 0;
+        const planLabelText = selectedPlan ? selectedPlan.label : 'Plan';
+        
+        const trustData = getProductTrustData(prod.id);
+        const valueProp = valueProps[prod.id] || (prod.features && prod.features[0]) || prod.description.slice(0, 50) + '...';
+        
+        let valuePropHTML = '';
+        if (valueProp) {
+            const vpItems = valueProp.split(/[,;|•\-\+]/).map(s => s.trim()).filter(s => s.length > 0);
+            if (vpItems.length > 1) {
+                valuePropHTML = `<ul class="prod-bullet-value-props">`;
+                vpItems.slice(0, 3).forEach(item => {
+                    valuePropHTML += `<li><span class="bullet-dot"></span><span>${item}</span></li>`;
+                });
+                valuePropHTML += `</ul>`;
+            } else {
+                valuePropHTML = `<div class="prod-value-prop">${valueProp}</div>`;
+            }
+        }
+        
+        let badgeHTML = '';
+        if (prod.tag) {
+            let badgeClass = 'badge-bestseller';
+            const tagLower = prod.tag.toLowerCase();
+            if (tagLower.includes('best') || tagLower.includes('save') || tagLower.includes('%')) badgeClass = 'badge-bestseller';
+            else if (tagLower.includes('popular') || tagLower.includes('hot')) badgeClass = 'badge-popular';
+            else if (tagLower.includes('instant') || tagLower.includes('fast')) badgeClass = 'badge-instant';
+            badgeHTML = `<span class="prod-badge-tag ${badgeClass}">${prod.tag}</span>`;
+        }
+
+        const wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
+        const isWishlisted = wishlist.includes(prod.id);
+        
+        const card = document.createElement('div');
+        card.className = 'glass-card product-card';
+        card.innerHTML = `
+            <div class="prod-header">
+                <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
+                ${badgeHTML}
+            </div>
+            <h3 class="prod-title">${prod.name}</h3>
+            ${valuePropHTML}
+            
+            <div class="product-card-rating">
+                <svg viewBox="0 0 24 24" fill="#F5C842" stroke="#F5C842" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="star-icon" style="width: 14px; height: 14px; color: #F5C842; display: inline-block; vertical-align: middle; margin-right: 4px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <span class="rating-val">${trustData.rating}</span>
+                <span class="rating-count">(${trustData.count} activations)</span>
+            </div>
+            <p class="prod-desc" style="-webkit-line-clamp: 2;">${prod.description}</p>
+            
+            <div class="prod-price-area" style="margin-top: auto; padding-top: 0.5rem;">
+                <span class="prod-retail">${planLabelText}</span>
+                <div class="price-comp-row">
+                    <span class="prod-price-new">₹${priceVal.toLocaleString('en-IN')}</span>
+                    <span class="retail-crossed">₹${retailVal.toLocaleString('en-IN')}</span>
+                    ${percentSaved > 0 ? `<span class="savings-badge">${percentSaved}% savings</span>` : ''}
+                </div>
+            </div>
+            
+            <div class="card-actions-wrapper" style="display: flex; gap: 0.5rem; width: 100%; margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.03);">
+                <button class="btn btn-primary btn-glow cta-purchase-trigger" data-id="${prod.id}" style="flex-grow: 1; padding: 6px 12px; font-size: 0.8rem;">
+                    <span>Get Access &rarr;</span>
+                </button>
+                <button class="wishlist-btn ${isWishlisted ? 'active' : ''}" data-id="${prod.id}" aria-label="Toggle Wishlist" type="button" style="width: 32px; height: 32px;">
+                    <svg viewBox="0 0 24 24" fill="${isWishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+                </button>
+            </div>
+        `;
+        
+        card.querySelector('.cta-purchase-trigger').addEventListener('click', () => {
+            if (typeof openPurchaseModal === 'function') openPurchaseModal(prod.id);
+        });
+        
+        card.querySelector('.wishlist-btn').addEventListener('click', (e) => {
+            const btn = e.currentTarget;
+            let wish = safeGetLocalStorage('lightning_deals_wishlist', []);
+            if (wish.includes(prod.id)) {
+                wish = wish.filter(id => id !== prod.id);
+                btn.classList.remove('active');
+                btn.querySelector('svg').setAttribute('fill', 'none');
+                showToast("Removed from Wishlist");
+            } else {
+                wish.push(prod.id);
+                btn.classList.add('active');
+                btn.querySelector('svg').setAttribute('fill', 'currentColor');
+                showToast("Added to Wishlist");
+            }
+            localStorage.setItem('lightning_deals_wishlist', JSON.stringify(wish));
+            if (typeof updateWishlistBadge === 'function') updateWishlistBadge();
+        });
+        
+        grid.appendChild(card);
+    });
+    
+    if (window.lucide) window.lucide.createIcons();
 }
 
 function getWarrantyStatus(order) {

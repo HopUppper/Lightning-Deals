@@ -2084,47 +2084,6 @@ function saveOrdersToStorage() {
 
 // --- Set up Orders control buttons ---
 function setupOrdersControls() {
-    const clearOrdersBtn = document.getElementById('btn-clear-orders');
-    if (clearOrdersBtn) {
-        clearOrdersBtn.addEventListener('click', () => {
-            if (confirm("WARNING: Are you sure you want to clear ALL customer order history logs? This cannot be undone.")) {
-                ordersList = [];
-                saveOrdersToStorage();
-                renderOrdersStats();
-                renderOrdersTable();
-                updatePendingBadgeCount();
-                updateStorageIndicator();
-                alert("Order history logs cleared successfully.");
-            }
-        });
-    }
-
-    // Clear all screenshots button handler
-    const clearScreenshotsBtn = document.getElementById('btn-clear-screenshots');
-    if (clearScreenshotsBtn) {
-        clearScreenshotsBtn.addEventListener('click', () => {
-            let screenshotCount = 0;
-            ordersList.forEach(order => {
-                if (order.screenshot && order.screenshot.length > 100) screenshotCount++;
-            });
-            if (screenshotCount === 0) {
-                alert("No screenshot data found to clear.");
-                return;
-            }
-            if (confirm(`This will remove screenshot images from ${screenshotCount} order(s) to free up browser storage. Order details will be preserved. Continue?`)) {
-                ordersList.forEach(order => {
-                    if (order.screenshot && order.screenshot.length > 100) {
-                        order.screenshot = "removed:manually_cleared";
-                        order.screenshotRemoved = true;
-                    }
-                });
-                saveOrdersToStorage();
-                renderOrdersTable();
-                updateStorageIndicator();
-                alert(`✅ Screenshots cleared from ${screenshotCount} order(s). Storage space freed!`);
-            }
-        });
-    }
 
     // Show storage usage indicator
     updateStorageIndicator();
@@ -5368,6 +5327,47 @@ renderAnalytics = function() {
 
 // --- Render Home Overview Cockpit Dashboard ---
 function renderHomeCockpit() {
+    // 2. Read notification settings to update automation badges
+    let settings = {};
+    try {
+        const saved = localStorage.getItem('lightning_deals_settings');
+        if (saved) {
+            settings = JSON.parse(saved) || {};
+        }
+    } catch (e) {
+        console.error("Error reading settings for automations indicator:", e);
+    }
+    
+    const notifyMethod = settings.notificationMethod || 'disabled';
+    const callmebotKey = (settings.callmebotApiKey || '').trim();
+    const discordUrl = (settings.discordWebhookUrl || '').trim();
+    const telegramToken = (settings.telegramBotToken || '').trim();
+    const telegramChat = (settings.telegramChatId || '').trim();
+
+    let isConfigured = false;
+    if (notifyMethod === 'callmebot' && callmebotKey) isConfigured = true;
+    else if (notifyMethod === 'discord' && discordUrl) isConfigured = true;
+    else if (notifyMethod === 'telegram' && telegramToken && telegramChat) isConfigured = true;
+
+    const indicators = [
+        document.getElementById('status-whatsapp-flows'),
+        document.getElementById('status-cart-reminders'),
+        document.getElementById('status-renewal-alerts')
+    ];
+
+    indicators.forEach(el => {
+        if (!el) return;
+        if (isConfigured) {
+            el.innerText = '● Running';
+            el.className = 'auto-status-indicator active';
+            el.style.color = ''; // Keep CSS class color
+        } else {
+            el.innerText = '● Not Configured';
+            el.className = 'auto-status-indicator';
+            el.style.color = '#71717a'; // Muted grey
+        }
+    });
+
     // 1. Calculate stats values
     const today = new Date().toDateString();
     

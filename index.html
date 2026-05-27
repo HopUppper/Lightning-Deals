@@ -53,7 +53,7 @@
     <header id="main-header">
         <!-- Sticky Urgency Announcement Bar -->
         <div class="announcement-bar">
-            <span>⚡ 47 subscriptions activated today · Average delivery: 8 min · 7-Day Replacement Warranty included</span>
+            <span id="announcement-text" style="transition: opacity 0.5s ease; opacity: 1;">⚡ Fast delivery · 7-Day Replacement Warranty · 24/7 WhatsApp Support</span>
         </div>
         <div class="container header-container">
             <a href="#" class="logo" id="header-logo">
@@ -69,53 +69,30 @@
                 <span class="logo-text">Lightning<span class="logo-highlight">Deals</span></span>
             </a>
             
-            <nav class="desktop-nav" id="desktop-navigation">
-                <a href="#" class="nav-link active">Home</a>
-                <a href="#products" class="nav-link">Products</a>
-                <a href="#why-choose-us" class="nav-link">Why Us</a>
-                <a href="#how-it-works" class="nav-link">How It Works</a>
-                <a href="#testimonials" class="nav-link">Reviews</a>
-                <a href="#faq" class="nav-link">FAQ</a>
-                <a href="#contact" class="nav-link">Contact</a>
+            <nav id="main-navigation">
+                <div class="desktop-nav" id="desktop-navigation">
+                    <a href="#" class="nav-link active">Home</a>
+                    <a href="#products" class="nav-link">Products</a>
+                    <a href="#why-choose-us" class="nav-link">Why Us</a>
+                    <a href="#how-it-works" class="nav-link">How It Works</a>
+                    <a href="#testimonials" class="nav-link">Reviews</a>
+                    <a href="#faq" class="nav-link">FAQ</a>
+                    <a href="#contact" class="nav-link">Contact</a>
+                </div>
+
+
+                <div class="mobile-nav" id="mobile-navigation">
+                    <a href="#" class="mobile-nav-link">Home</a>
+                    <a href="#products" class="mobile-nav-link">Products</a>
+                    <a href="#why-choose-us" class="mobile-nav-link">Why Us</a>
+                    <a href="#how-it-works" class="mobile-nav-link">How It Works</a>
+                    <a href="#testimonials" class="mobile-nav-link">Reviews</a>
+                    <a href="#faq" class="mobile-nav-link">FAQ</a>
+                    <a href="#contact" class="mobile-nav-link">Contact</a>
+                    <a href="#" class="mobile-nav-link" id="mob-nav-orders-btn">My Orders</a>
+                    <a href="#products" class="mobile-nav-link btn btn-primary text-center margin-top-sm" style="display: block; margin-top: 1rem;">Get Premium Access</a>
+                </div>
             </nav>
-
-
-            <div class="header-actions">
-                <button class="wishlist-trigger-btn" id="header-orders-btn" aria-label="View My Orders">
-                    <i data-lucide="user" style="width: 16px; height: 16px;"></i>
-                    <span class="wishlist-label">My Orders</span>
-                </button>
-                <button class="wishlist-trigger-btn" id="header-wishlist-btn" aria-label="View Wishlist">
-                    <i data-lucide="heart" style="width: 16px; height: 16px;"></i>
-                    <span class="wishlist-label">Wishlist</span>
-                    <span class="badge-wishlist-count" id="wishlist-count-badge" style="display: none;">0</span>
-                </button>
-                <button class="cart-trigger-btn" id="header-cart-btn" aria-label="View Shopping Cart">
-                    <i data-lucide="shopping-cart" style="width: 16px; height: 16px;"></i>
-                    <span class="cart-label">Cart</span>
-                    <span class="badge-cart-count" id="cart-count-badge">0</span>
-                </button>
-                <a href="#products" class="btn btn-primary btn-sm btn-glow" id="nav-cta-btn">
-                    <span>See Today's Deals</span>
-                </a>
-                <button class="mobile-nav-toggle" id="mobile-menu-toggle" aria-label="Toggle Navigation Menu">
-                    <i data-lucide="menu"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mobile Navigation Menu -->
-        <div class="mobile-nav" id="mobile-navigation">
-            <a href="#" class="mobile-nav-link">Home</a>
-            <a href="#products" class="mobile-nav-link">Products</a>
-            <a href="#why-choose-us" class="mobile-nav-link">Why Us</a>
-            <a href="#how-it-works" class="mobile-nav-link">How It Works</a>
-            <a href="#testimonials" class="mobile-nav-link">Reviews</a>
-            <a href="#faq" class="mobile-nav-link">FAQ</a>
-            <a href="#contact" class="mobile-nav-link">Contact</a>
-            <a href="#" class="mobile-nav-link" id="mob-nav-orders-btn">My Orders</a>
-            <a href="#products" class="mobile-nav-link btn btn-primary text-center margin-top-sm">Get Premium Access</a>
-        </div>
     </header>
 
     <!-- Main Content -->
@@ -126,7 +103,7 @@
                 <div class="hero-content">
                     <div class="hero-badge fade-in">
                         <i data-lucide="zap" class="icon-sparkle" style="color: #F5C842;"></i>
-                        <span>3,481 Active Subscriptions • 8-Min Avg. Setup</span>
+                        <span>Trusted by freelancers, founders & students across India</span>
                     </div>
                     <h1 class="hero-title fade-in delay-1">
                         Your tools. 90% cheaper. <br>
@@ -137,7 +114,7 @@
                     </p>
                     <div class="hero-actions fade-in delay-3">
                         <a href="#products" class="btn btn-primary btn-lg btn-glow" id="hero-cta-primary">
-                            <span>See Today's Deals (47 active)</span>
+                            <span>Browse All Deals</span>
                         </a>
                         <a href="#how-we-source" class="btn btn-secondary btn-lg" id="hero-cta-secondary">
                             <span>How We Source Licenses</span>
@@ -580,7 +557,46 @@
 
                 <!-- Products Grid with skeleton loaders -->
                 <div class="products-grid" id="store-products-grid">
-                    <!-- Venture-Backed Skeleton Loading state -->
+                    <!-- Venture-Backed Skeleton Loading state (6 cards) -->
+                    <div class="skeleton-card glass-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-circle"></div>
+                            <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="skeleton-line-long"></div>
+                        <div class="skeleton-line-medium"></div>
+                        <div class="skeleton-price-block">
+                            <div class="skeleton-line-short"></div>
+                            <div class="skeleton-line-price"></div>
+                        </div>
+                        <div class="skeleton-button"></div>
+                    </div>
+                    <div class="skeleton-card glass-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-circle"></div>
+                            <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="skeleton-line-long"></div>
+                        <div class="skeleton-line-medium"></div>
+                        <div class="skeleton-price-block">
+                            <div class="skeleton-line-short"></div>
+                            <div class="skeleton-line-price"></div>
+                        </div>
+                        <div class="skeleton-button"></div>
+                    </div>
+                    <div class="skeleton-card glass-card">
+                        <div class="skeleton-header">
+                            <div class="skeleton-circle"></div>
+                            <div class="skeleton-badge"></div>
+                        </div>
+                        <div class="skeleton-line-long"></div>
+                        <div class="skeleton-line-medium"></div>
+                        <div class="skeleton-price-block">
+                            <div class="skeleton-line-short"></div>
+                            <div class="skeleton-line-price"></div>
+                        </div>
+                        <div class="skeleton-button"></div>
+                    </div>
                     <div class="skeleton-card glass-card">
                         <div class="skeleton-header">
                             <div class="skeleton-circle"></div>
@@ -622,6 +638,16 @@
                     </div>
                 </div>
 
+                <!-- Recently Viewed Section -->
+                <div class="recently-viewed-container hidden" id="recently-viewed-section" style="margin-top: 4rem; border-top: 1px solid rgba(255, 255, 255, 0.03); padding-top: 3rem;">
+                    <div class="section-header text-center" style="margin-bottom: 2rem;">
+                        <h3 class="section-title" style="font-size: 1.5rem;">Recently <span class="gradient-text">Viewed Deals</span></h3>
+                        <p class="section-subtitle" style="font-size: 0.85rem;">Items you checked out recently.</p>
+                    </div>
+                    <div class="products-grid" id="recently-viewed-grid">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
 
             </div>
         </section>
@@ -636,10 +662,9 @@
                 
                 <div class="proof-carousel-container">
                     <div class="proof-carousel-track">
-                        <!-- Card 1 -->
                         <div class="proof-card">
                             <div class="proof-img-container">
-                                <img src="img/chatgpt_proof.jpg" alt="ChatGPT Plus Activation Proof" class="proof-img" loading="lazy">
+                                <img src="img/chatgpt_proof.jpg" alt="Screenshot showing active ChatGPT Plus subscription confirmation delivered to customer email by LightningDeals" class="proof-img" loading="lazy">
                                 <div class="proof-overlay-lens"></div>
                             </div>
                             <div class="proof-card-info">
@@ -647,10 +672,10 @@
                                 <span class="proof-card-details">ChatGPT Plus</span>
                             </div>
                         </div>
-                        <!-- Card 2 -->
+
                         <div class="proof-card">
                             <div class="proof-img-container">
-                                <img src="img/canva_proof.jpg" alt="Canva Pro Invite Proof" class="proof-img" loading="lazy">
+                                <img src="img/canva_proof.jpg" alt="Screenshot showing Canva Pro Team invite accepted and active for LightningDeals customer" class="proof-img" loading="lazy">
                                 <div class="proof-overlay-lens"></div>
                             </div>
                             <div class="proof-card-info">
@@ -658,10 +683,10 @@
                                 <span class="proof-card-details">Canva Pro Team</span>
                             </div>
                         </div>
-                        <!-- Card 3 -->
+
                         <div class="proof-card">
                             <div class="proof-img-container">
-                                <img src="img/adobe_proof.jpg" alt="Adobe CC License Proof" class="proof-img" loading="lazy">
+                                <img src="img/adobe_proof.jpg" alt="Screenshot showing Adobe Creative Cloud license activated on personal email via LightningDeals" class="proof-img" loading="lazy">
                                 <div class="proof-overlay-lens"></div>
                             </div>
                             <div class="proof-card-info">
@@ -718,6 +743,7 @@
                                 <span class="chat-name">Rahul Mehta</span>
                                 <span class="chat-tag-badge">Creator</span>
                                 <span class="chat-time" style="color: var(--clr-green); background: rgba(34, 197, 94, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem;">Verified Buyer</span>
+                                <span class="chat-timestamp" style="font-size: 0.72rem; color: var(--text-muted); margin-left: 8px;">May 14, 2026</span>
                             </div>
                             <p class="chat-msg-text">Yo, was super skeptical about the Canva Pro and Adobe CC invites, but my account got upgraded in like 10 mins. Activated directly on my registered email. Saved me 15k this month. Will definitely renew! 🙌</p>
                         </div>
@@ -732,6 +758,7 @@
                                 <span class="chat-name">Siddharth Jain</span>
                                 <span class="chat-tag-badge">Trader</span>
                                 <span class="chat-time" style="color: var(--clr-green); background: rgba(34, 197, 94, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem;">Verified Buyer</span>
+                                <span class="chat-timestamp" style="font-size: 0.72rem; color: var(--text-muted); margin-left: 8px;">May 10, 2026</span>
                             </div>
                             <p class="chat-msg-text">TradingView Premium is working perfectly. Second-based charts and custom indicators load instantly without any lag. The WhatsApp admin was super helpful with the payment setup.</p>
                         </div>
@@ -746,6 +773,7 @@
                                 <span class="chat-name">Sarah Lim</span>
                                 <span class="chat-tag-badge">Developer</span>
                                 <span class="chat-time" style="color: var(--clr-green); background: rgba(34, 197, 94, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem;">Verified Buyer</span>
+                                <span class="chat-timestamp" style="font-size: 0.72rem; color: var(--text-muted); margin-left: 8px;">May 8, 2026</span>
                             </div>
                             <p class="chat-msg-text">Got Cursor Pro and GitHub Copilot seats for a fraction of the cost. Everything works fine in VS Code, context indexing is active, and I can query Claude 3.5 without any limits. Absolute lifesaver for bootstrapping!</p>
                         </div>
@@ -760,6 +788,7 @@
                                 <span class="chat-name">Amir Al-Harbi</span>
                                 <span class="chat-tag-badge">Student</span>
                                 <span class="chat-time" style="color: var(--clr-green); background: rgba(34, 197, 94, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem;">Verified Buyer</span>
+                                <span class="chat-timestamp" style="font-size: 0.72rem; color: var(--text-muted); margin-left: 8px;">Apr 29, 2026</span>
                             </div>
                             <p class="chat-msg-text">Been using Notion Pro and MS Office 365 from Lightning Deals for over a year now. Every time a license expires, their team renews it instantly. Incredibly reliable service for students.</p>
                         </div>
@@ -774,6 +803,7 @@
                                 <span class="chat-name">Priyanka Sharma</span>
                                 <span class="chat-tag-badge">Agency</span>
                                 <span class="chat-time" style="color: var(--clr-green); background: rgba(34, 197, 94, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem;">Verified Buyer</span>
+                                <span class="chat-timestamp" style="font-size: 0.72rem; color: var(--text-muted); margin-left: 8px;">Apr 18, 2026</span>
                             </div>
                             <p class="chat-msg-text">We manage socials for 8 clients. Moving our Figma and Canva licenses to Lightning Deals cut our software overhead by ₹18k/month. I was worried about team invites breaking, but we've had zero downtimes in 5 months. Outstanding service! 🚀</p>
                         </div>
@@ -788,6 +818,7 @@
                                 <span class="chat-name">Vikram Malhotra</span>
                                 <span class="chat-tag-badge">Founder</span>
                                 <span class="chat-time" style="color: var(--clr-green); background: rgba(34, 197, 94, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem;">Verified Buyer</span>
+                                <span class="chat-timestamp" style="font-size: 0.72rem; color: var(--text-muted); margin-left: 8px;">May 2, 2026</span>
                             </div>
                             <p class="chat-msg-text">Absolute game-changer for bootstrapping founders. Got ChatGPT Plus slots, Cursor Pro for development, and TradingView for monitoring markets. The Razorpay checkout was super smooth — paid in under 30 seconds. Direct invite active on my main personal accounts.</p>
                         </div>
@@ -802,6 +833,7 @@
                                 <span class="chat-name">Ananya Rao</span>
                                 <span class="chat-tag-badge">Creator</span>
                                 <span class="chat-time" style="color: var(--clr-green); background: rgba(34, 197, 94, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem;">Verified Buyer</span>
+                                <span class="chat-timestamp" style="font-size: 0.72rem; color: var(--text-muted); margin-left: 8px;">Apr 25, 2026</span>
                             </div>
                             <p class="chat-msg-text">Just activated Adobe Creative Cloud on my personal mail. Generative Fill, Lightroom, and Premiere Pro work flawlessly. Literally saved 90% of the cost. Highly recommend their prompt WhatsApp support, very professional team!</p>
                         </div>
@@ -981,7 +1013,7 @@
         <section id="final-cta" class="final-cta-section">
             <div class="container">
                 <div class="glass-card final-cta-card">
-                    <h2 class="final-cta-title">3,481 subscriptions activated this month. <br><span class="gradient-text">Start yours today.</span></h2>
+                    <h2 class="final-cta-title">Join thousands of smart users saving on premium tools. <br><span class="gradient-text">Start yours today.</span></h2>
                     <p class="final-cta-subtitle">15-minute average delivery, guaranteed. Full replacement warranty on every plan. If your subscription doesn't activate within 30 minutes — full refund, no questions.</p>
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                         <a href="#products" class="btn btn-primary btn-lg btn-glow">
