@@ -2898,7 +2898,8 @@ function setupDiscordAutomations() {
     loadDiscordConfig();
     
     if (btnSave) {
-        btnSave.addEventListener('click', () => {
+        btnSave.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
             const url = webhookInput.value.trim();
             
             discordRules.signup = checkSignup ? checkSignup.checked : true;
@@ -2927,7 +2928,8 @@ function setupDiscordAutomations() {
     }
     
     if (btnTest) {
-        btnTest.addEventListener('click', () => {
+        btnTest.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
             const url = webhookInput.value.trim();
             if (!url) {
                 alert("Please enter a Discord Webhook URL first.");
@@ -5584,14 +5586,10 @@ function setupHomeQuickActions() {
             case 'activate-customer':
             case 'issue-refund':
             case 'resend-activation':
-                // Focus Cmd+K search box to choose order/customer
-                const searchTrigger = document.getElementById('btn-trigger-search');
-                if (searchTrigger) searchTrigger.click();
-                break;
             case 'send-whatsapp':
             case 'copy-template':
-                const templatesBtn = document.getElementById('sidebar-btn-templates');
-                if (templatesBtn) templatesBtn.click();
+                const oBtn = document.getElementById('sidebar-btn-orders');
+                if (oBtn) oBtn.click();
                 break;
             case 'create-coupon':
                 const couponsBtn = document.getElementById('sidebar-btn-coupons');
@@ -5602,7 +5600,7 @@ function setupHomeQuickActions() {
                 if (catalogBtn) {
                     catalogBtn.click();
                     setTimeout(() => {
-                        const nameBox = document.getElementById('product-title');
+                        const nameBox = document.getElementById('prod-name');
                         if (nameBox) nameBox.focus();
                     }, 100);
                 }
