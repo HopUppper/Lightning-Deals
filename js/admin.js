@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCouponsForm();
     setupBundlesForm();
     setupStoreSettings();
-    setupTemplatesForm();
+    setupDiscordAutomations();
     setupBulkActions();
     setupCRMAndLogs();
     setupPremiumSaaSOperations();
@@ -950,7 +950,7 @@ function setupTabsNavigation() {
         { btn: document.getElementById('sidebar-btn-orders'), panel: document.getElementById('panel-orders'), callback: () => { loadOrdersFromStorage(); renderOrdersTable(); renderOrdersStats(); } },
         { btn: document.getElementById('sidebar-btn-analytics'), panel: document.getElementById('panel-analytics'), callback: () => { loadOrdersFromStorage(); renderAnalytics(); } },
         { btn: document.getElementById('sidebar-btn-users'), panel: document.getElementById('panel-users'), callback: () => { renderCRMPanel(); } },
-        { btn: document.getElementById('sidebar-btn-templates'), panel: document.getElementById('panel-templates'), callback: () => { renderTemplates(); } },
+        { btn: document.getElementById('sidebar-btn-discord'), panel: document.getElementById('panel-discord'), callback: () => { renderDiscordPanel(); } },
         { btn: document.getElementById('sidebar-btn-coupons'), panel: document.getElementById('panel-coupons'), callback: () => { loadCoupons(); renderCouponsTable(); renderCouponsStats(); } },
         { btn: document.getElementById('sidebar-btn-bundles'), panel: document.getElementById('panel-bundles'), callback: () => { loadBundles(); renderBundlesTable(); renderBundlesStats(); } },
         { btn: document.getElementById('sidebar-btn-logs'), panel: document.getElementById('panel-logs'), callback: () => { renderLogsPanel(); } },
@@ -2853,7 +2853,300 @@ function setupStoreSettings() {
     // Run initial load
     loadStoreSettings();
 
-    // Export function to reload when clicking tab
+// ==========================================================================
+// PREMIUM DISCORD WEBHOOK ENGINE & CRM UTILITIES & BROADCAST CAMPAIGNS
+// ==========================================================================
+
+let discordRules = {
+    signup: true,
+    pending: true,
+    delivery: true,
+    lockout: true
+};
+
+function addDiscordRelayLog(direction, type, message) {
+    const container = document.getElementById('discord-logs-container');
+    if (!container) return;
+    
+    // Clear initial empty state
+    if (container.querySelector('div[style*="font-style: italic"]')) {
+        container.innerHTML = '';
+    }
+    
+    const timeStr = new Date().toISOString().replace('T', ' ').substring(0, 19);
+    const logItem = document.createElement('div');
+    logItem.style.marginBottom = '6px';
+    logItem.style.borderBottom = '1px solid rgba(255,255,255,0.02)';
+    logItem.style.paddingBottom = '4px';
+    
+    const arrow = direction === 'OUT' ? '➔' : '⇠';
+    const arrowColor = direction === 'OUT' ? '#00f2fe' : '#39da8a';
+    
+    logItem.innerHTML = `
+        <span style="color: #7e8b9b;">[${timeStr}]</span> 
+        <span style="color: ${arrowColor}; font-weight: bold;">${arrow} ${direction}</span> 
+        <span style="color: #fff; font-weight: 600;">[${type}]</span>: 
+        <span style="word-break: break-all;">${escapeHTML(message)}</span>
+    `;
+    
+    container.appendChild(logItem);
+    container.scrollTop = container.scrollHeight;
+}
+
+function setupDiscordAutomations() {
+    const btnSave = document.getElementById('btn-save-discord');
+    const btnTest = document.getElementById('btn-test-discord');
+    const webhookInput = document.getElementById('discord-webhook-url');
+    
+    const checkSignup = document.getElementById('rule-discord-signup');
+    const checkPending = document.getElementById('rule-discord-pending');
+    const checkDelivery = document.getElementById('rule-discord-delivery');
+    const checkLockout = document.getElementById('rule-discord-lockout');
+    
+    if (!webhookInput) return;
+
+    // Load current configuration
+    function loadDiscordConfig() {
+        if (database) {
+            database.ref('settings').once('value').then(snapshot => {
+                const settings = snapshot.val() || {};
+                webhookInput.value = settings.discordWebhookUrl || "";
+                
+                // Load rules
+                const rules = settings.discordRules || {};
+                discordRules.signup = rules.signup !== false;
+                discordRules.pending = rules.pending !== false;
+                discordRules.delivery = rules.delivery !== false;
+                discordRules.lockout = rules.lockout !== false;
+                
+                if (checkSignup) checkSignup.checked = discordRules.signup;
+                if (checkPending) checkPending.checked = discordRules.pending;
+                if (checkDelivery) checkDelivery.checked = discordRules.delivery;
+                if (checkLockout) checkLockout.checked = discordRules.lockout;
+                
+                addDiscordRelayLog('IN', 'SYS_CONFIG', 'Successfully fetched telemetry configuration from Firebase Realtime Database.');
+            }).catch(err => {
+                console.error("Failed to load Discord config:", err);
+                addDiscordRelayLog('IN', 'SYS_ERR', `Firebase connection failed: ${err.message}`);
+            });
+        } else {
+            // Local fallback
+            webhookInput.value = localStorage.getItem('lightning_deals_discord_webhook') || '';
+            addDiscordRelayLog('IN', 'SYS_FALLBACK', 'Initialized in local sandbox offline mode.');
+        }
+    }
+    
+    loadDiscordConfig();
+    
+    if (btnSave) {
+        btnSave.addEventListener('click', () => {
+            const url = webhookInput.value.trim();
+            
+            discordRules.signup = checkSignup ? checkSignup.checked : true;
+            discordRules.pending = checkPending ? checkPending.checked : true;
+            discordRules.delivery = checkDelivery ? checkDelivery.checked : true;
+            discordRules.lockout = checkLockout ? checkLockout.checked : true;
+            
+            if (database) {
+                database.ref('settings').update({
+                    discordWebhookUrl: url,
+                    discordRules: discordRules,
+                    notificationMethod: url ? 'discord' : 'none'
+                }).then(() => {
+                    alert("Discord automations saved successfully!");
+                    addDiscordRelayLog('OUT', 'SAVE_CONFIG', `Pushed configuration settings update to Firebase settings/. Syncing with notificationMethod='discord'.`);
+                    logAdminActivity('SYSTEM', 'Updated Discord notification webhook rules');
+                }).catch(err => {
+                    console.error("Save config error:", err);
+                    alert("Firebase save failed: " + err.message);
+                });
+            } else {
+                localStorage.setItem('lightning_deals_discord_webhook', url);
+                alert("Saved locally (Firebase not connected)");
+            }
+        });
+    }
+    
+    if (btnTest) {
+        btnTest.addEventListener('click', () => {
+            const url = webhookInput.value.trim();
+            if (!url) {
+                alert("Please enter a Discord Webhook URL first.");
+                return;
+            }
+            
+            addDiscordRelayLog('OUT', 'TEST_DISPATCH', `Initiating synthetic webhook handshake connection request...`);
+            
+            const payload = {
+                username: "Lightning Deals - System Telemetry",
+                avatar_url: "https://lightning-deals.net/assets/logo.png",
+                embeds: [
+                    {
+                        title: "⚡ Telemetry Relays Online: Handshake Success",
+                        description: "This is a synthetic system-generated connection test dispatched from the administrative control console.",
+                        color: 62207, // Cyan
+                        fields: [
+                            { name: "Node Origin", value: "Lightning Deals Administration CRM", inline: true },
+                            { name: "Connection Handshake", value: "SUCCESS (200 OK)", inline: true },
+                            { name: "Active Relays", value: `New Signups: ${discordRules.signup ? '✅' : '❌'}\nNew Orders: ${discordRules.pending ? '✅' : '❌'}\nDeliveries: ${discordRules.delivery ? '✅' : '❌'}\nLockouts: ${discordRules.lockout ? '✅' : '❌'}`, inline: false }
+                        ],
+                        timestamp: new Date().toISOString(),
+                        footer: { text: "Enterprise Telemetry Monitor" }
+                    }
+                ]
+            };
+            
+            addDiscordRelayLog('OUT', 'POST_PAYLOAD', JSON.stringify(payload));
+            
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(res => {
+                if (res.ok) {
+                    addDiscordRelayLog('IN', 'POST_RESPONSE', `HTTP ${res.status} OK - Handshake established successfully.`);
+                    alert("Discord test connection successful! Check your channel.");
+                } else {
+                    addDiscordRelayLog('IN', 'POST_ERR', `HTTP ${res.status} - API handshakes returned invalid response code.`);
+                    alert("Failed to send webhook. Response status: " + res.status);
+                }
+            }).catch(err => {
+                addDiscordRelayLog('IN', 'SYS_ERR', `Network execution failed: ${err.message}`);
+                alert("Error sending webhook: " + err.message);
+            });
+        });
+    }
+
+    // Call export/broadcast hook-ups here
+    setupCRMExport();
+    setupBroadcastWizard();
+}
+
+function renderDiscordPanel() {
+    if (window.lucide) window.lucide.createIcons();
+}
+
+// CRM Customer Export to CSV Utility
+function setupCRMExport() {
+    const btnExport = document.getElementById('btn-export-crm');
+    if (!btnExport) return;
+    
+    btnExport.addEventListener('click', () => {
+        if (!crmUsersList || crmUsersList.length === 0) {
+            alert("No customer profiles available to export.");
+            return;
+        }
+        
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Customer ID (SHA256 Hash),Customer Name,Email Address,Phone Number,Verified Orders,Lifetime Value (LTV INR),Registration Status\n";
+        
+        crmUsersList.forEach(user => {
+            const id = user.id || '';
+            const name = (user.name || '').replace(/"/g, '""');
+            const email = (user.email || '').replace(/"/g, '""');
+            const phone = user.phone ? '+' + user.phone : '';
+            const orders = user.ordersCount || 0;
+            const ltv = user.ltv || 0;
+            const status = user.isLocked ? 'Locked' : 'Active';
+            
+            csvContent += `"${id}","${name}","${email}","${phone}",${orders},${ltv},"${status}"\n`;
+        });
+        
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `lightning_deals_crm_export_${new Date().toISOString().substring(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        logAdminActivity('SYSTEM', 'Exported full Customer CRM database to CSV');
+    });
+}
+
+// Admin Broadcast Promotion Campaigns
+function setupBroadcastWizard() {
+    const btnBroadcast = document.getElementById('btn-broadcast-promo');
+    const modal = document.getElementById('broadcast-promo-modal');
+    const form = document.getElementById('broadcast-promo-form');
+    
+    const btnClose = document.getElementById('close-broadcast-btn');
+    const btnCancel = document.getElementById('btn-cancel-broadcast');
+    
+    if (!btnBroadcast || !modal) return;
+    
+    btnBroadcast.addEventListener('click', () => {
+        document.getElementById('broadcast-title').value = '';
+        document.getElementById('broadcast-message').value = '';
+        modal.style.display = 'flex';
+    });
+    
+    const closeModal = () => {
+        modal.style.display = 'none';
+    };
+    
+    if (btnClose) btnClose.addEventListener('click', closeModal);
+    if (btnCancel) btnCancel.addEventListener('click', closeModal);
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    
+    if (form) {
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = document.getElementById('broadcast-title').value.trim();
+            const message = document.getElementById('broadcast-message').value.trim();
+            
+            if (!title || !message) return;
+            
+            if (database) {
+                database.ref('broadcast_promotions').push({
+                    title: title,
+                    message: message,
+                    timestamp: new Date().toISOString(),
+                    active: true
+                }).then(() => {
+                    alert("Promotion broadcasted live successfully to all customer portals!");
+                    closeModal();
+                    logAdminActivity('MARKETING', `Launched promotional broadcast campaign: "${title}"`);
+                    
+                    // Also dispatch to Discord webhook
+                    const discordUrl = document.getElementById('discord-webhook-url')?.value.trim();
+                    if (discordUrl) {
+                        const marketingPayload = {
+                            username: "Lightning Deals - Marketing Dispatch",
+                            avatar_url: "https://lightning-deals.net/assets/logo.png",
+                            embeds: [
+                                {
+                                    title: `📣 Live Broadcast Campaign Launched: ${title}`,
+                                    description: message,
+                                    color: 16738560, // Coral Orange
+                                    timestamp: new Date().toISOString(),
+                                    footer: { text: "Storefront Marketing Relays" }
+                                }
+                            ]
+                        };
+                        fetch(discordUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(marketingPayload)
+                        }).then(res => {
+                            addDiscordRelayLog('OUT', 'PROMO_DISPATCH', `Dispatched campaign alert to Discord. Status: ${res.status}`);
+                        }).catch(err => console.warn(err));
+                    }
+                }).catch(err => {
+                    alert("Firebase broadcast failed: " + err.message);
+                });
+            } else {
+                alert("Saved offline. Firebase Database not connected.");
+                closeModal();
+            }
+        });
+    }
+}
+
+// Export function to reload when clicking tab
     window.loadStoreSettings = loadStoreSettings;
 }
 

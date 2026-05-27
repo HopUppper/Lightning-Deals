@@ -2202,7 +2202,64 @@ function setupPurchaseModal() {
 
     if (btnNextToDetails) {
         btnNextToDetails.addEventListener('click', () => {
-            showStep(2);
+            if (!customerAuthStore.isLoggedIn()) {
+                sessionStorage.setItem('pending_checkout', 'true');
+                closeModal();
+                showToast("Compulsory Registration: Please register or log in to purchase.", "warning");
+                // Programmatically trigger Customer Portal Modal open
+                const ordersBtn = document.getElementById('header-orders-btn');
+                if (ordersBtn) {
+                    setTimeout(() => {
+                        ordersBtn.click();
+                    }, 350);
+                }
+                return;
+            }
+            
+            // If logged in, autofill, make read-only, and skip directly to Payment step
+            const cust = customerAuthStore.customer;
+            if (cust) {
+                inputName.value = cust.name || '';
+                inputEmail.value = cust.email || '';
+                inputPhone.value = cust.phone ? '+' + cust.phone : '';
+                
+                inputName.readOnly = true;
+                inputEmail.readOnly = true;
+                inputPhone.readOnly = true;
+                
+                // Add locked styles
+                inputName.style.background = 'rgba(255, 255, 255, 0.02)';
+                inputName.style.border = '1px solid rgba(255, 255, 255, 0.04)';
+                inputName.style.color = '#7e8b9b';
+                inputName.style.cursor = 'not-allowed';
+                
+                inputEmail.style.background = 'rgba(255, 255, 255, 0.02)';
+                inputEmail.style.border = '1px solid rgba(255, 255, 255, 0.04)';
+                inputEmail.style.color = '#7e8b9b';
+                inputEmail.style.cursor = 'not-allowed';
+                
+                inputPhone.style.background = 'rgba(255, 255, 255, 0.02)';
+                inputPhone.style.border = '1px solid rgba(255, 255, 255, 0.04)';
+                inputPhone.style.color = '#7e8b9b';
+                inputPhone.style.cursor = 'not-allowed';
+                
+                // Show verified account card
+                const verifiedCard = document.getElementById('checkout-account-verified-card');
+                if (verifiedCard) {
+                    verifiedCard.style.display = 'block';
+                    const emailSpan = document.getElementById('checkout-verified-email');
+                    if (emailSpan) emailSpan.innerText = cust.email;
+                }
+
+                // Prepare payment step (amount, QR URL, UPI links)
+                setupPaymentQR();
+                
+                // Skip details form and slide straight to secure payment step!
+                showStep(3);
+                showToast(`Session active as ${cust.email}. Skipped details step.`, "success");
+            } else {
+                showStep(2);
+            }
         });
     }
 
@@ -4589,6 +4646,34 @@ const customerAuthStore = {
         
         // Update header profile button states
         this.updateHeaderUI();
+
+        // Check if there is a pending checkout
+        if (sessionStorage.getItem('pending_checkout') === 'true') {
+            sessionStorage.removeItem('pending_checkout');
+            showToast("Authenticated! Resuming checkout...", "success");
+            
+            // Programmatically close customer portal modal
+            const closePortalBtn = document.getElementById('close-orders-portal-modal-btn');
+            if (closePortalBtn) {
+                closePortalBtn.click();
+            }
+            
+            // Reopen checkout modal
+            const cartBtn = document.getElementById('header-cart-btn');
+            if (cartBtn) {
+                setTimeout(() => {
+                    cartBtn.click();
+                    
+                    // Click proceed to details automatically
+                    setTimeout(() => {
+                        const nextBtn = document.getElementById('btn-next-to-details');
+                        if (nextBtn) {
+                            nextBtn.click();
+                        }
+                    }, 400);
+                }, 450);
+            }
+        }
     },
     
     logout() {
@@ -4622,6 +4707,37 @@ const customerAuthStore = {
         if (typeof renderCartItems === 'function') renderCartItems();
         if (typeof renderWishlistItems === 'function') renderWishlistItems();
 
+        // Reset disabled states and styling in checkout form
+        const inputNameCheck = document.getElementById('checkout-name');
+        const inputEmailCheck = document.getElementById('checkout-email');
+        const inputPhoneCheck = document.getElementById('checkout-phone');
+        const verifiedCardCheck = document.getElementById('checkout-account-verified-card');
+        
+        if (inputNameCheck) {
+            inputNameCheck.readOnly = false;
+            inputNameCheck.style.background = '';
+            inputNameCheck.style.border = '';
+            inputNameCheck.style.color = '';
+            inputNameCheck.style.cursor = '';
+        }
+        if (inputEmailCheck) {
+            inputEmailCheck.readOnly = false;
+            inputEmailCheck.style.background = '';
+            inputEmailCheck.style.border = '';
+            inputEmailCheck.style.color = '';
+            inputEmailCheck.style.cursor = '';
+        }
+        if (inputPhoneCheck) {
+            inputPhoneCheck.readOnly = false;
+            inputPhoneCheck.style.background = '';
+            inputPhoneCheck.style.border = '';
+            inputPhoneCheck.style.color = '';
+            inputPhoneCheck.style.cursor = '';
+        }
+        if (verifiedCardCheck) {
+            verifiedCardCheck.style.display = 'none';
+        }
+
         this.updateHeaderUI();
     },
     
@@ -4648,13 +4764,13 @@ const customerAuthStore = {
         const loggedInMobHTML = `<span style="width: 20px; height: 20px; background: var(--clr-cyan); color: #000; font-size: 0.65rem; font-weight: 700; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2px;">${initials}</span> Portal`;
 
         if (btnHeaderOrders) {
-            btnHeaderOrders.innerHTML = this.isLoggedIn() ? loggedInHTML : `<i data-lucide="shield-check"></i> <span>My Orders</span>`;
+            btnHeaderOrders.innerHTML = this.isLoggedIn() ? loggedInHTML : `<i data-lucide="log-in" style="color: var(--clr-cyan); width: 15px; height: 15px;"></i> <span style="font-weight: 700; color: var(--clr-cyan);">Sign In / Register</span>`;
         }
         if (btnMobOrders) {
-            btnMobOrders.innerHTML = this.isLoggedIn() ? loggedInMobHTML : `<i data-lucide="shield-check"></i> Portal`;
+            btnMobOrders.innerHTML = this.isLoggedIn() ? loggedInMobHTML : `<i data-lucide="log-in"></i> Login`;
         }
         if (btnMobOrdersFooter) {
-            btnMobOrdersFooter.innerHTML = this.isLoggedIn() ? loggedInHTML : `<i data-lucide="shield-check"></i> <span>My Orders</span>`;
+            btnMobOrdersFooter.innerHTML = this.isLoggedIn() ? loggedInHTML : `<i data-lucide="log-in" style="color: var(--clr-cyan); width: 15px; height: 15px;"></i> <span style="font-weight: 700; color: var(--clr-cyan);">Sign In / Register</span>`;
         }
         
         if (window.lucide) window.lucide.createIcons();
@@ -4836,12 +4952,42 @@ function setupCustomerPortal() {
             // Open default active tab (My Orders)
             switchTab('orders');
             fetchCustomerOrders();
+            loadBroadcastPromotions();
         } else {
             authPane.style.display = 'block';
             dashboardPane.style.display = 'none';
             showAuthView('login');
         }
         if (window.lucide) window.lucide.createIcons();
+    }
+
+    function loadBroadcastPromotions() {
+        const banner = document.getElementById('portal-broadcast-banner');
+        const titleEl = document.getElementById('portal-broadcast-title');
+        const msgEl = document.getElementById('portal-broadcast-message');
+        
+        if (!banner || !database) return;
+        
+        database.ref('broadcast_promotions').orderByChild('active').equalTo(true).limitToLast(1).once('value')
+            .then(snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    const promo = Object.values(data)[0];
+                    if (promo && promo.title && promo.message) {
+                        titleEl.innerText = promo.title;
+                        msgEl.innerText = promo.message;
+                        banner.style.display = 'block';
+                        
+                        if (window.lucide) window.lucide.createIcons();
+                        return;
+                    }
+                }
+                banner.style.display = 'none';
+            })
+            .catch(err => {
+                console.warn("Failed to load marketing broadcast:", err);
+                banner.style.display = 'none';
+            });
     }
 
     // Toggle sub-auth panes (login, signup, forgot password)

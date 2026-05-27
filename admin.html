@@ -122,9 +122,9 @@
                             </button>
                         </li>
                         <li>
-                            <button class="nav-item-btn" id="sidebar-btn-templates" data-target="panel-templates">
-                                <i data-lucide="copy"></i>
-                                <span>Message Templates</span>
+                            <button class="nav-item-btn" id="sidebar-btn-discord" data-target="panel-discord">
+                                <i data-lucide="bell-ring"></i>
+                                <span>Discord Automations</span>
                             </button>
                         </li>
                     </ul>
@@ -879,18 +879,72 @@
                 </div>
             </div>
 
-            <!-- ================= PANEL: RESELLER MESSAGE TEMPLATES ================= -->
-            <div class="admin-panel" id="panel-templates">
-                <div class="table-card-header flex-header-between margin-bottom-md">
-                    <div>
-                        <h3>Reseller Message Templates</h3>
-                        <span class="sub-label">Manage and copy preformatted templates for sending activation details to customers.</span>
-                    </div>
-                    <button class="btn btn-primary btn-sm" id="btn-add-template"><i data-lucide="plus-circle"></i> Add New Template</button>
+            <!-- ================= PANEL: DISCORD NOTIFICATION AUTOMATIONS ================= -->
+            <div class="admin-panel" id="panel-discord">
+                <div class="table-card-header margin-bottom-md">
+                    <h3>Discord Webhook Notification Engine</h3>
+                    <span class="sub-label">Configure telemetry rules, customize ping formats, and monitor outgoing Discord notification relays.</span>
                 </div>
-                
-                <div class="templates-list-wrapper" id="templates-list-container">
-                    <!-- Rendered dynamically -->
+
+                <div class="admin-content-grid">
+                    <!-- Left Column: Discord Configuration Settings -->
+                    <div class="admin-form-col">
+                        <div class="glass-card admin-form-card" style="padding: 1.5rem;">
+                            <div class="form-card-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; margin-bottom: 15px;">
+                                <h3 style="font-size: 1.05rem; color: var(--clr-cyan); margin: 0;"><i data-lucide="bell" style="vertical-align: middle; margin-right: 6px; width: 18px; height: 18px;"></i> Webhook Connection</h3>
+                            </div>
+                            
+                            <form id="discord-webhook-form" onsubmit="return false;">
+                                <div class="form-group">
+                                    <label for="discord-webhook-url" style="font-weight: 600;">Discord Webhook URL *</label>
+                                    <input type="password" id="discord-webhook-url" placeholder="https://discord.com/api/webhooks/..." style="width: 100%; padding: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.85rem; margin-bottom: 6px;">
+                                    <small class="form-tip">Direct webhook URL of your target text channel.</small>
+                                </div>
+
+                                <div style="display: flex; gap: 10px; margin-top: 15px; margin-bottom: 20px;">
+                                    <button class="btn btn-primary btn-sm btn-glow" id="btn-save-discord" style="flex-grow: 1;">Save Configuration</button>
+                                    <button class="btn btn-secondary btn-sm" id="btn-test-discord"><i data-lucide="send" style="width: 12px; height: 12px; margin-right: 4px;"></i> Test Ping</button>
+                                </div>
+                            </form>
+
+                            <div class="form-card-header" style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; margin-bottom: 12px; margin-top: 10px;">
+                                <h3 style="font-size: 1.05rem; color: var(--clr-cyan); margin: 0;"><i data-lucide="sliders" style="vertical-align: middle; margin-right: 6px; width: 18px; height: 18px;"></i> Dispatch Telemetry Rules</h3>
+                            </div>
+
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="rule-discord-signup" checked style="width: auto; margin-bottom: 0;">
+                                    <label for="rule-discord-signup" style="font-size: 0.85rem; font-weight: 600; cursor: pointer;">New Customer Registration</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="rule-discord-pending" checked style="width: auto; margin-bottom: 0;">
+                                    <label for="rule-discord-pending" style="font-size: 0.85rem; font-weight: 600; cursor: pointer;">New Order Placed (Pending payment review)</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="rule-discord-delivery" checked style="width: auto; margin-bottom: 0;">
+                                    <label for="rule-discord-delivery" style="font-size: 0.85rem; font-weight: 600; cursor: pointer;">Order Fulfilled (Details delivered)</label>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <input type="checkbox" id="rule-discord-lockout" checked style="width: auto; margin-bottom: 0;">
+                                    <label for="rule-discord-lockout" style="font-size: 0.85rem; font-weight: 600; cursor: pointer;">Brute-Force Account Lockout Triggered</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Live Webhook Relay Logs -->
+                    <div class="admin-table-col">
+                        <div class="glass-card table-card" style="padding: 1.5rem; height: 100%; display: flex; flex-direction: column; gap: 10px; min-height: 420px;">
+                            <div class="table-card-header" style="padding: 0; margin-bottom: 10px;">
+                                <h3>Outgoing Webhook Relay Logs</h3>
+                                <span class="sub-label">Real-time audit log of payloads sent to the Discord API.</span>
+                            </div>
+
+                            <div style="flex-grow: 1; min-height: 250px; background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 12px; font-family: 'Courier New', Courier, monospace; font-size: 0.76rem; color: #a4b5c6; overflow-y: auto; max-height: 380px; line-height: 1.5;" id="discord-logs-container">
+                                <div style="color: var(--text-muted); font-style: italic; text-align: center; margin-top: 4rem;">Relay logs are empty. Outgoing pings will appear here in real-time.</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1362,15 +1416,17 @@
                             <h3 class="table-card-title">Customer Profile Directory</h3>
                             <span class="sub-label">Consolidated list of customers tracking orders and lifetime value.</span>
                         </div>
-                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                             <input type="text" id="crm-search-input" placeholder="Search customer name/contact..." 
-                                   style="padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); color: white; font-size: 0.8rem; outline: none; width: 220px;">
-                            <select id="crm-sort-select" style="padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: white; font-size: 0.8rem; outline: none;">
+                                   style="padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.08); color: white; font-size: 0.8rem; outline: none; width: 180px;">
+                            <select id="crm-sort-select" style="padding: 0.5rem 0.75rem; border-radius: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); color: white; font-size: 0.8rem; outline: none; margin-right: 6px;">
                                 <option value="ltv-desc">LTV: High to Low</option>
                                 <option value="ltv-asc">LTV: Low to High</option>
                                 <option value="orders-desc">Orders: High to Low</option>
                                 <option value="name-asc">Name: A to Z</option>
                             </select>
+                            <button class="btn btn-secondary btn-sm" id="btn-export-crm" style="padding: 0.5rem 0.75rem; height: 32px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; font-size: 0.8rem; border-radius: 8px;"><i data-lucide="download" style="width: 14px; height: 14px;"></i> Export</button>
+                            <button class="btn btn-primary btn-sm btn-glow" id="btn-broadcast-promo" style="padding: 0.5rem 0.75rem; height: 32px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; font-size: 0.8rem; border-radius: 8px;"><i data-lucide="megaphone" style="width: 14px; height: 14px;"></i> Broadcast</button>
                         </div>
                     </div>
 
@@ -1484,6 +1540,41 @@
             <div class="admin-drawer-body" id="customer-drawer-body-content" style="padding: 1.5rem;">
                 <!-- Rendered dynamically by JS -->
             </div>
+        </div>
+    </div>
+
+    <!-- Broadcast Promotion Campaign Wizard Modal -->
+    <div id="broadcast-promo-modal" class="palette-overlay-modal" style="display: none; justify-content: center; align-items: center; z-index: 99999; background: rgba(7, 8, 11, 0.85); backdrop-filter: blur(8px);">
+        <div class="glass-card" style="width: 100%; max-width: 500px; padding: 1.75rem; border: 1px solid rgba(0, 242, 254, 0.2); box-shadow: 0 10px 40px rgba(0, 242, 254, 0.15); margin: 1rem; position: relative; background: rgba(10, 15, 29, 0.95);">
+            <button id="close-broadcast-btn" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.15rem; transition: color 0.2s;">
+                <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+            </button>
+            
+            <div style="border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+                <div style="width: 32px; height: 32px; background: rgba(0,242,254,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--clr-cyan);">
+                    <i data-lucide="megaphone" style="width: 16px; height: 16px;"></i>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.1rem; color: #fff; margin: 0; font-weight: 700;">Broadcast Campaign Wizard</h3>
+                    <span style="font-size: 0.74rem; color: var(--text-muted); display: block;">Send promotional announcements to all customer dashboards instantly.</span>
+                </div>
+            </div>
+            
+            <form id="broadcast-promo-form" onsubmit="return false;">
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label for="broadcast-title" style="font-weight: 600; display: block; margin-bottom: 5px; color: #fff; font-size: 0.85rem;">Broadcast Subject *</label>
+                    <input type="text" id="broadcast-title" placeholder="e.g. FLASH SALE: 25% Off ChatGPT Plus!" required style="width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.85rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label for="broadcast-message" style="font-weight: 600; display: block; margin-bottom: 5px; color: #fff; font-size: 0.85rem;">Broadcast Message *</label>
+                    <textarea id="broadcast-message" rows="5" placeholder="Write a premium promotional offer here. Check out the deals on our storefront now!" required style="width: 100%; padding: 8px 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; font-size: 0.85rem; font-family: inherit; resize: vertical;"></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-broadcast" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 6px;">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm btn-glow" id="btn-send-broadcast" style="padding: 6px 16px; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; border-radius: 6px;"><i data-lucide="send" style="width: 12px; height: 12px;"></i> Launch Campaign</button>
+                </div>
+            </form>
         </div>
     </div>
 
