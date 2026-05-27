@@ -87,6 +87,50 @@ function verifyPassword(password, storedHash) {
   }
 }
 
+// Database-backed stateless IP rate limiter helper
+async function checkRateLimit(action, clientIp, maxRequests, windowMs) {
+  try {
+    const sanitizedIp = clientIp.replace(/[\.\:\$\[\]\#\/]/g, '_');
+    const path = `/rate_limits/${action}/${sanitizedIp}.json`;
+    
+    const res = await httpsRequest({
+      hostname: FIREBASE_RTDB_URL,
+      port: 443,
+      path: path,
+      method: 'GET'
+    });
+    
+    const now = Date.now();
+    let limitData = JSON.parse(res.body) || { requests: [] };
+    
+    let activeRequests = Array.isArray(limitData.requests) ? limitData.requests : [];
+    activeRequests = activeRequests.filter(ts => now - ts < windowMs);
+    
+    if (activeRequests.length >= maxRequests) {
+      const oldestActive = activeRequests[0];
+      const timeElapsed = now - oldestActive;
+      const retryAfterMs = windowMs - timeElapsed;
+      const retryAfterMins = Math.ceil(retryAfterMs / 60000);
+      return { allowed: false, retryAfterMins };
+    }
+    
+    activeRequests.push(now);
+    
+    await httpsRequest({
+      hostname: FIREBASE_RTDB_URL,
+      port: 443,
+      path: path,
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' }
+    }, { requests: activeRequests });
+    
+    return { allowed: true };
+  } catch (err) {
+    console.warn(`Rate limiter network exception in ${action}: ${err.message}. Failing open.`);
+    return { allowed: true };
+  }
+}
+
 exports.handler = async (event, context) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -132,6 +176,18 @@ exports.handler = async (event, context) => {
                      event.headers['client-ip'] || 
                      event.headers['x-forwarded-for'] || 
                      'unknown';
+
+    // Enforcement 1: Stateless DB-backed IP rate limiting gate (5 attempts per 15 minutes)
+    const rateLimit = await checkRateLimit('login', clientIp, 5, 15 * 60 * 1000);
+    if (!rateLimit.allowed) {
+      return {
+        statusCode: 429,
+        headers,
+        body: JSON.stringify({ 
+          error: `Too many login attempts from this connection. Please try again in ${rateLimit.retryAfterMins} minutes.` 
+        })
+      };
+    }
 
     // 1. Fetch user data in O(1) query
     const userRes = await httpsRequest({

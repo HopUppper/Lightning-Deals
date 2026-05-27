@@ -90,6 +90,46 @@ exports.handler = async (event, context) => {
     }
 
     const payment = payload.payload.payment.entity;
+
+    // Enforcement: Webhook Deduplication Lock Check
+    let isAlreadyProcessed = false;
+    try {
+      const checkLock = await httpsRequest({
+        hostname: 'lightning-deals-d0adc-default-rtdb.asia-southeast1.firebasedatabase.app',
+        port: 443,
+        path: `/processed_webhook_payments/${payment.id}.json`,
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (checkLock.statusCode === 200 && checkLock.body && checkLock.body !== 'null') {
+        isAlreadyProcessed = true;
+      }
+    } catch (e) {
+      console.error('Deduplication check failure:', e);
+    }
+
+    if (isAlreadyProcessed) {
+      console.log(`Payment ID ${payment.id} has already been fully processed. Terminating duplicate webhook thread.`);
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ success: true, message: 'Duplicate webhook event skipped.' })
+      };
+    }
+
+    // Set Deduplication Lock
+    try {
+      await httpsRequest({
+        hostname: 'lightning-deals-d0adc-default-rtdb.asia-southeast1.firebasedatabase.app',
+        port: 443,
+        path: `/processed_webhook_payments/${payment.id}.json`,
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' }
+      }, { timestamp: Date.now(), status: "processed" });
+    } catch (e) {
+      console.error('Failed to write deduplication lock:', e);
+    }
+
     const notes = payment.notes || {};
 
     // 1. Fetch current settings from Firebase to read dynamic credentials

@@ -1064,7 +1064,9 @@
                 <a href="terms.html" class="footer-link" id="link-terms">Terms of Service</a>
                 <a href="refund.html" class="footer-link" id="link-refund">Refund Policy</a>
                 <a href="privacy.html" class="footer-link" id="link-privacy">Privacy Policy</a>
-
+                <a href="disclaimer.html" class="footer-link" id="link-disclaimer">Platform Disclaimer</a>
+                <a href="support.html" class="footer-link" id="link-support">Contact & Support</a>
+                <a href="acceptable-use.html" class="footer-link" id="link-acceptable-use">Acceptable Use Policy</a>
             </div>
         </div>
         <div class="footer-bottom text-center">
@@ -1320,8 +1322,14 @@
                         <label for="checkout-phone">WhatsApp Mobile Number (With +91) *</label>
                         <input type="tel" id="checkout-phone" placeholder="e.g. +91 9876543210" required>
                         <small class="form-tip">Must contain country code (e.g. +91) so we can activate on your WhatsApp.</small>
-                    </div>
                 </form>
+
+                <div class="checkout-agreement-checkbox" style="margin-top: 1.25rem; display: flex; align-items: flex-start; gap: 8px; margin-bottom: 1.25rem; padding: 0.5rem; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 8px;">
+                    <input type="checkbox" id="checkout-agreement-terms" style="width: auto; margin-top: 3px; cursor: pointer;">
+                    <label for="checkout-agreement-terms" style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.4; cursor: pointer; user-select: none;">
+                        I declare that I am at least 18 years old, agree to the <a href="terms.html" id="checkout-link-terms" target="_blank" style="color: var(--clr-cyan); text-decoration: underline;">Terms of Service</a> and <a href="refund.html" id="checkout-link-refund" target="_blank" style="color: var(--clr-cyan); text-decoration: underline;">Refund Policy</a>, and understand that plan renewals are manual.
+                    </label>
+                </div>
 
                 <div class="modal-footer-dual">
                     <button class="btn btn-secondary" id="btn-back-to-plans">
@@ -1608,7 +1616,13 @@
                                         <div id="strength-bar-3" style="flex: 1; background: transparent; height: 100%; transition: background-color 0.2s;"></div>
                                         <div id="strength-bar-4" style="flex: 1; background: transparent; height: 100%; transition: background-color 0.2s;"></div>
                                     </div>
-                                </div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 1.25rem; padding: 0.5rem; background: rgba(255, 255, 255, 0.01); border: 1px solid rgba(255, 255, 255, 0.04); border-radius: 8px;">
+                                <input type="checkbox" id="portal-signup-agree" style="width: auto; margin-top: 3px; cursor: pointer;">
+                                <label for="portal-signup-agree" style="font-size: 0.72rem; color: var(--text-secondary); line-height: 1.4; cursor: pointer; user-select: none;">
+                                    I declare that I am at least 18 years old and agree to the platform's <a href="terms.html" id="signup-link-terms" target="_blank" style="color: var(--clr-cyan); text-decoration: underline;">Terms of Service</a> and <a href="privacy.html" id="signup-link-privacy" target="_blank" style="color: var(--clr-cyan); text-decoration: underline;">Privacy Policy</a>.
+                                </label>
                             </div>
                             
                             <button type="submit" class="btn btn-primary w-100 btn-glow" id="btn-portal-signup" style="padding: 0.85rem; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -1922,6 +1936,32 @@
     </div>
 
 
+
+    <!-- Premium Glassmorphic Legal Modal Overlay -->
+    <div class="modal-overlay" id="legal-modal" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title" style="z-index: 100002;">
+        <div class="modal-card glass-card" style="max-width: 750px; width: 95%; height: auto; max-height: 85vh; display: flex; flex-direction: column;">
+            <button class="modal-close-btn" id="close-legal-modal-btn" aria-label="Close dialog">
+                <i data-lucide="x"></i>
+            </button>
+            <div class="modal-header">
+                <div class="modal-logo-wrapper" style="background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%);">
+                    <i data-lucide="shield"></i>
+                </div>
+                <div>
+                    <h3 class="modal-title" id="legal-modal-title">Legal Terms</h3>
+                    <span class="modal-subtitle">Official policy agreement documentation.</span>
+                </div>
+            </div>
+            <div id="legal-modal-content" style="padding: 1.5rem; overflow-y: auto; flex: 1; text-align: left; max-height: 50vh;">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="modal-footer" style="padding-top: 1rem; border-top: 1px solid rgba(255, 255, 255, 0.05); margin-top: auto;">
+                <button class="btn btn-primary w-100 btn-glow" id="btn-close-legal" style="padding: 0.75rem;">
+                    <span>I Understand & Agree</span>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast Notification Container -->
     <div id="toast-container"></div>

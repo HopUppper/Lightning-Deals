@@ -2278,8 +2278,23 @@ function setupPurchaseModal() {
         });
     }
 
+    const checkboxTerms = document.getElementById('checkout-agreement-terms');
+    if (checkboxTerms && btnNextToPayment) {
+        btnNextToPayment.disabled = !checkboxTerms.checked;
+        checkboxTerms.addEventListener('change', () => {
+            btnNextToPayment.disabled = !checkboxTerms.checked;
+        });
+    }
+
     if (btnNextToPayment) {
         btnNextToPayment.addEventListener('click', () => {
+            // Validate Checkbox
+            if (checkboxTerms && !checkboxTerms.checked) {
+                alert('You must agree to the Terms of Service and Refund Policy to proceed to payment.');
+                checkboxTerms.focus();
+                return;
+            }
+
             // Validate fields
             const nameVal = inputName.value.trim();
             const emailVal = inputEmail.value.trim();
@@ -4444,71 +4459,162 @@ let billingCycle = 'monthly';
 // --- Detailed Legal Policy Data ---
 const legalPolicies = {
     terms: `
-        <h3>1. Acceptance of Terms</h3>
-        <p>By accessing and purchasing subscription slot licenses from Lightning Deals ("the Platform"), you agree to be bound by these Terms of Service. If you do not agree, please refrain from using the platform.</p>
+        <h3>1. Independent Reseller & Digital Access Nature</h3>
+        <p>LightningDeals operates strictly as an <strong>independent secondary reseller and digital license distribution platform</strong>. We procure legitimate, volume-based corporate licenses, team invites, and organizational group licenses from official third-party software developers, and distribute individual access slots or invite-based seats to our customers.</p>
+        <p>We are <strong>not officially affiliated with, endorsed by, authorized by, sponsored by, or in any way officially connected</strong> with the manufacturers, developers, or brand owners of the software distributed on our platform. All trademarks and brand names are referenced strictly for nominative and descriptive purposes to identify the software associated with the digital access seat purchased.</p>
         
-        <h3>2. License Distribution & Usage</h3>
+        <h3>2. Digital Services SLA & Delivery Windows</h3>
         <ul>
-            <li><strong>Bulk Licensing:</strong> We officially procure bulk group volume licenses. We distribute spare slots from these official plans to individual users.</li>
-            <li><strong>Slot Activation:</strong> Activation is done either via official account invite or through dedicated premium credentials. You agree to use these slots strictly for personal, educational, or standard freelance business purposes.</li>
-            <li><strong>Account Credential Safety:</strong> Shared credentials (if provided for a specific slot) are strictly confidential. Sharing these credentials with third parties or attempting to alter account credentials (passwords, emails, profiles) is strictly prohibited and will result in immediate termination without refund.</li>
-            <li><strong>No Modification:</strong> You must not modify the structure, invite other users, or access billing sections of the parent platforms under which your slots are assigned.</li>
+            <li><strong>Digital Access Nature:</strong> All plans sold on this platform represent digital services (credential sharing access, team invites, or cloud workspace configurations) and do not involve physical shipment or physical goods.</li>
+            <li><strong>Delivery Window:</strong> Successful orders are processed digitally. Activation credentials or invite links are sent to your registered WhatsApp number and Email within 5 to 15 minutes of payment confirmation during regular business hours (9:00 AM – 11:00 PM IST). During periods of peak server queue demand, activation may take up to 2 hours.</li>
+            <li><strong>Accuracy of Information:</strong> You are solely responsible for ensuring that the Email and WhatsApp number entered during checkout are perfectly accurate. LightningDeals is not liable for credentials delivered to incorrect details provided by the customer.</li>
         </ul>
         
-        <h3>3. Support Service Levels (SLA)</h3>
+        <h3>3. Manual Renewal Requirement</h3>
+        <p>To eliminate security risks associated with storing credit cards and protect customer privacy, <strong>LightningDeals does not support auto-renewals or automated recurring billing</strong>. We do not store payment card details, and all renewals are manual.</p>
+        <p>Active customers will receive a courtesy renewal alert via WhatsApp 3 days prior to slot expiration. To prevent service interruptions, customers must manually initiate and authorize a new payment through the customer portal or support desk to extend their access slot.</p>
+        
+        <h3>4. Replacement Warranty & Third-Party Platform Continuity</h3>
         <ul>
-            <li><strong>SLA Response Times:</strong> We provide 24/7 support via WhatsApp. Standard query response times are under 30 minutes, though resolving complex activation issues may take up to 4 hours in rare circumstances.</li>
-            <li><strong>Uptime and Continuity:</strong> While we guarantee active slots for the entire duration of your purchased plan, occasional backend organization updates by software vendors may cause temporary slot suspensions. In such cases, we pledge to assign a replacement slot within 24 hours.</li>
+            <li><strong>Warranty Cover:</strong> All active slots include our **Replacement Warranty** covering the entire purchased validity period. If a slot stops working or encounters an early revocation due to vendor-side license updates, we will provide a fresh active slot or equivalent team invitation credentials within 24 hours of your report, or issue a prorated refund for the remaining unused validity period of your subscription plan.</li>
+            <li><strong>Third-Party Platform Dependency:</strong> Since the services operate on third-party networks, we have no control over vendor policy updates or feature modifications. We do not guarantee permanent, uninterrupted, or indefinitely unchanging access to third-party tools, and vendor-side service modifications are covered solely under our replacement and prorated warranty guidelines.</li>
         </ul>
         
-        <h3>4. Disclaimer and Liability Limits</h3>
-        <p>Lightning Deals is an independent software reseller platform. We are not officially affiliated, authorized, or endorsed by Canva, Adobe, Google, OpenAI, TradingView, or any other software provider. All trademarks and brand names belong to their respective owners. Our liability is strictly limited to the value of the active slot purchase price.</p>
+        <h3>5. Onboarding Eligibility & Account Gating</h3>
+        <p>By registering on this platform or purchasing a plan, you represent that you are at least 18 years of age and possess the legal capacity to enter into binding agreements. We reserve the right to restrict account access, lock credentials, or block IP addresses that are flagged by our database rate limiters or security firewalls due to suspicious or brute-force behavior.</p>
+
+        <h3>6. Limitation of Liability</h3>
+        <p>In no event shall LightningDeals, its developers, operators, or affiliates be liable for any direct, indirect, incidental, special, punitive, or consequential damages (including, without limitation, loss of business profits, project failures, or creative downtime) arising out of the use or inability to use the purchased digital subscription slot. Our maximum aggregate financial liability under any circumstances is strictly capped at the purchase price paid for the active slot plan in question.</p>
     `,
     refund: `
-        <h3>1. 7-Day Hassle-Free Refund Policy</h3>
-        <p>We stand behind the quality of our premium slots. You are fully eligible for a 100% refund within 7 days of your purchase if you experience any technical issues that prevent you from utilizing the subscription deal.</p>
-        
-        <h3>2. Eligibility Criteria for Refunds</h3>
+        <h3>1. 7-Day Technical Failure Refund Guarantee</h3>
+        <p>If you purchase a digital subscription plan and encounter a technical activation error that prevents you from accessing the service, please report it to our WhatsApp Help Desk.</p>
         <ul>
-            <li><strong>Technical Failures:</strong> If a license activation fails, or credentials do not work, and our technical support team is unable to resolve it or issue a replacement slot within 24 hours.</li>
-            <li><strong>Double Payments:</strong> Accidental duplicate checkouts for the same product plan are automatically eligible for immediate refunds.</li>
-            <li><strong>Change of Mind:</strong> Due to the digital nature of instant licenses and activations, change-of-mind refunds are eligible only if the invite link has NOT been clicked or the credentials have NOT been logged into.</li>
+            <li>If our technical support team is <strong>unable to successfully activate your slot or provide a fully working replacement within 24 hours</strong> of your report, you are guaranteed a **100% full cash refund** within the first 7 days from the purchase date.</li>
+            <li>Approved full refunds are processed instantly and returned to your original payment source (UPI ID or card bank account) within 3 to 5 business days.</li>
         </ul>
         
-        <h3>3. Exclusion and Non-Refundable Scenarios</h3>
+        <h3>2. Prorated Validity Protection (After 7 Days)</h3>
+        <p>In the event that an active subscription slot stops working after the initial 7-day period due to a vendor-side licensing structure update, and our help desk is unable to issue a new replacement slot within 24 hours, we will issue a **prorated cash refund or store credit** based on the remaining unused days of your validity plan.</p>
+        <p><em>Example calculation: If you purchase a 100-day plan for ₹1,000, and the slot stops functioning after 40 days, and a replacement is technically impossible, we will refund you ₹600 for the 60 unused days.</em></p>
+        
+        <h3>3. Support-First Resolution SLA</h3>
+        <p>Before any refund is disbursed, we require that customers contact our active WhatsApp Support Desk at +91 76959 56938 and allow our engineers a 24-hour SLA window to technical audit and replace the credentials. The vast majority of access disruptions are resolved in minutes by issuing a fresh organizational invite link.</p>
+        
+        <h3>4. Ineligible Refund Scenarios</h3>
         <ul>
-            <li><strong>Account Misuse:</strong> If your slot access is revoked due to violating our Terms of Service (e.g., trying to change admin passwords, sharing private setup links with outside users, or reselling slots).</li>
-            <li><strong>External Platform Changes:</strong> If a major software vendor updates their global terms of service in a way that deprecates custom setup features, we will transition you to a comparable service or issue a pro-rata store credit, but cash refunds are not available after the 7-day initial window.</li>
+            <li><strong>Change of Mind:</strong> We cannot refund orders if the access slot has been successfully activated and delivered.</li>
+            <li><strong>Account Bans for Abuse:</strong> If your seat access is suspended due to violations of our Acceptable Use Policy (e.g., changing passwords on shared profiles, sharing team invite links, seat tampering, or credential resale), your warranty is voided and no refund will be issued.</li>
+            <li><strong>System Incompatibility:</strong> Customers must check software product requirements before purchasing. Incompatibility with specific devices or internet network service providers does not qualify for refunds.</li>
         </ul>
         
-        <h3>4. How to Request a Refund</h3>
-        <p>To request a refund, please message our support desk on WhatsApp (+91 7695956938) or email support@lightning-deals.com with your Order ID (e.g., LD-12345) and a screenshot of the issue. Approved refunds are processed back to your original payment method (UPI / Cards) within 3-5 business days.</p>
+        <h3>5. Anti-Abuse Chargeback Guard</h3>
+        <p>LightningDeals utilizes advanced transactional protection systems. Any customer who initiates a fraudulent chargeback or engages in payment-dispute abuse on completed, functional activations will have their profile permanently locked, and **all active license seats across our entire network will be terminated instantly** with zero notice.</p>
     `,
     privacy: `
-        <h3>1. Information We Collect</h3>
-        <p>We respect your digital privacy. To facilitate instant license activations and deliveries, we collect the following minimal data points:</p>
+        <h3>1. Absolute Zero-Payment-Details Footprint Policy</h3>
+        <p>To guarantee maximum transactional security, <strong>LightningDeals never collects, stores, processes, or transmits any credit card numbers, debit card details, bank account credentials, net banking passwords, or UPI PINs</strong>. Our server infrastructure has zero access to payment details.</p>
+        <p>All online checkouts on our platform are processed securely via <strong>Razorpay</strong>, a premium, PCI-DSS Level 1 certified third-party payment gateway. All communications during checkout are encrypted using Secure Sockets Layer (SSL) 256-bit technology directly with Razorpay's API nodes.</p>
+        
+        <h3>2. Minimal Personal Information Collected</h3>
+        <p>We restrict data collection strictly to the minimum attributes required to fulfill digital orders, authenticate customer dashboards, manage rate-limiting security, and address technical support tickets:</p>
         <ul>
-            <li><strong>Contact Details:</strong> Your Name, Email Address, and WhatsApp Mobile Number provided during the checkout page.</li>
-            <li><strong>Order Data:</strong> Your purchased products, selected durations, transaction records, and payment screenshots uploaded for manual verification.</li>
-            <li><strong>System Logs:</strong> IP address, browser user-agent, and local system timezone for fraud prevention and security verification.</li>
+            <li><strong>Customer Name:</strong> Used to customize your order invoices and client notifications.</li>
+            <li><strong>Email Address:</strong> Used to deliver access invitation links, credentials, and manual renewal alerts.</li>
+            <li><strong>WhatsApp/Phone Number:</strong> Used to deliver fast-track order confirmations and for WhatsApp Help Desk live troubleshooting.</li>
+            <li><strong>Client IP Address & Metadata:</strong> Collected by our serverless API firewalls strictly to enforce stateless security rate-limiters, prevent automated brute-force attacks, and identify malicious bot registrations.</li>
         </ul>
         
-        <h3>2. How We Use Your Information</h3>
+        <h3>3. Secure Data Storage & Technical Safeguards</h3>
+        <p>We protect customer information using enterprise-grade security protocols. All connections to lightningdeals.online are forced over HTTPS using modern Transport Layer Security (TLS 1.3). Order details are stored in our secure Firebase Realtime Database with strict, authenticated Security Rules to block unauthorized access.</p>
+        <p>We do not use third-party marketing tracking pixels, and we do not sell or lease your personal information to advertising networks under any circumstances.</p>
+        
+        <h3>4. WhatsApp Support Integration</h3>
+        <p>By providing your phone number during checkout or portal signup, you consent to receive direct transactional messages (order confirmations, credential guides, and support responses) via WhatsApp. You can opt-out of manual renewal alerts at any time by replying to our support desk. We do not engage in spam broadcast practices.</p>
+        
+        <h3>5. Cookies & Local Session Cache</h3>
+        <p>Our website utilizes essential functional cookies and 'localStorage' caching to manage shopping carts, maintain secure active user login sessions, and track transaction success states. These cookies are non-tracking and exist strictly to enable storefront usability. You can disable cookies in your browser, but this may restrict checkout functionality.</p>
+        
+        <h3>6. Data Retention and Deletion Rights</h3>
+        <p>We retain order transaction logs for a maximum period of 12 months strictly to fulfill our technical Replacement Warranty obligation. If you would like your customer account, order history, or metadata permanently purged from our databases prior to this window, please contact our support desk at support@lightningdeals.online. We will execute verified deletion requests within 7 business days.</p>
+    `,
+    disclaimer: `
+        <h3>1. Independent Software Reseller Status</h3>
+        <p>LightningDeals is an <strong>independent secondary reseller and digital license distribution platform</strong>. We procure legitimate, official bulk corporate, volume educational, or team enterprise subscription licenses from official software vendors, and distribute individual access slots or invite-based seats to our customers.</p>
+        <p>We are <strong>not officially affiliated with, endorsed by, authorized by, sponsored by, or in any way officially connected</strong> with the manufacturers, developers, or official brand owners of any SaaS tools or software distributed on our platform. This includes but is not limited to: OpenAI, Adobe Systems Inc., Canva Pty Ltd, Figma Inc., TradingView Inc., Notion Labs Inc., GitHub Inc., Microsoft Corp., and LinkedIn Corp.</p>
+        
+        <h3>2. Descriptive Trademark Use Notice</h3>
+        <p>All product names, logos, trademarks, brand names, and registered trademarks featured, referenced, or depicted on the LightningDeals platform belong exclusively to their respective intellectual property owners.</p>
+        <p>Our use of these trademarks is strictly for <strong>nominative and descriptive identification purposes only</strong>—namely, to accurately specify the exact software tool or third-party service for which a digital slot access license is being purchased. Such descriptive referencing does not imply any direct corporate association, commercial endorsement, or official partnership between LightningDeals and the respective brand owners.</p>
+        
+        <h3>3. Third-Party Service Continuity Limits</h3>
+        <p>Because the subscription access slots sold on this platform operate on underlying networks owned and controlled by third-party software vendors, the availability, functionality, user interface, features, and continuous operation of these slots depend entirely on the respective vendor's platform and licensing policies.</p>
+        <p>We do <strong>not guarantee or warrant uninterrupted, permanent, or indefinitely unchanging access</strong> to any third-party software tool. Vendors occasionally update their regional licensing structures, corporate team configurations, or terms of service, which may impact active slots. In the event of a vendor-side change that restricts or terminates a slot, our sole liability and obligation is governed strictly by our <strong>Replacement Warranty</strong> (providing a prorated replacement or store credit), and we are not liable for any consequential business interruptions or data losses.</p>
+        
+        <h3>4. No Commercial Software Vendor Warranties</h3>
+        <p>By purchasing a digital subscription activation seat or shared stack slot from us, you acknowledge and agree that your access is *not* a direct retail purchase from the official software vendor. Therefore, you may not be eligible for direct commercial support from the original vendor's corporate desk, and all support inquiries, technical troubleshooting, and replacements must be directed to the LightningDeals Help Desk via WhatsApp.</p>
+        
+        <h3>5. Limitation of Financial Liability</h3>
+        <p>Under no circumstances shall LightningDeals, its developers, operators, or affiliates be liable for any direct, indirect, incidental, special, punitive, or consequential damages (including, without limitation, loss of business profits, data corruption, projects failure, or creative downtime) arising out of the use or inability to use the purchased digital subscription slot, even if we have been advised of the possibility of such damages. Our maximum financial liability to any customer under any circumstances is strictly capped at the purchase price paid for the active slot plan in question.</p>
+    `,
+    support: `
+        <h3>1. Active Support Channels</h3>
+        <p>To ensure rapid response and order tracking, we operate two main communication desks:</p>
         <ul>
-            <li><strong>License Provisioning:</strong> To send account setup emails (e.g., Canva Pro, Adobe CC invitation) directly to your personal accounts.</li>
-            <li><strong>Support Communications:</strong> To contact you via WhatsApp for order delivery updates, slot renewals, or troubleshooting.</li>
-            <li><strong>Security and Auditing:</strong> The system logs track changes to prevent unauthorized catalog editing, system PIN brute-forcing, and license abuse.</li>
+            <li><strong>WhatsApp Help Desk:</strong> +91 76959 56938 (Recommended for instant activation assistance, warranty replacements, and live troubleshooting).</li>
+            <li><strong>Email Support Desk:</strong> support@lightningdeals.online (For billing inquiries, partnership proposals, and formal complaints).</li>
+        </ul>
+        <p>Please note that we do not offer outbound voice support or phone call support. All support is handled via chat and secure screenshot upload tools inside the customer dashboard to maintain record accuracy.</p>
+        
+        <h3>2. Operational Business Hours</h3>
+        <p>Our help desks are staffed during the following hours:</p>
+        <ul>
+            <li><strong>Monday to Sunday:</strong> 9:00 AM – 11:00 PM (Indian Standard Time, IST)</li>
+            <li><strong>Public Holidays & Weekends:</strong> Active support is provided with a standard SLA of 15–30 minutes average response time.</li>
+        </ul>
+        <p>Inquiries received outside of regular business hours will be queued and addressed chronologically starting at 9:00 AM the following morning.</p>
+        
+        <h3>3. Service Level Agreements (SLA) & Response Windows</h3>
+        <ul>
+            <li><strong>Standard Delivery SLA:</strong> 5 to 15 minutes average from successful payment, 2 hours maximum during peak queue demand.</li>
+            <li><strong>Technical Resolution SLA:</strong> 24 hours maximum for warranty replacements. If a subscription slot encounters a vendor-side closure or revocation, our tech team will configure a fresh active slot within 24 hours of your report.</li>
+            <li><strong>Refund Processing SLA:</strong> Approved refunds are credited to the customer's source account within 3 to 5 business days, depending on banking channel clearings.</li>
         </ul>
         
-        <h3>3. Data Sharing and Protection</h3>
+        <h3>4. Manual Renewal Operational Workflow</h3>
+        <p>To prevent unwanted billing or card storage security risks, <strong>LightningDeals does not support auto-renewals</strong>. We never store payment details or automatically charge cards.</p>
+        <p>If your plan validity period is approaching expiry, please follow this renewal workflow:</p>
         <ul>
-            <li><strong>No Selling of Data:</strong> We never sell, lease, or rent customer personal information to third-party advertisers or data brokers.</li>
-            <li><strong>Third-Party Processors:</strong> Data is shared only with secure service providers essential to operations (e.g., Firebase real-time database, cloud hosting, WhatsApp Business API).</li>
-            <li><strong>Enterprise Encryption:</strong> All sensitive database connections are encrypted over secure TLS protocols and restricted using strict read/write database rules.</li>
+            <li>You will receive a courtesy WhatsApp or Email notification 3 days prior to your slot validity expiry.</li>
+            <li>To continue your access without downtime, navigate to the customer portal and place a manual renewal request, or contact the WhatsApp Help Desk directly.</li>
+            <li>Upon payment confirmation, our desk will either renew the current slot or provide a new invite seat, completing the setup within the standard delivery window.</li>
+        </ul>
+    `,
+    acceptableUse: `
+        <h3>1. Absolute Access Restrictions</h3>
+        <p>When you purchase a subscription seat or shared workspace slot, you receive specific access privileges configured for your personal or private professional use. You agree to adhere to the following strict boundaries:</p>
+        <ul>
+            <li><strong>No Credential Sharing:</strong> You must never share your allocated account username, password, or direct authentication cookies with any third party. Access is limited strictly to a single individual per slot purchased.</li>
+            <li><strong>No Account Re-packaging or Resale:</strong> Sublicensing, renting, re-selling, or commercially distributing access details or seat invitations provided by our team is strictly prohibited.</li>
+            <li><strong>No Password Modification:</strong> On shared-access profiles, you must **never change the account password**, billing details, profile names, or email configurations. Doing so restricts other paying users on that corporate license pool and is treated as account theft.</li>
+            <li><strong>No Workspace Invite Leakage:</strong> Workspace and team invitations are single-use per buyer email. Sharing these invite links online or with colleagues who have not paid for a slot will trigger an automatic security lock on the underlying corporate license pool.</li>
         </ul>
         
-        <h3>4. Cookies and Local Storage</h3>
-        <p>We use browser local storage to save your cart details, wishlist items, and session tokens to ensure a smooth browsing experience. You can clear this data at any time via your browser settings.</p>
+        <h3>2. System Integration & Fair Usage Limits</h3>
+        <p>Because the slots represent volume corporate seats, excessive bandwidth or bot-like abuse can flag the license pool for review by the underlying software vendor. To prevent this:</p>
+        <ul>
+            <li><strong>Automated Scraping Prohibited:</strong> You must not run automated bots, scrapers, crawlers, or high-volume scripts on the active seats unless the specific developer subscription explicitly allows and exposes a formal API.</li>
+            <li><strong>Fair Use Allocation:</strong> Shared cloud workspaces must be utilized responsibly. Storing, uploading, or distributing extreme volumes of non-work-related files or system backups that saturate shared storage limits is prohibited.</li>
+            <li><strong>Content Regulations:</strong> You agree not to use the digital seats to generate, compile, or distribute illegal, hateful, copyrighted, or malicious material.</li>
+        </ul>
+        
+        <h3>3. Monitoring, Gating, and Enforcement</h3>
+        <p>LightningDeals and our corporate license managers monitor backend seat logins, invite usage statistics, and IP logs strictly for fraud detection, load management, and abuse prevention. If a violation is flagged:</p>
+        <ul>
+            <li><strong>Immediate Suspension:</strong> The affected access credentials or invite links will be deactivated immediately.</li>
+            <li><strong>Anti-Abuse Gating:</strong> The offending user's customer account on our storefront will be locked. Any remaining active subscription slots under that customer's email/WhatsApp will be reviewed and may also be locked to protect network integrity.</li>
+            <li><strong>No Refund Remedy:</strong> Violations of this Acceptable Use Policy fully invalidate the Replacement Warranty and render the user ineligible for cash or store-credit refunds.</li>
+        </ul>
     `
 };
 
@@ -4671,6 +4777,15 @@ function setupLegalModal() {
         } else if (type === 'privacy') {
             titleText = "Privacy Policy";
             bodyText = legalPolicies.privacy;
+        } else if (type === 'disclaimer') {
+            titleText = "Platform Disclaimer";
+            bodyText = legalPolicies.disclaimer;
+        } else if (type === 'support') {
+            titleText = "Contact & Support";
+            bodyText = legalPolicies.support;
+        } else if (type === 'acceptableUse') {
+            titleText = "Acceptable Use Policy";
+            bodyText = legalPolicies.acceptableUse;
         }
         
         modalTitle.textContent = titleText;
@@ -4692,6 +4807,14 @@ function setupLegalModal() {
     const linkTerms = document.getElementById('link-terms');
     const linkRefund = document.getElementById('link-refund');
     const linkPrivacy = document.getElementById('link-privacy');
+    const linkDisclaimer = document.getElementById('link-disclaimer');
+    const linkSupport = document.getElementById('link-support');
+    const linkAcceptableUse = document.getElementById('link-acceptable-use');
+
+    const checkoutLinkTerms = document.getElementById('checkout-link-terms');
+    const checkoutLinkRefund = document.getElementById('checkout-link-refund');
+    const signupLinkTerms = document.getElementById('signup-link-terms');
+    const signupLinkPrivacy = document.getElementById('signup-link-privacy');
     
     if (linkTerms) {
         linkTerms.addEventListener('click', (e) => {
@@ -4707,6 +4830,50 @@ function setupLegalModal() {
     }
     if (linkPrivacy) {
         linkPrivacy.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPolicy('privacy');
+        });
+    }
+    if (linkDisclaimer) {
+        linkDisclaimer.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPolicy('disclaimer');
+        });
+    }
+    if (linkSupport) {
+        linkSupport.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPolicy('support');
+        });
+    }
+    if (linkAcceptableUse) {
+        linkAcceptableUse.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPolicy('acceptableUse');
+        });
+    }
+
+    // Bind checkout and signup modal inline links too
+    if (checkoutLinkTerms) {
+        checkoutLinkTerms.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPolicy('terms');
+        });
+    }
+    if (checkoutLinkRefund) {
+        checkoutLinkRefund.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPolicy('refund');
+        });
+    }
+    if (signupLinkTerms) {
+        signupLinkTerms.addEventListener('click', (e) => {
+            e.preventDefault();
+            openPolicy('terms');
+        });
+    }
+    if (signupLinkPrivacy) {
+        signupLinkPrivacy.addEventListener('click', (e) => {
             e.preventDefault();
             openPolicy('privacy');
         });
@@ -5274,10 +5441,23 @@ function setupCustomerPortal() {
         });
     }
 
+    const signupAgree = document.getElementById('portal-signup-agree');
+    const signupBtn = document.getElementById('btn-portal-signup');
+    if (signupAgree && signupBtn) {
+        signupBtn.disabled = !signupAgree.checked;
+        signupAgree.addEventListener('change', () => {
+            signupBtn.disabled = !signupAgree.checked;
+        });
+    }
+
     // 2. Sign Up form submission
     if (signupForm) {
         signupForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            if (signupAgree && !signupAgree.checked) {
+                showToast("You must declare you are 18+ and accept our terms to register.", "warning");
+                return;
+            }
             const name = document.getElementById('portal-signup-name').value.trim();
             const email = document.getElementById('portal-signup-email').value.trim();
             const phone = document.getElementById('portal-signup-phone').value.trim();
