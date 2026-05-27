@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/.netlify/functions/:path*",
+      "destination": "/api/:path*"
+    },
+    {
+      "source": "/api/create-order.php",
+      "destination": "/api/create-order"
+    },
+    {
+      "source": "/api/verify-payment.php",
+      "destination": "/api/verify-payment"
+    },
+    {
+      "source": "/api/razorpay-webhook.php",
+      "destination": "/api/razorpay-webhook"
+    },
+    {
+      "source": "/api/verify-admin.php",
+      "destination": "/api/verify-admin"
+    },
+    {
+      "source": "/api/auth-signup",
+      "destination": "/api/auth-signup"
+    },
+    {
+      "source": "/api/auth-login",
+      "destination": "/api/auth-login"
+    },
+    {
+      "source": "/api/auth-session",
+      "destination": "/api/auth-session"
+    },
+    {
+      "source": "/api/auth-reset",
+      "destination": "/api/auth-reset"
+    }
+  ]
+}
