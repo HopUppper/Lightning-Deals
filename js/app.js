@@ -1099,6 +1099,10 @@ function applyStoreFilters() {
                 </button>
             </div>
             
+            <div class="product-disclaimer">
+                Independent reseller · Not affiliated with the brand
+            </div>
+            
             <div class="product-card-social-footer">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; opacity: 0.6; display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 <span>${trustData.views} people got this today</span>
@@ -3730,6 +3734,10 @@ function renderRecentlyViewed() {
                     <svg viewBox="0 0 24 24" fill="${isWishlisted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
                 </button>
             </div>
+            
+            <div class="product-disclaimer">
+                Independent reseller · Not affiliated with the brand
+            </div>
         `;
         
         card.querySelector('.cta-purchase-trigger').addEventListener('click', () => {
@@ -4686,6 +4694,9 @@ function renderBundles() {
                     <i data-lucide="shopping-cart" style="width: 18px; height: 18px;"></i>
                     <span>Get This Stack</span>
                 </button>
+                <div class="product-disclaimer">
+                    Independent reseller · Not affiliated with the brand
+                </div>
             </div>
         `;
 

@@ -8480,6 +8480,67 @@ html, body {
     }
 }
 
+/* ==========================================================================
+   PHASE 3: ENTERPRISE SECURITY HARDENING - TRUST & COMPLIANCE STYLES
+   ========================================================================== */
+
+/* Reviews Badge Compliance Style */
+.reviews-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 1.5rem;
+    max-width: 480px;
+    margin: 0 auto 3rem auto;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    text-align: center;
+}
+
+.reviews-badge-stars {
+    color: #F5C842;
+    font-size: 1.25rem;
+    letter-spacing: 2px;
+    line-height: 1;
+}
+
+.reviews-badge-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    font-family: 'Outfit', sans-serif;
+}
+
+.reviews-badge-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Authentication Security Note Style */
+.auth-security-note {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    margin-top: 2rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+/* Product Card Disclaimer Style */
+.product-disclaimer {
+    font-size: 10px;
+    color: #666;
+    margin-top: 8px;
+    text-align: center;
+}
+
 
 
 
