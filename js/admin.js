@@ -5823,38 +5823,7 @@ function setupHomeQuickActions() {
         const action = btn.getAttribute('data-action');
         if (!action) return;
         
-        switch (action) {
-            case 'create-order':
-                const ordersBtn = document.getElementById('sidebar-btn-orders');
-                if (ordersBtn) ordersBtn.click();
-                break;
-            case 'activate-customer':
-            case 'issue-refund':
-            case 'resend-activation':
-            case 'send-whatsapp':
-            case 'copy-template':
-                const oBtn = document.getElementById('sidebar-btn-orders');
-                if (oBtn) oBtn.click();
-                break;
-            case 'create-coupon':
-                const couponsBtn = document.getElementById('sidebar-btn-coupons');
-                if (couponsBtn) couponsBtn.click();
-                break;
-            case 'add-product':
-                const catalogBtn = document.getElementById('sidebar-btn-catalog');
-                if (catalogBtn) {
-                    catalogBtn.click();
-                    setTimeout(() => {
-                        const nameBox = document.getElementById('prod-name');
-                        if (nameBox) nameBox.focus();
-                    }, 100);
-                }
-                break;
-            case 'search-customer':
-                const kTrigger = document.getElementById('btn-trigger-search');
-                if (kTrigger) kTrigger.click();
-                break;
-        }
+        openQuickActionModal(action);
     });
     
     const gotoOrdersBtn = document.getElementById('home-btn-goto-orders');
@@ -6224,5 +6193,990 @@ function deleteBundle(index) {
         renderBundlesTable();
     }
 }
+
+// ==========================================================================
+// PHASE 3 - STAFF COMMAND QUICK ACTIONS CONTROLLER
+// ==========================================================================
+
+// Global registration of modal close listeners
+document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('close-quick-action-btn');
+    const modal = document.getElementById('quick-action-modal');
+    if (closeBtn && modal) {
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    }
+});
+
+function openQuickActionModal(action) {
+    const modal = document.getElementById('quick-action-modal');
+    if (!modal) return;
+
+    const titleEl = document.getElementById('quick-action-title');
+    const subtitleEl = document.getElementById('quick-action-subtitle');
+    const iconBox = document.getElementById('quick-action-icon-box');
+    const iconEl = document.getElementById('quick-action-icon');
+    const contentEl = document.getElementById('quick-action-content');
+
+    if (!titleEl || !subtitleEl || !iconBox || !iconEl || !contentEl) return;
+
+    modal.style.display = 'flex';
+    contentEl.innerHTML = '';
+
+    // Standard modern dark inputs style injection for quick forms
+    const styleBlock = `
+        <style>
+            .q-form-group { margin-bottom: 15px; text-align: left; }
+            .q-form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 5px; }
+            .q-input, .q-select, .q-textarea { width: 100%; padding: 10px 12px; background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: #fff; font-size: 0.88rem; outline: none; transition: border-color 0.2s; }
+            .q-input:focus, .q-select:focus, .q-textarea:focus { border-color: var(--clr-cyan); box-shadow: 0 0 10px rgba(0, 242, 254, 0.1); }
+            .q-btn-row { display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 15px; margin-top: 15px; }
+            .q-card-select-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; }
+            .q-card-select-item:hover { background: rgba(0, 242, 254, 0.05); border-color: rgba(0, 242, 254, 0.2); }
+            .q-card-select-item.selected { background: rgba(0, 242, 254, 0.1); border-color: var(--clr-cyan); }
+        </style>
+    `;
+    contentEl.insertAdjacentHTML('beforebegin', styleBlock);
+
+    switch (action) {
+        case 'create-order':
+            titleEl.innerText = "Create New Order";
+            subtitleEl.innerText = "Manually record a subscription order for a customer.";
+            iconEl.setAttribute('data-lucide', 'plus-circle');
+            iconBox.style.color = 'var(--clr-cyan)';
+            iconBox.style.background = 'rgba(0, 242, 254, 0.1)';
+            setupCreateOrderForm(contentEl);
+            break;
+        case 'activate-customer':
+            titleEl.innerText = "Activate Customer Plan";
+            subtitleEl.innerText = "Deliver activation details and credentials to a pending client.";
+            iconEl.setAttribute('data-lucide', 'check-square');
+            iconBox.style.color = 'var(--clr-success)';
+            iconBox.style.background = 'rgba(16, 185, 129, 0.1)';
+            setupActivateCustomerForm(contentEl);
+            break;
+        case 'send-whatsapp':
+            titleEl.innerText = "Send WhatsApp Communication";
+            subtitleEl.innerText = "Communicate with a customer using pre-formatted staff templates.";
+            iconEl.setAttribute('data-lucide', 'message-square');
+            iconBox.style.color = 'var(--clr-info)';
+            iconBox.style.background = 'rgba(59, 130, 246, 0.1)';
+            setupSendWhatsAppForm(contentEl);
+            break;
+        case 'create-coupon':
+            titleEl.innerText = "Create Promotional Coupon";
+            subtitleEl.innerText = "Generate a discount coupon code with custom limits.";
+            iconEl.setAttribute('data-lucide', 'ticket');
+            iconBox.style.color = 'var(--clr-warning)';
+            iconBox.style.background = 'rgba(245, 158, 11, 0.1)';
+            setupCreateCouponForm(contentEl);
+            break;
+        case 'add-product':
+            titleEl.innerText = "Add New Catalog Product";
+            subtitleEl.innerText = "Seed a new digital subscription reseller tier into catalog list.";
+            iconEl.setAttribute('data-lucide', 'package');
+            iconBox.style.color = 'var(--clr-cyan)';
+            iconBox.style.background = 'rgba(0, 242, 254, 0.1)';
+            setupAddProductForm(contentEl);
+            break;
+        case 'search-customer':
+            titleEl.innerText = "Customer CRM Cockpit";
+            subtitleEl.innerText = "Search profiles, view purchase habits, UTR transactions and status.";
+            iconEl.setAttribute('data-lucide', 'search');
+            iconBox.style.color = 'var(--clr-info)';
+            iconBox.style.background = 'rgba(59, 130, 246, 0.1)';
+            setupSearchCRMForm(contentEl);
+            break;
+        case 'resend-activation':
+            titleEl.innerText = "Resend Account Credentials";
+            subtitleEl.innerText = "Resend product access link/credentials to an active user.";
+            iconEl.setAttribute('data-lucide', 'mail');
+            iconBox.style.color = 'var(--clr-warning)';
+            iconBox.style.background = 'rgba(245, 158, 11, 0.1)';
+            setupResendActivationForm(contentEl);
+            break;
+        case 'issue-refund':
+            titleEl.innerText = "Issue Order Refund / Cancel";
+            subtitleEl.innerText = "Terminate active order service and mark transaction refunded.";
+            iconEl.setAttribute('data-lucide', 'dollar-sign');
+            iconBox.style.color = 'var(--clr-danger)';
+            iconBox.style.background = 'rgba(239, 68, 68, 0.1)';
+            setupIssueRefundForm(contentEl);
+            break;
+        case 'copy-template':
+            titleEl.innerText = "Copy Communication Templates";
+            subtitleEl.innerText = "Copy standard customer responses for active templates to clipboard.";
+            iconEl.setAttribute('data-lucide', 'copy');
+            iconBox.style.color = 'var(--clr-cyan)';
+            iconBox.style.background = 'rgba(0, 242, 254, 0.1)';
+            setupCopyTemplatesForm(contentEl);
+            break;
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+}
+
+function sendQuickWhatsApp(phone, text) {
+    const cleanPhone = (phone || '').replace(/[^0-9]/g, '');
+    if (!cleanPhone) return;
+
+    let settings = {};
+    try {
+        const saved = localStorage.getItem('lightning_deals_settings');
+        if (saved) settings = JSON.parse(saved) || {};
+    } catch (e) {}
+
+    const callmebotKey = (settings.callmebotApiKey || '').trim();
+    if (callmebotKey) {
+        const encodedText = encodeURIComponent(text);
+        const url = `https://api.callmebot.com/whatsapp.php?phone=${cleanPhone}&text=${encodedText}&apikey=${callmebotKey}`;
+        fetch(url, { mode: 'no-cors' })
+            .then(() => {
+                console.log(`WhatsApp API notification sent to ${cleanPhone}`);
+            })
+            .catch(err => {
+                console.error("WhatsApp API notification failed:", err);
+            });
+    } else {
+        // Open in WhatsApp Web window fallback
+        const url = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    }
+}
+
+function setupCreateOrderForm(container) {
+    let productOptions = productsList.map(p => `<option value="${p.id}">${escapeHTML(p.name)}</option>`).join('');
+    if (!productOptions) {
+        productOptions = `<option value="">No products in catalog</option>`;
+    }
+
+    container.innerHTML = `
+        <form id="q-create-order-form">
+            <div class="q-form-group">
+                <label>Customer Name *</label>
+                <input type="text" class="q-input" id="q-ord-name" required placeholder="e.g. John Doe">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Customer Email *</label>
+                    <input type="email" class="q-input" id="q-ord-email" required placeholder="name@domain.com">
+                </div>
+                <div class="q-form-group" style="flex: 1;">
+                    <label>WhatsApp Number (With country code) *</label>
+                    <input type="text" class="q-input" id="q-ord-phone" required placeholder="919876543210">
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Select Product *</label>
+                    <select class="q-select" id="q-ord-prod" required>
+                        <option value="" disabled selected>Choose a subscription...</option>
+                        ${productOptions}
+                    </select>
+                </div>
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Select Plan Tier *</label>
+                    <select class="q-select" id="q-ord-plan" required disabled>
+                        <option value="">Select a product first...</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Payment Price (₹) *</label>
+                    <input type="number" class="q-input" id="q-ord-price" required min="0" placeholder="0">
+                </div>
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Payment Status *</label>
+                    <select class="q-select" id="q-ord-status">
+                        <option value="pending">Pending Verification</option>
+                        <option value="active">Active (Full Credentials Delivered)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="q-form-group">
+                <label>UPI Transaction Reference UTR ID (Optional)</label>
+                <input type="text" class="q-input" id="q-ord-utr" placeholder="12-digit transaction number">
+            </div>
+
+            <div class="q-btn-row">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('quick-action-modal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-glow"><i data-lucide="check" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Create & Sync Order</button>
+            </div>
+        </form>
+    `;
+
+    const prodSelect = document.getElementById('q-ord-prod');
+    const planSelect = document.getElementById('q-ord-plan');
+    const priceInput = document.getElementById('q-ord-price');
+
+    prodSelect.addEventListener('change', () => {
+        const prodId = prodSelect.value;
+        const prod = productsList.find(p => p.id === prodId);
+        if (!prod || !prod.plans || prod.plans.length === 0) {
+            planSelect.innerHTML = `<option value="">No plans configured</option>`;
+            planSelect.disabled = true;
+            priceInput.value = '';
+            return;
+        }
+
+        planSelect.disabled = false;
+        planSelect.innerHTML = prod.plans.map(pl => `<option value="${escapeHTML(pl.label)}" data-price="${pl.price}">${escapeHTML(pl.label)} (₹${pl.price})</option>`).join('');
+        
+        // Auto set initial plan price
+        const initialPlan = prod.plans[0];
+        priceInput.value = initialPlan.price;
+    });
+
+    planSelect.addEventListener('change', () => {
+        const selectedOption = planSelect.options[planSelect.selectedIndex];
+        const price = selectedOption.getAttribute('data-price');
+        if (price) priceInput.value = price;
+    });
+
+    document.getElementById('q-create-order-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const selectedProd = productsList.find(p => p.id === prodSelect.value);
+        const termLabel = planSelect.value;
+        let warrantyTerm = 1;
+        if (termLabel.toLowerCase().includes('lifetime')) warrantyTerm = 9999;
+        else if (termLabel.toLowerCase().includes('12 month') || termLabel.toLowerCase().includes('1 year')) warrantyTerm = 12;
+        else if (termLabel.toLowerCase().includes('6 month')) warrantyTerm = 6;
+        else if (termLabel.toLowerCase().includes('3 month')) warrantyTerm = 3;
+
+        const newOrder = {
+            id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
+            customerName: document.getElementById('q-ord-name').value.trim(),
+            customerEmail: document.getElementById('q-ord-email').value.trim(),
+            customerWhatsApp: document.getElementById('q-ord-phone').value.trim(),
+            product: selectedProd ? selectedProd.id : prodSelect.value,
+            productTitle: selectedProd ? selectedProd.name : prodSelect.value,
+            plan: termLabel,
+            planName: termLabel,
+            planPrice: parseFloat(priceInput.value) || 0,
+            price: parseFloat(priceInput.value) || 0,
+            status: document.getElementById('q-ord-status').value,
+            utr: document.getElementById('q-ord-utr').value.trim(),
+            timestamp: Date.now(),
+            date: new Date().toLocaleString('en-IN'),
+            activationDate: document.getElementById('q-ord-status').value === 'active' ? new Date().toLocaleDateString('en-IN') : '',
+            warrantyTerm: warrantyTerm,
+            paymentMethod: 'UPI (Manual Entry)'
+        };
+
+        ordersList.unshift(newOrder);
+        saveOrdersToStorage();
+        logEvent('orders', `Manually created order ${newOrder.id} for ${newOrder.customerName} (${newOrder.planName})`);
+
+        alert(`⚡ Order ${newOrder.id} successfully created and synced to Firebase!`);
+        document.getElementById('quick-action-modal').style.display = 'none';
+        
+        // Refresh overview metrics
+        renderHomeCockpit();
+        // Reload orders list if visible
+        if (typeof renderOrdersTable === 'function') renderOrdersTable();
+    });
+}
+
+function setupActivateCustomerForm(container) {
+    const pendingOrders = ordersList.filter(o => o && o.status === 'pending');
+
+    if (pendingOrders.length === 0) {
+        container.innerHTML = `
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                <i data-lucide="shield-check" style="width: 48px; height: 48px; margin: 0 auto 10px; color: var(--clr-success); opacity: 0.8;"></i>
+                <h4 style="color:#fff; font-weight:700;">No Pending Activations</h4>
+                <p style="font-size:0.8rem; margin-top:5px;">Excellent! All pending client invoices are verified & delivered.</p>
+            </div>
+        `;
+        return;
+    }
+
+    let orderItems = pendingOrders.map(o => `
+        <div class="q-card-select-item" data-id="${o.id}">
+            <div>
+                <span style="font-weight:700; color:var(--clr-cyan); font-family:monospace; font-size:0.85rem;">${o.id}</span>
+                <span style="font-weight:600; color:#fff; display:block; margin-top:2px;">${escapeHTML(o.customerName)}</span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">${escapeHTML(o.planName || o.plan || 'Subscription')} (₹${o.price})</span>
+            </div>
+            <div style="text-align:right;">
+                <span class="badge-status-operating pending" style="font-size:0.65rem;">PENDING</span>
+                ${o.utr ? `<span style="font-size:0.7rem; color:var(--clr-accent); display:block; margin-top:3px; font-family:monospace;">UTR: ${o.utr}</span>` : ''}
+            </div>
+        </div>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="q-form-group">
+            <label>Select Pending Client Invoice *</label>
+            <div id="q-activation-orders-list" style="max-height: 180px; overflow-y: auto; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 5px;">
+                ${orderItems}
+            </div>
+        </div>
+
+        <form id="q-activation-form" style="display:none;">
+            <input type="hidden" id="q-act-id">
+            <div class="q-form-group">
+                <label>Deliver Activation Details / Account Credentials / Invite Link *</label>
+                <textarea class="q-textarea" id="q-act-credentials" rows="4" required placeholder="Provide login invite links or username/password setup. Be concise!"></textarea>
+            </div>
+            <div class="q-form-group" style="display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="q-act-send-notify" checked style="width:auto; margin:0;">
+                <label style="margin:0; cursor:pointer;" for="q-act-send-notify">Auto Send WhatsApp Activation Alert (CallMeBot)</label>
+            </div>
+
+            <div class="q-btn-row">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('quick-action-modal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-glow"><i data-lucide="shield-check" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Deliver & Activate</button>
+            </div>
+        </form>
+    `;
+
+    const items = container.querySelectorAll('.q-card-select-item');
+    const form = document.getElementById('q-activation-form');
+    const actIdInput = document.getElementById('q-act-id');
+    const credentialsInput = document.getElementById('q-act-credentials');
+
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            items.forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            const orderId = item.getAttribute('data-id');
+            const order = pendingOrders.find(o => o.id === orderId);
+            
+            actIdInput.value = orderId;
+            // Pre-populate credentials instructions template!
+            const prod = productsList.find(p => p.id === order.product);
+            const processText = prod ? (prod.activationProcess || '') : 'Use this secure invite key to join.';
+            credentialsInput.value = `🔑 Credentials / Setup details for ${order.productTitle || 'Subscription'}:\n\n- Access Details: \n- Product process: ${processText}`;
+            
+            form.style.display = 'block';
+        });
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const orderId = actIdInput.value;
+        const credentialsText = credentialsInput.value.trim();
+        const sendNotify = document.getElementById('q-act-send-notify').checked;
+
+        const idx = ordersList.findIndex(o => o.id === orderId);
+        if (idx < 0) return;
+
+        ordersList[idx].status = 'active';
+        ordersList[idx].activationDate = new Date().toLocaleDateString('en-IN');
+        ordersList[idx].credentials = credentialsText;
+
+        saveOrdersToStorage();
+        logEvent('orders', `Activated subscription order ${orderId} for client ${ordersList[idx].customerName}`);
+
+        // Try to trigger auto notification
+        if (sendNotify) {
+            const order = ordersList[idx];
+            const welcomeMsg = `⚡ Hello ${order.customerName}! Your subscription for *${order.productTitle}* is now ACTIVE!\n\n🔑 *Login / Activation Details:*\n${credentialsText}\n\nThank you for purchasing from Lightning Deals! ✨`;
+            sendQuickWhatsApp(order.customerWhatsApp, welcomeMsg);
+        }
+
+        alert(`🔑 Subscription for order ${orderId} is now active and credentials saved!`);
+        document.getElementById('quick-action-modal').style.display = 'none';
+        
+        renderHomeCockpit();
+        if (typeof renderOrdersTable === 'function') renderOrdersTable();
+    });
+}
+
+function setupSendWhatsAppForm(container) {
+    if (ordersList.length === 0) {
+        container.innerHTML = `<div style="padding: 2rem; text-align: center; color: var(--text-muted);">No client records found.</div>`;
+        return;
+    }
+
+    // Grab unique customers
+    const uniqueCustomers = [];
+    const seen = new Set();
+    ordersList.forEach(o => {
+        if (!o || !o.customerName) return;
+        const key = o.customerWhatsApp || o.customerEmail;
+        if (!seen.has(key)) {
+            seen.add(key);
+            uniqueCustomers.push(o);
+        }
+    });
+
+    let custOptions = uniqueCustomers.map(c => `<option value="${escapeHTML(c.id)}" data-phone="${escapeHTML(c.customerWhatsApp)}" data-name="${escapeHTML(c.customerName)}">${escapeHTML(c.customerName)} (${escapeHTML(c.customerWhatsApp || 'No phone')})</option>`).join('');
+
+    container.innerHTML = `
+        <form id="q-whatsapp-form">
+            <div class="q-form-group">
+                <label>Select Customer Profile *</label>
+                <select class="q-select" id="q-wa-cust" required>
+                    <option value="" disabled selected>Choose a profile...</option>
+                    ${custOptions}
+                </select>
+            </div>
+            <div class="q-form-group">
+                <label>WhatsApp Phone Number *</label>
+                <input type="text" class="q-input" id="q-wa-phone" required placeholder="e.g. 919876543210">
+            </div>
+            <div class="q-form-group">
+                <label>Select Message Template</label>
+                <select class="q-select" id="q-wa-tmpl">
+                    <option value="welcome">⚡ Quick Welcome Message</option>
+                    <option value="invoice">📋 Invoice & UTR Reminder</option>
+                    <option value="credentials">🔑 Account Activation details</option>
+                    <option value="expiry">🕒 Expiry Notice & Renewal discount</option>
+                    <option value="custom">✏️ Custom Custom Message</option>
+                </select>
+            </div>
+            <div class="q-form-group">
+                <label>Message Content *</label>
+                <textarea class="q-textarea" id="q-wa-msg" rows="5" required placeholder="Message body text..."></textarea>
+            </div>
+
+            <div class="q-btn-row">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('quick-action-modal').style.display='none'">Cancel</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-q-wa-web"><i data-lucide="external-link" style="width:12px; height:12px; display:inline-block; vertical-align:middle; margin-right:3px;"></i> WhatsApp Web fallback</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-glow"><i data-lucide="send" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Send via API</button>
+            </div>
+        </form>
+    `;
+
+    const custSelect = document.getElementById('q-wa-cust');
+    const phoneInput = document.getElementById('q-wa-phone');
+    const tmplSelect = document.getElementById('q-wa-tmpl');
+    const msgTextarea = document.getElementById('q-wa-msg');
+
+    const templates = {
+        welcome: `Hello {name}! ⚡\n\nWelcome to Lightning Deals. We received your subscription order.\n\nOur team is currently verifying the payment. We will deliver your credentials within 5-15 minutes!\n\nThank you for choosing us! ✨`,
+        invoice: `Hello {name}! ⚡\n\nYour order is currently pending payment confirmation. Please double check that you have transferred the amount via UPI and submitted the 12-digit UTR verification ID.\n\nLet us know if you need any assistance!`,
+        credentials: `Hello {name}! ⚡\n\n🔑 Your credentials / invite details are here:\n\n- Product: {product}\n- Setup credentials:\n\nEnjoy your premium access! ✨`,
+        expiry: `Hello {name}! ⚡\n\n🕒 Your subscription for {product} expires in 3 days!\n\nTo ensure uninterrupted service and retain your current discount, please renew now:\n\n🔗 Renew Link: https://lightningdeals.online/#products\n\nLet us know if you have any questions!`,
+        custom: `Hello {name}!`
+    };
+
+    custSelect.addEventListener('change', () => {
+        const option = custSelect.options[custSelect.selectedIndex];
+        const phone = option.getAttribute('data-phone');
+        const name = option.getAttribute('data-name');
+        
+        phoneInput.value = phone || '';
+        updateTemplateContent(name, option.text);
+    });
+
+    tmplSelect.addEventListener('change', () => {
+        const option = custSelect.options[custSelect.selectedIndex];
+        const name = option ? option.getAttribute('data-name') : 'Customer';
+        const product = option ? option.text : 'Subscription';
+        updateTemplateContent(name, product);
+    });
+
+    function updateTemplateContent(name, product) {
+        const key = tmplSelect.value;
+        let text = templates[key] || '';
+        text = text.replace(/{name}/g, name).replace(/{product}/g, product);
+        msgTextarea.value = text;
+    }
+
+    document.getElementById('btn-q-wa-web').addEventListener('click', () => {
+        const cleanPhone = phoneInput.value.replace(/[^0-9]/g, '');
+        const text = msgTextarea.value.trim();
+        const url = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+        logEvent('system', `Opened WhatsApp Web redirection window to +${cleanPhone}`);
+        document.getElementById('quick-action-modal').style.display = 'none';
+    });
+
+    document.getElementById('q-whatsapp-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const cleanPhone = phoneInput.value.replace(/[^0-9]/g, '');
+        const text = msgTextarea.value.trim();
+
+        sendQuickWhatsApp(cleanPhone, text);
+        logEvent('system', `Sent manual customer WhatsApp communication alert to +${cleanPhone}`);
+        alert(`⚡ Communication message sent to customer phone +${cleanPhone}`);
+        document.getElementById('quick-action-modal').style.display = 'none';
+    });
+}
+
+function setupCreateCouponForm(container) {
+    container.innerHTML = `
+        <form id="q-coupon-form">
+            <div class="q-form-group">
+                <label>Coupon Promotional Code *</label>
+                <input type="text" class="q-input" id="q-cp-code" required placeholder="e.g. FLASH50" style="text-transform: uppercase;">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Discount Type *</label>
+                    <select class="q-select" id="q-cp-type" required>
+                        <option value="percent">Percentage Discount (%)</option>
+                        <option value="flat">Flat Discount (₹)</option>
+                    </select>
+                </div>
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Discount Value *</label>
+                    <input type="number" class="q-input" id="q-cp-value" required min="1" placeholder="e.g. 20">
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Minimum Cart Purchase Amount (₹)</label>
+                    <input type="number" class="q-input" id="q-cp-min" min="0" value="0">
+                </div>
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Max Percentage Discount (₹)</label>
+                    <input type="number" class="q-input" id="q-cp-max" min="0" value="9999">
+                </div>
+            </div>
+            <div class="q-form-group">
+                <label>Expiry Date</label>
+                <input type="date" class="q-input" id="q-cp-expiry" required>
+            </div>
+
+            <div class="q-btn-row">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('quick-action-modal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-glow"><i data-lucide="check" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Save Coupon</button>
+            </div>
+        </form>
+    `;
+
+    // Prepopulate expiry date to 30 days from now
+    const d = new Date();
+    d.setDate(d.getDate() + 30);
+    document.getElementById('q-cp-expiry').value = d.toISOString().split('T')[0];
+
+    document.getElementById('q-cp-code').addEventListener('input', (e) => {
+        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    });
+
+    document.getElementById('q-coupon-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const code = document.getElementById('q-cp-code').value.trim().toUpperCase();
+        const type = document.getElementById('q-cp-type').value;
+        const val = parseFloat(document.getElementById('q-cp-value').value) || 0;
+        const minVal = parseFloat(document.getElementById('q-cp-min').value) || 0;
+        const maxVal = parseFloat(document.getElementById('q-cp-max').value) || 9999;
+        const expiry = document.getElementById('q-cp-expiry').value;
+
+        // Check duplicate
+        if (couponsList.some(c => c.code.toUpperCase() === code)) {
+            alert(`A coupon with code "${code}" already exists.`);
+            return;
+        }
+
+        const newCoupon = {
+            code,
+            type,
+            value: val,
+            minPurchase: minVal,
+            maxDiscount: maxVal,
+            expiry,
+            active: true
+        };
+
+        couponsList.push(newCoupon);
+        saveCouponsToFirebase();
+        logEvent('catalog', `Created discount coupon code: ${code}`);
+
+        alert(`🎟️ Promotion coupon "${code}" created successfully!`);
+        document.getElementById('quick-action-modal').style.display = 'none';
+
+        if (typeof renderCouponsTable === 'function') {
+            renderCouponsStats();
+            renderCouponsTable();
+        }
+    });
+}
+
+function setupAddProductForm(container) {
+    container.innerHTML = `
+        <form id="q-add-product-form">
+            <div class="q-form-group">
+                <label>Product Name *</label>
+                <input type="text" class="q-input" id="q-pr-name" required placeholder="e.g. Photoshop Pro">
+            </div>
+            <div class="q-form-group">
+                <label>Short Description *</label>
+                <input type="text" class="q-input" id="q-pr-desc" required placeholder="e.g. Unleash your full creative editing power.">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Category *</label>
+                    <select class="q-select" id="q-pr-cat" required>
+                        <option value="design">Design & Creative</option>
+                        <option value="ai">AI Tools</option>
+                        <option value="productivity">Productivity & Office</option>
+                        <option value="streaming">Streaming Services</option>
+                    </select>
+                </div>
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Icon Letter Theme *</label>
+                    <input type="text" class="q-input" id="q-pr-icon" required maxlength="4" placeholder="e.g. Ps">
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Plan Price Sale (₹) *</label>
+                    <input type="number" class="q-input" id="q-pr-price" required min="1" placeholder="399">
+                </div>
+                <div class="q-form-group" style="flex: 1;">
+                    <label>Retail Price (₹) *</label>
+                    <input type="number" class="q-input" id="q-pr-retail" required min="1" placeholder="1999">
+                </div>
+            </div>
+            <div class="q-form-group">
+                <label>Compatibility Tiers *</label>
+                <input type="text" class="q-input" id="q-pr-compat" value="Windows, Mac, iOS, Android, Web">
+            </div>
+
+            <div class="q-btn-row">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('quick-action-modal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-glow"><i data-lucide="check" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Save Product</button>
+            </div>
+        </form>
+    `;
+
+    document.getElementById('q-add-product-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('q-pr-name').value.trim();
+        const desc = document.getElementById('q-pr-desc').value.trim();
+        const cat = document.getElementById('q-pr-cat').value;
+        const icon = document.getElementById('q-pr-icon').value.trim();
+        const price = parseFloat(document.getElementById('q-pr-price').value) || 0;
+        const retail = parseFloat(document.getElementById('q-pr-retail').value) || 0;
+        const compat = document.getElementById('q-pr-compat').value.trim();
+
+        const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+
+        const newProd = {
+            id,
+            name,
+            category: cat,
+            description: desc,
+            icon,
+            iconColor: 'grad-purple',
+            plans: [
+                { label: '1 Month', price, retail }
+            ],
+            features: [
+                'Activated directly on your personal account',
+                'Seamless license premium features unlocked',
+                'Full warranty replacement cover'
+            ],
+            activationRequirements: 'Your registered account email address.',
+            activationProcess: 'We will register your license within 15 minutes. Check email invite link.'
+        };
+
+        productsList.push(newProd);
+        if (database) {
+            database.ref('products').set(productsList);
+        }
+        localStorage.setItem('lightning_deals_products', JSON.stringify(productsList));
+        logEvent('catalog', `Added catalog product: ${name}`);
+
+        alert(`📦 Product "${name}" successfully added to reseller catalog!`);
+        document.getElementById('quick-action-modal').style.display = 'none';
+
+        if (typeof renderProductsTable === 'function') {
+            renderProductsStats();
+            renderProductsTable();
+        }
+    });
+}
+
+function setupSearchCRMForm(container) {
+    container.innerHTML = `
+        <div class="q-form-group">
+            <label>Live Search Customer Directory</label>
+            <input type="text" class="q-input" id="q-crm-search" placeholder="Type name, email, WhatsApp, or order ID..." autofocus>
+        </div>
+
+        <div id="q-crm-results" style="max-height: 300px; overflow-y: auto; margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
+            <!-- Filled dynamically -->
+        </div>
+    `;
+
+    const searchInput = document.getElementById('q-crm-search');
+    const resultsContainer = document.getElementById('q-crm-results');
+
+    function performSearch() {
+        const q = searchInput.value.toLowerCase().trim();
+        resultsContainer.innerHTML = '';
+
+        if (!q) {
+            resultsContainer.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem;">Type to search staff customer cockpit directory.</div>`;
+            return;
+        }
+
+        const matches = ordersList.filter(o => 
+            (o.customerName && o.customerName.toLowerCase().includes(q)) ||
+            (o.customerEmail && o.customerEmail.toLowerCase().includes(q)) ||
+            (o.customerWhatsApp && o.customerWhatsApp.toLowerCase().includes(q)) ||
+            (o.id && o.id.toLowerCase().includes(q))
+        );
+
+        if (matches.length === 0) {
+            resultsContainer.innerHTML = `<div style="text-align:center; padding:2rem; color:var(--text-muted); font-size:0.85rem;">No matching client records found.</div>`;
+            return;
+        }
+
+        matches.slice(0, 15).forEach(m => {
+            const row = document.createElement('div');
+            row.className = 'q-card-select-item';
+            row.style.cursor = 'default';
+            row.innerHTML = `
+                <div>
+                    <span style="font-weight:700; color:var(--clr-cyan); font-family:monospace; font-size:0.85rem;">${m.id}</span>
+                    <span style="font-weight:600; color:#fff; display:block; margin-top:2px;">${escapeHTML(m.customerName)}</span>
+                    <span style="font-size:0.75rem; color:var(--text-muted);">${escapeHTML(m.customerEmail)} · ${escapeHTML(m.customerWhatsApp)}</span>
+                    <span style="font-size:0.75rem; color:var(--clr-accent); display:block; margin-top:4px;">${escapeHTML(m.planName || m.plan)} (₹${m.price})</span>
+                </div>
+                <div style="text-align:right; display:flex; flex-direction:column; gap:5px; align-items:flex-end;">
+                    <span class="badge-status-operating ${m.status === 'active' || m.status === 'delivered' ? 'active' : 'pending'}" style="font-size:0.65rem;">${m.status.toUpperCase()}</span>
+                    <button class="btn btn-secondary btn-xs btn-q-crm-profile" data-id="${m.id}" style="padding: 3px 6px; font-size: 0.65rem;">View Profile</button>
+                </div>
+            `;
+            resultsContainer.appendChild(row);
+
+            row.querySelector('.btn-q-crm-profile').addEventListener('click', () => {
+                document.getElementById('quick-action-modal').style.display = 'none';
+                
+                // Try opening standard order details view or CRM view
+                const ordersBtn = document.getElementById('sidebar-btn-orders');
+                if (ordersBtn) ordersBtn.click();
+                
+                setTimeout(() => {
+                    const searchBox = document.getElementById('orders-search-input');
+                    if (searchBox) {
+                        searchBox.value = m.id;
+                        searchBox.dispatchEvent(new Event('input'));
+                    }
+                }, 100);
+            });
+        });
+    }
+
+    searchInput.addEventListener('input', performSearch);
+    performSearch(); // Initial hint
+}
+
+function setupResendActivationForm(container) {
+    const activeOrders = ordersList.filter(o => o && o.status === 'active' && o.credentials);
+
+    if (activeOrders.length === 0) {
+        container.innerHTML = `
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                <h4 style="color:#fff; font-weight:700;">No Active Client Credentials</h4>
+                <p style="font-size:0.8rem; margin-top:5px;">Add credentials by activating a pending client order first.</p>
+            </div>
+        `;
+        return;
+    }
+
+    let orderItems = activeOrders.map(o => `
+        <div class="q-card-select-item" data-id="${o.id}">
+            <div>
+                <span style="font-weight:700; color:var(--clr-cyan); font-family:monospace; font-size:0.85rem;">${o.id}</span>
+                <span style="font-weight:600; color:#fff; display:block; margin-top:2px;">${escapeHTML(o.customerName)}</span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">${escapeHTML(o.planName || o.plan)}</span>
+            </div>
+            <div style="text-align:right;">
+                <span class="badge-status-operating active" style="font-size:0.65rem;">ACTIVE</span>
+            </div>
+        </div>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="q-form-group">
+            <label>Select Active Client Plan *</label>
+            <div id="q-resend-orders-list" style="max-height: 180px; overflow-y: auto; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 5px;">
+                ${orderItems}
+            </div>
+        </div>
+
+        <form id="q-resend-form" style="display:none;">
+            <input type="hidden" id="q-rs-id">
+            <div class="q-form-group">
+                <label>Deliverable Credentials Payload Preview</label>
+                <textarea class="q-textarea" id="q-rs-credentials" rows="4" readonly style="opacity:0.8; background:rgba(0,0,0,0.4);"></textarea>
+            </div>
+
+            <div class="q-btn-row">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('quick-action-modal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-glow"><i data-lucide="mail" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Resend WhatsApp Alert</button>
+            </div>
+        </form>
+    `;
+
+    const items = container.querySelectorAll('.q-card-select-item');
+    const form = document.getElementById('q-resend-form');
+    const rsIdInput = document.getElementById('q-rs-id');
+    const credentialsInput = document.getElementById('q-rs-credentials');
+
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            items.forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            const orderId = item.getAttribute('data-id');
+            const order = activeOrders.find(o => o.id === orderId);
+            
+            rsIdInput.value = orderId;
+            credentialsInput.value = order.credentials || '';
+            form.style.display = 'block';
+        });
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const orderId = rsIdInput.value;
+        const order = activeOrders.find(o => o.id === orderId);
+
+        const welcomeMsg = `⚡ Hello ${order.customerName}! Here are your credentials for *${order.productTitle}* once again:\n\n🔑 *Login / Activation Details:*\n${order.credentials}\n\nLet us know if you experience any connection issues! ✨`;
+        sendQuickWhatsApp(order.customerWhatsApp, welcomeMsg);
+
+        alert(`⚡ Active credentials payload successfully sent to +${order.customerWhatsApp}!`);
+        document.getElementById('quick-action-modal').style.display = 'none';
+    });
+}
+
+function setupIssueRefundForm(container) {
+    const refundableOrders = ordersList.filter(o => o && o.status !== 'refunded' && o.status !== 'cancelled');
+
+    if (refundableOrders.length === 0) {
+        container.innerHTML = `
+            <div style="padding: 2rem; text-align: center; color: var(--text-muted);">
+                <h4 style="color:#fff; font-weight:700;">No Refundable Orders</h4>
+            </div>
+        `;
+        return;
+    }
+
+    let orderItems = refundableOrders.map(o => `
+        <div class="q-card-select-item" data-id="${o.id}">
+            <div>
+                <span style="font-weight:700; color:var(--clr-cyan); font-family:monospace; font-size:0.85rem;">${o.id}</span>
+                <span style="font-weight:600; color:#fff; display:block; margin-top:2px;">${escapeHTML(o.customerName)}</span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">${escapeHTML(o.planName || o.plan)} (₹${o.price})</span>
+            </div>
+            <div style="text-align:right;">
+                <span class="badge-status-operating ${o.status === 'active' || o.status === 'delivered' ? 'active' : 'pending'}" style="font-size:0.65rem;">${o.status.toUpperCase()}</span>
+            </div>
+        </div>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="q-form-group">
+            <label>Select Active/Pending Order *</label>
+            <div id="q-refund-orders-list" style="max-height: 180px; overflow-y: auto; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 5px;">
+                ${orderItems}
+            </div>
+        </div>
+
+        <form id="q-refund-form" style="display:none;">
+            <input type="hidden" id="q-rf-id">
+            <div class="q-form-group">
+                <label>Refund Reason *</label>
+                <input type="text" class="q-input" id="q-rf-reason" required placeholder="e.g. Account invite limit reached, customer cancellation">
+            </div>
+
+            <div class="q-btn-row">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('quick-action-modal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm btn-glow" style="background:var(--clr-red); border-color:var(--clr-red);"><i data-lucide="dollar-sign" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Cancel & Refund Order</button>
+            </div>
+        </form>
+    `;
+
+    const items = container.querySelectorAll('.q-card-select-item');
+    const form = document.getElementById('q-refund-form');
+    const rfIdInput = document.getElementById('q-rf-id');
+
+    items.forEach(item => {
+        item.addEventListener('click', () => {
+            items.forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            rfIdInput.value = item.getAttribute('data-id');
+            form.style.display = 'block';
+        });
+    });
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const orderId = rfIdInput.value;
+        const reason = document.getElementById('q-rf-reason').value.trim();
+
+        const idx = ordersList.findIndex(o => o.id === orderId);
+        if (idx < 0) return;
+
+        ordersList[idx].status = 'refunded';
+        ordersList[idx].refundReason = reason;
+
+        saveOrdersToStorage();
+        logEvent('orders', `Refunded order ${orderId} for client ${ordersList[idx].customerName}. Reason: ${reason}`);
+
+        alert(`💸 Order ${orderId} has been marked as REFUNDED successfully!`);
+        document.getElementById('quick-action-modal').style.display = 'none';
+
+        renderHomeCockpit();
+        if (typeof renderOrdersTable === 'function') renderOrdersTable();
+    });
+}
+
+function setupCopyTemplatesForm(container) {
+    const templates = {
+        welcome: `⚡ Hello {name}!\n\nWelcome to Lightning Deals. We received your subscription order for *{product}*.\n\nOur verification team is currently validating your payment receipt. We will activate your license within 5-15 minutes!\n\nThank you for choosing us! ✨`,
+        credentials: `⚡ Hello {name}!\n\n🔑 Your credentials / invite details for *{product}* are ready:\n\n- Access Credentials / Setup details:\n- [Insert invite URL or account login details here]\n\nEnjoy your premium access! ✨`,
+        renewal: `⚡ Hello {name}!\n\n🕒 Your subscription for *{product}* expires in 3 days!\n\nTo ensure uninterrupted service and retain your premium discounted pricing, please renew now:\n\n🔗 Renew Link: https://lightningdeals.online/#products\n\nLet us know if you need help! ✨`
+    };
+
+    container.innerHTML = `
+        <div class="q-form-group">
+            <label>Select Response Template</label>
+            <select class="q-select" id="q-tp-select">
+                <option value="welcome">⚡ Welcome Confirmation</option>
+                <option value="credentials">🔑 Credentials Delivery</option>
+                <option value="renewal">🕒 Renewal Notice Alert</option>
+            </select>
+        </div>
+        <div class="q-form-group">
+            <label>Template Preview (Edit as needed before copying)</label>
+            <textarea class="q-textarea" id="q-tp-preview" rows="8"></textarea>
+        </div>
+
+        <div class="q-btn-row">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('quick-action-modal').style.display='none'">Close</button>
+            <button type="button" class="btn btn-primary btn-sm btn-glow" id="btn-q-tp-copy"><i data-lucide="copy" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i> Copy Template</button>
+        </div>
+    `;
+
+    const select = document.getElementById('q-tp-select');
+    const preview = document.getElementById('q-tp-preview');
+    const copyBtn = document.getElementById('btn-q-tp-copy');
+
+    function updatePreview() {
+        preview.value = templates[select.value].replace(/{name}/g, 'Customer').replace(/{product}/g, 'Premium Subscription');
+    }
+
+    select.addEventListener('change', updatePreview);
+    updatePreview();
+
+    copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(preview.value)
+            .then(() => {
+                alert("📋 Template successfully copied to clipboard!");
+                document.getElementById('quick-action-modal').style.display = 'none';
+            })
+            .catch(err => {
+                alert("Failed to copy automatically: " + err.message);
+            });
+    });
+}
+
 
 

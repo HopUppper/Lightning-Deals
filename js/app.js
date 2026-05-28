@@ -712,7 +712,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Auto-hide empty recently viewed deals section on load
     const recentSection = document.getElementById('recently-viewed-section');
-    const recentItems = JSON.parse(localStorage.getItem('lightning_deals_recently_viewed') || '[]');
+    const recentItems = safeGetLocalStorage('lightning_deals_recently_viewed', []);
     if (recentSection) {
         if (recentItems.length === 0) {
             recentSection.classList.add('hidden');
@@ -728,35 +728,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Icons initialization
     if (window.lucide) {
-        window.lucide.createIcons();
+        try {
+            window.lucide.createIcons();
+        } catch (e) {
+            console.error("Lucide icon generation failed:", e);
+        }
     }
 
-    setupHeaderScroll();
-    setupMobileMenu();
-    setupSearchFilters();
-    applyStoreFilters();
-    setupTimelineScroll();
-    setupTestimonialsCarousel();
-    setupFAQAccordion();
-    setupFAQSearch();
-    setupConfigureModal();
-    setupDashboardMock();
-    setupPurchaseModal();
-    setupScreenshotUpload();
-    updateCartBadge();
-    setupContactForm();
-    startLivePurchaseNotifications();
-    setupScrollReveal();
-    setupMobileBottomNav();
-    setupWishlistModal();
-    initSearchSuggestions();
-    customerAuthStore.init();
-    updateWishlistUI();
-    startLightningPulse();
-    setupCustomerPortal();
+    // Wrap setup functions in try-catch to guarantee script runtime safety
+    try { setupHeaderScroll(); } catch(e) { console.error("setupHeaderScroll error:", e); }
+    try { setupMobileMenu(); } catch(e) { console.error("setupMobileMenu error:", e); }
+    try { setupSearchFilters(); } catch(e) { console.error("setupSearchFilters error:", e); }
+    try { applyStoreFilters(); } catch(e) { console.error("applyStoreFilters error:", e); }
+    try { setupTimelineScroll(); } catch(e) { console.error("setupTimelineScroll error:", e); }
+    try { setupTestimonialsCarousel(); } catch(e) { console.error("setupTestimonialsCarousel error:", e); }
+    try { setupFAQAccordion(); } catch(e) { console.error("setupFAQAccordion error:", e); }
+    try { setupFAQSearch(); } catch(e) { console.error("setupFAQSearch error:", e); }
+    try { setupConfigureModal(); } catch(e) { console.error("setupConfigureModal error:", e); }
+    try { setupDashboardMock(); } catch(e) { console.error("setupDashboardMock error:", e); }
+    try { setupPurchaseModal(); } catch(e) { console.error("setupPurchaseModal error:", e); }
+    try { setupScreenshotUpload(); } catch(e) { console.error("setupScreenshotUpload error:", e); }
+    try { updateCartBadge(); } catch(e) { console.error("updateCartBadge error:", e); }
+    try { setupContactForm(); } catch(e) { console.error("setupContactForm error:", e); }
+    try { startLivePurchaseNotifications(); } catch(e) { console.error("startLivePurchaseNotifications error:", e); }
+    try { setupScrollReveal(); } catch(e) { console.error("setupScrollReveal error:", e); }
+    try { setupMobileBottomNav(); } catch(e) { console.error("setupMobileBottomNav error:", e); }
+    try { setupWishlistModal(); } catch(e) { console.error("setupWishlistModal error:", e); }
+    try { initSearchSuggestions(); } catch(e) { console.error("initSearchSuggestions error:", e); }
+    try { customerAuthStore.init(); } catch(e) { console.error("customerAuthStore.init error:", e); }
+    try { updateWishlistUI(); } catch(e) { console.error("updateWishlistUI error:", e); }
+    try { startLightningPulse(); } catch(e) { console.error("startLightningPulse error:", e); }
+    try { setupCustomerPortal(); } catch(e) { console.error("setupCustomerPortal error:", e); }
 
     // Dynamically render role-based Stack Builder bundles
-    renderBundles();
+    try { renderBundles(); } catch(e) { console.error("renderBundles error:", e); }
 });
 
 // --- Setup Sticky Header ---
@@ -1016,10 +1021,10 @@ function applyStoreFilters() {
             demandHTML = `<span class="demand-badge demand-popular"><svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 10px; height: 10px; display: inline-block; vertical-align: middle; margin-right: 3px; color: #ffbc00;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Popular Deal</span>`;
         }
 
-        // Build benefits list using healFeatures helper
+        // Build benefits list using healFeatures helper (shortened to 3 concise items)
         let benefitsHTML = '';
         const healed = healFeatures(prod.features);
-        healed.slice(0, 5).forEach(feat => {
+        healed.slice(0, 3).forEach(feat => {
             benefitsHTML += `<li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px; color: var(--clr-cyan); flex-shrink: 0; margin-top: 2px;"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="m9 12 2 2 4-4"></path></svg> <span>${feat}</span></li>`;
         });
 
@@ -5360,11 +5365,15 @@ function setupCustomerPortal() {
         }
     }
 
-    // Switch View Switches triggers
-    document.getElementById('btn-switch-to-signup').addEventListener('click', () => showAuthView('signup'));
-    document.getElementById('btn-switch-to-login').addEventListener('click', () => showAuthView('login'));
-    document.getElementById('btn-switch-to-forgot').addEventListener('click', () => showAuthView('forgot'));
-    document.getElementById('btn-switch-to-login-from-forgot').addEventListener('click', () => showAuthView('login'));
+    // Switch View Switches triggers safely
+    const btnToSignup = document.getElementById('btn-switch-to-signup');
+    if (btnToSignup) btnToSignup.addEventListener('click', () => showAuthView('signup'));
+    const btnToLogin = document.getElementById('btn-switch-to-login');
+    if (btnToLogin) btnToLogin.addEventListener('click', () => showAuthView('login'));
+    const btnToForgot = document.getElementById('btn-switch-to-forgot');
+    if (btnToForgot) btnToForgot.addEventListener('click', () => showAuthView('forgot'));
+    const btnToLoginFromForgot = document.getElementById('btn-switch-to-login-from-forgot');
+    if (btnToLoginFromForgot) btnToLoginFromForgot.addEventListener('click', () => showAuthView('login'));
 
     // Reveal/Hide Password Buttons
     function togglePassVisibility(inputId, buttonId) {
