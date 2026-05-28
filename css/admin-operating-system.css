@@ -1576,3 +1576,111 @@ body.admin-body {
         width: 260px !important;
     }
 }
+
+/* ==========================================================================
+   PHASE 2: ADMIN COCKPIT MOBILE-FIRST & SCROLLABLE GRAPHIC RESPONSIVENESS
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* Responsive Scroll Tables Wrapper */
+    .table-responsive,
+    .table-responsive-wrapper {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        margin-bottom: 1.5rem !important;
+        border: 1px solid var(--clr-border) !important;
+        border-radius: 8px !important;
+    }
+
+    .admin-table {
+        min-width: 750px !important; /* Forces horizontal scroll only on the table container, preventing page break */
+    }
+
+    /* Stack Cockpit summaries & grids */
+    .admin-stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    .admin-content-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    .automation-rules-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .quick-actions-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important;
+        gap: 8px !important;
+    }
+
+    .quick-action-btn {
+        padding: 0.75rem 0.5rem !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+
+    .quick-action-btn span {
+        font-size: 0.72rem !important;
+    }
+
+    /* Tab controls responsiveness */
+    .admin-operating-header {
+        padding: 0.75rem 1rem !important;
+    }
+
+    .header-search-trigger {
+        max-width: 180px !important;
+    }
+
+    .header-search-trigger kbd {
+        display: none !important;
+    }
+
+    /* CRM list and Action Cards stacking */
+    .action-item-card {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Detail drawer scaling on smaller mobile viewports */
+    .admin-drawer-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-left: none !important;
+    }
+
+    .admin-drawer-body {
+        padding: 1rem !important;
+        gap: 1.25rem !important;
+    }
+
+    /* Scale SVG Charts row */
+    .svg-chart-container {
+        height: 180px !important;
+    }
+
+    .header-search-trigger span {
+        display: none !important;
+    }
+
+    .header-search-trigger {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        justify-content: center !important;
+    }
+
+    .header-search-trigger i {
+        margin: 0 !important;
+    }
+}
+

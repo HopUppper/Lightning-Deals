@@ -8365,6 +8365,122 @@ html, body {
     }
 }
 
+/* ==========================================================================
+   PHASE 1: STOREFRONT MOBILE-FIRST PERFORMANCE & UX Polish
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* Touch Target Sizing & Tap Improvements */
+    .filter-btn,
+    .btn,
+    .portal-tab-btn,
+    .header-actions a,
+    .header-actions button,
+    .prod-btn-action,
+    .btn-portal-help-action {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Reduce Shadow & Blur Intensity on Mobile to prevent rendering lag */
+    .glass-card,
+    .product-card,
+    .portal-card,
+    .testimonial-card,
+    .modal-box,
+    .recently-viewed-card {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+    }
+
+    /* Grid layout adjustments for smaller mobile viewports */
+    .product-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+    }
+
+    .recently-viewed-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    
+    /* Spacing refinements */
+    section {
+        padding: 3rem 0 !important;
+    }
+
+    .hero-section {
+        padding-top: 6.5rem !important;
+        padding-bottom: 2.5rem !important;
+    }
+
+    .hero-title {
+        font-size: 2.1rem !important;
+        line-height: 1.25 !important;
+    }
+
+    /* Checkout Bounding Baskets Fixes */
+    .modal-overlay .modal-box {
+        width: calc(100% - 24px) !important;
+        margin: 12px !important;
+        padding: 1.25rem !important;
+        max-height: 92vh !important;
+        border-radius: 16px !important;
+    }
+
+    .checkout-step-pane {
+        padding: 0.5rem 0 !important;
+    }
+    
+    .checkout-form-group input,
+    .checkout-form-group select {
+        padding: 10px 12px !important;
+        font-size: 0.9rem !important;
+    }
+    
+    /* Responsive details text formatting */
+    .prod-desc,
+    .testimonial-text {
+        font-size: 0.84rem !important;
+        line-height: 1.5 !important;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extreme narrow width fluid spacing */
+    .hero-title {
+        font-size: 1.75rem !important;
+    }
+    
+    .hero-actions {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 10px !important;
+    }
+    
+    .hero-actions .btn {
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .portal-card-meta-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.5rem !important;
+    }
+    
+    .portal-sidebar-tabs {
+        padding: 0.5rem !important;
+    }
+    
+    .portal-tab-btn {
+        padding: 6px 8px !important;
+        font-size: 0.72rem !important;
+    }
+}
+
+
 
 
 
