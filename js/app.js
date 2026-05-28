@@ -3683,6 +3683,9 @@ function renderRecentlyViewed() {
         const prod = allProducts.find(p => p.id === productId);
         if (!prod || prod.visible === false) return;
         
+        const wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
+        const isWishlisted = wishlist.includes(prod.id);
+        
         let selectedPlan = prod.plans.find(p => p.label.toLowerCase().includes('1 month'));
         if (!selectedPlan) selectedPlan = prod.plans[0];
         

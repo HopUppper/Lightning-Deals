@@ -4695,10 +4695,57 @@ body:has(.modal-overlay.active) .whatsapp-float {
         display: none;
     }
 
-    /* Hide redundant header wishlist and cart buttons on mobile, since we have the bottom navbar */
+    /* Premium responsive header action triggers - Elegant and compact icon-only buttons */
     #header-wishlist-btn,
     #header-cart-btn {
+        display: flex !important;
+        padding: 0.5rem !important;
+        min-width: 38px;
+        height: 38px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 8px !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+    }
+
+    #header-orders-btn {
+        padding: 0.5rem !important;
+        min-width: 38px;
+        height: 38px;
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        gap: 0 !important;
+    }
+
+    #header-orders-btn span:last-child {
         display: none !important;
+    }
+
+    #header-orders-btn i,
+    #header-orders-btn svg {
+        margin: 0 !important;
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    .header-container {
+        padding: 0.6rem 0 !important;
+        gap: 0.5rem !important;
+    }
+
+    .header-actions {
+        gap: 0.4rem !important;
+    }
+
+    .logo {
+        gap: 0.3rem !important;
+    }
+
+    .logo-text {
+        font-size: 1.1rem !important;
     }
 
     /* Section spacing */
