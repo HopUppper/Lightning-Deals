@@ -132,5 +132,7 @@ async function applyRateLimit(profile, req, res) {
 
 module.exports = {
     getClientIP,
-    applyRateLimit
+    applyRateLimit,
+    redis,
+    isConfigured
 };

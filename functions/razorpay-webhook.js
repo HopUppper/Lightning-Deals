@@ -54,28 +54,44 @@ exports.handler = async (event, context) => {
     const signature = event.headers['x-razorpay-signature'] || event.headers['X-Razorpay-Signature'];
     const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET;
 
-    // Cryptographic signature verification if secret is configured
-    if (WEBHOOK_SECRET && signature) {
-      const hmac = crypto.createHmac('sha256', WEBHOOK_SECRET);
-      hmac.update(rawBody);
-      const generated = hmac.digest('hex');
+    // Cryptographic signature verification (production requirement: FAIL-CLOSED)
+    if (!signature) {
+      console.error('Webhook blocked: Signature header missing.');
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: 'Signature header is required.' })
+      };
+    }
 
-      const signatureBuffer = Buffer.from(signature);
-      const generatedBuffer = Buffer.from(generated);
+    if (!WEBHOOK_SECRET) {
+      console.error('Webhook configuration error: RAZORPAY_WEBHOOK_SECRET is not configured on the server.');
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ error: 'Webhook secret is not configured on the server.' })
+      };
+    }
 
-      let isMatch = false;
-      if (signatureBuffer.length === generatedBuffer.length) {
-        isMatch = crypto.timingSafeEqual(signatureBuffer, generatedBuffer);
-      }
+    const hmac = crypto.createHmac('sha256', WEBHOOK_SECRET);
+    hmac.update(rawBody);
+    const generated = hmac.digest('hex');
 
-      if (!isMatch) {
-        console.error('Webhook signature mismatch.');
-        return {
-          statusCode: 400,
-          headers,
-          body: JSON.stringify({ error: 'Signature verification failed.' })
-        };
-      }
+    const signatureBuffer = Buffer.from(signature);
+    const generatedBuffer = Buffer.from(generated);
+
+    let isMatch = false;
+    if (signatureBuffer.length === generatedBuffer.length) {
+      isMatch = crypto.timingSafeEqual(signatureBuffer, generatedBuffer);
+    }
+
+    if (!isMatch) {
+      console.error('Webhook signature mismatch.');
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ error: 'Signature verification failed. Unauthorized payload.' })
+      };
     }
 
     const payload = JSON.parse(rawBody);
@@ -408,6 +424,163 @@ exports.handler = async (event, context) => {
       };
 
       const compiledCredentials = compileTemplate(selectedTemplateText, order);
+
+      // 4.5. Send Transactional HTML Email to Customer via Brevo
+      if (order.email) {
+        try {
+          const { sendEmail } = require('../api/_mail.js');
+          const emailSubject = `⚡ Your Subscription Credentials - Order ${order.id}`;
+          const emailHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Your Subscription Activation Credentials</title>
+              <style>
+                body {
+                  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                  background-color: #0b0f19;
+                  color: #e2e8f0;
+                  margin: 0;
+                  padding: 0;
+                  -webkit-font-smoothing: antialiased;
+                }
+                .container {
+                  max-width: 600px;
+                  margin: 40px auto;
+                  background-color: #111827;
+                  border: 1px solid #1f2937;
+                  border-radius: 12px;
+                  overflow: hidden;
+                  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                }
+                .header {
+                  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+                  padding: 30px;
+                  text-align: center;
+                }
+                .header h1 {
+                  color: #0b0f19;
+                  margin: 0;
+                  font-size: 26px;
+                  font-weight: 800;
+                  letter-spacing: -0.5px;
+                }
+                .content {
+                  padding: 40px;
+                }
+                .welcome {
+                  font-size: 18px;
+                  font-weight: 600;
+                  color: #ffffff;
+                  margin-top: 0;
+                  margin-bottom: 20px;
+                }
+                .credentials-box {
+                  background-color: #1f2937;
+                  border-left: 4px solid #00f2fe;
+                  padding: 24px;
+                  border-radius: 8px;
+                  margin: 25px 0;
+                  font-family: "Courier New", Courier, monospace;
+                  white-space: pre-wrap;
+                  font-size: 14px;
+                  line-height: 1.6;
+                  color: #39da8a;
+                }
+                .order-table {
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin: 25px 0;
+                }
+                .order-table th, .order-table td {
+                  padding: 12px 15px;
+                  text-align: left;
+                  border-bottom: 1px solid #1f2937;
+                }
+                .order-table th {
+                  color: #9ca3af;
+                  font-weight: 600;
+                  font-size: 13px;
+                  text-transform: uppercase;
+                }
+                .order-table td {
+                  color: #ffffff;
+                  font-size: 15px;
+                }
+                .footer {
+                  background-color: #0b0f19;
+                  padding: 30px;
+                  text-align: center;
+                  font-size: 12px;
+                  color: #6b7280;
+                  border-top: 1px solid #1f2937;
+                }
+                .footer a {
+                  color: #00f2fe;
+                  text-decoration: none;
+                }
+                .disclaimer {
+                  margin-top: 15px;
+                  font-size: 11px;
+                  line-height: 1.4;
+                }
+              </style>
+            </head>
+            <body>
+              <div class="container">
+                <div class="header">
+                  <h1>LIGHTNING DEALS</h1>
+                </div>
+                <div class="content">
+                  <p class="welcome">Hello ${order.name || 'Valued Customer'},</p>
+                  <p>Your payment has been successfully processed and verified. We are excited to deliver your premium digital subscription access!</p>
+                  
+                  <table class="order-table">
+                    <tr>
+                      <th>Order ID</th>
+                      <td>${order.id}</td>
+                    </tr>
+                    <tr>
+                      <th>Product</th>
+                      <td>${order.product} (${order.plan})</td>
+                    </tr>
+                    <tr>
+                      <th>Total Paid</th>
+                      <td>₹${order.price}</td>
+                    </tr>
+                    <tr>
+                      <th>Transaction UTR</th>
+                      <td>${order.utr}</td>
+                    </tr>
+                  </table>
+
+                  <h3 style="color: #ffffff; margin-top: 30px; font-size: 16px;">🔑 YOUR ACTIVATION DETAILS:</h3>
+                  <div class="credentials-box">${compiledCredentials}</div>
+
+                  <p style="margin-bottom: 0;">If you have any questions or require custom setup help, please click the button below to reach us on WhatsApp instantly.</p>
+                </div>
+                <div class="footer">
+                  <p>Need support? Chat with our team on <a href="https://wa.me/${settings.phone || '917695956938'}">WhatsApp Direct Support</a> or email us at <a href="mailto:${settings.supportEmail || 'support@lightning-deals.online'}">${settings.supportEmail || 'support@lightning-deals.online'}</a>.</p>
+                  <p class="disclaimer"><strong>Independent Reseller Disclaimer:</strong> ${settings.storeName || 'Lightning Deals'} is an independent software reseller platform. We are not directly affiliated, associated, or officially connected with Canva, Adobe, Netflix, Spotify, or any of their subsidiaries.</p>
+                </div>
+              </div>
+            </body>
+            </html>
+          `;
+
+          await sendEmail({
+            toEmail: order.email,
+            toName: order.name,
+            subject: emailSubject,
+            htmlContent: emailHtml
+          });
+          console.log(`Fulfillment email successfully dispatched to: ${order.email}`);
+        } catch (mailErr) {
+          console.error("Failed to send transactional fulfillment email:", mailErr.message);
+        }
+      }
 
       // 5. Auto-Delivery Webhook (from 3.6)
       if (settings.fulfillmentWebhook) {
