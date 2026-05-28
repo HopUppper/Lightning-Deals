@@ -78,39 +78,43 @@
     },
     {
       "source": "/api/verify-admin.php",
-      "destination": "/api/verify-admin"
+      "destination": "/api/admin-auth?action=verify-admin"
+    },
+    {
+      "source": "/api/verify-admin",
+      "destination": "/api/admin-auth?action=verify-admin"
     },
     {
       "source": "/api/admin-setup-2fa",
-      "destination": "/api/admin-setup-2fa"
+      "destination": "/api/admin-auth?action=setup-2fa"
     },
     {
       "source": "/api/admin-verify-2fa",
-      "destination": "/api/admin-verify-2fa"
+      "destination": "/api/admin-auth?action=verify-2fa"
     },
     {
       "source": "/api/admin-login-2fa",
-      "destination": "/api/admin-login-2fa"
+      "destination": "/api/admin-auth?action=login-2fa"
     },
     {
       "source": "/api/admin-logout",
-      "destination": "/api/admin-logout"
+      "destination": "/api/admin-auth?action=logout"
     },
     {
       "source": "/api/auth-signup",
-      "destination": "/api/auth-signup"
+      "destination": "/api/auth?action=signup"
     },
     {
       "source": "/api/auth-login",
-      "destination": "/api/auth-login"
+      "destination": "/api/auth?action=login"
     },
     {
       "source": "/api/auth-session",
-      "destination": "/api/auth-session"
+      "destination": "/api/auth?action=session"
     },
     {
       "source": "/api/auth-reset",
-      "destination": "/api/auth-reset"
+      "destination": "/api/auth?action=reset"
     }
   ]
 }
