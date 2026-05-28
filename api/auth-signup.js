@@ -16,6 +16,15 @@ module.exports = async (req, res) => {
     const rateLimitPassed = await applyRateLimit('general', req, res);
     if (!rateLimitPassed) return;
 
+    // Validate Input Parameters
+    const { signupSchema } = require('./_validators.js');
+    const validation = signupSchema.safeParse(req.body);
+    if (!validation.success) {
+        return res.status(400).json({ error: "Invalid input parameters.", details: validation.error.format() });
+    }
+    // Replace request body with parsed and sanitized body
+    req.body = validation.data;
+
     // Convert Vercel req parameters into Netlify event interface
     const event = {
         httpMethod: req.method,
