@@ -362,47 +362,63 @@ function initSessionTimeout() {
 
 // --- Session Verification ---
 function checkActiveSession() {
-    const sessionToken = sessionStorage.getItem('lightning_deals_session_token');
-    if (sessionToken) {
-        // Validate session state with serverless API to block bypass
-        fetch('/api/verify-admin.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ action: 'verify_session', sessionToken: sessionToken })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data && data.success && data.valid) {
-                unlockDashboard();
-                initSessionTimeout(); // Start inactivity monitor
-            } else {
-                sessionStorage.clear();
-                window.location.reload();
-            }
-        })
-        .catch(err => {
-            console.error('Session validation failed, locking dashboard:', err);
+    // Validate session state with serverless API using secure HttpOnly cookie
+    fetch('/api/verify-admin.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'verify_session' })
+    })
+    .then(res => {
+        if (res.status === 401 || res.status === 403) {
+            throw new Error("Unauthorized");
+        }
+        return res.json();
+    })
+    .then(data => {
+        if (data && data.success && data.valid) {
+            sessionStorage.setItem('lightning_deals_logged_in', 'true');
+            unlockDashboard();
+            initSessionTimeout(); // Start inactivity monitor
+        } else {
             sessionStorage.clear();
-            window.location.reload();
-        });
-    }
+            const gate = document.getElementById('admin-gate');
+            const app = document.getElementById('admin-app');
+            if (gate) gate.style.display = 'flex';
+            if (app) app.style.display = 'none';
+        }
+    })
+    .catch(err => {
+        console.warn('Session inactive or validation failed:', err.message);
+        sessionStorage.clear();
+        const gate = document.getElementById('admin-gate');
+        const app = document.getElementById('admin-app');
+        if (gate) gate.style.display = 'flex';
+        if (app) app.style.display = 'none';
+    });
 }
 
 // --- Login Gate Handlers ---
 function setupLoginGate() {
     const loginFormPwd = document.getElementById('admin-login-form-pwd');
     const loginFormPin = document.getElementById('admin-login-form-pin');
+    const loginForm2FA = document.getElementById('admin-login-form-2fa');
+    
     const pwdInput = document.getElementById('admin-password');
     const pinInput2fa = document.getElementById('admin-pin-2fa');
+    const otpInput2fa = document.getElementById('admin-otp-2fa');
     
     const errorTextPwd = document.getElementById('login-error-msg-pwd');
     const errorTextPin = document.getElementById('login-error-msg-pin');
+    const errorText2FA = document.getElementById('login-error-msg-2fa');
     
     const panePwd = document.getElementById('login-pane-pwd');
     const panePin = document.getElementById('login-pane-pin');
-    const btnBack = document.getElementById('btn-back-to-pwd');
+    const pane2fa = document.getElementById('login-pane-2fa');
+    
+    const btnBackToPwd = document.getElementById('btn-back-to-pwd');
+    const btnBackToPin = document.getElementById('btn-back-to-pin');
 
-    if (!loginFormPwd || !loginFormPin) return;
+    if (!loginFormPwd || !loginFormPin || !loginForm2FA) return;
 
     // Helper to check lock state
     function checkLockState() {
@@ -420,23 +436,33 @@ function setupLoginGate() {
                 errorTextPin.textContent = lockMsg;
                 errorTextPin.style.display = 'block';
             }
+            if (errorText2FA) {
+                errorText2FA.textContent = lockMsg;
+                errorText2FA.style.display = 'block';
+            }
             
             if (pwdInput) pwdInput.disabled = true;
             if (pinInput2fa) pinInput2fa.disabled = true;
+            if (otpInput2fa) otpInput2fa.disabled = true;
             
             const subPwd = loginFormPwd.querySelector('button[type="submit"]');
             const subPin = loginFormPin.querySelector('button[type="submit"]');
+            const sub2fa = loginForm2FA.querySelector('button[type="submit"]');
             if (subPwd) subPwd.disabled = true;
             if (subPin) subPin.disabled = true;
+            if (sub2fa) sub2fa.disabled = true;
             return true;
         } else {
             if (pwdInput) pwdInput.disabled = false;
             if (pinInput2fa) pinInput2fa.disabled = false;
+            if (otpInput2fa) otpInput2fa.disabled = false;
             
             const subPwd = loginFormPwd.querySelector('button[type="submit"]');
             const subPin = loginFormPin.querySelector('button[type="submit"]');
+            const sub2fa = loginForm2FA.querySelector('button[type="submit"]');
             if (subPwd) subPwd.disabled = false;
             if (subPin) subPin.disabled = false;
+            if (sub2fa) sub2fa.disabled = false;
             return false;
         }
     }
@@ -507,10 +533,30 @@ function setupLoginGate() {
         })
         .then(res => res.json())
         .then(data => {
-            if (data && data.success && data.sessionToken) {
+            if (data && data.success) {
+                if (data.status === '2fa_required') {
+                    if (errorTextPin) errorTextPin.style.display = 'none';
+                    sessionStorage.setItem('lightning_deals_temp_token', data.tempToken);
+                    
+                    // Transition to 2FA pane
+                    if (panePin && pane2fa) {
+                        panePin.style.opacity = '0';
+                        setTimeout(() => {
+                            panePin.style.display = 'none';
+                            pane2fa.style.display = 'block';
+                            pane2fa.style.opacity = '0';
+                            setTimeout(() => {
+                                pane2fa.style.opacity = '1';
+                                if (otpInput2fa) otpInput2fa.focus();
+                            }, 50);
+                        }, 200);
+                    }
+                    return;
+                }
+
+                // Final unlock successful (No 2FA active)
                 if (errorTextPin) errorTextPin.style.display = 'none';
                 sessionStorage.removeItem('lightning_deals_temp_token');
-                sessionStorage.setItem('lightning_deals_session_token', data.sessionToken);
                 sessionStorage.setItem('lightning_deals_logged_in', 'true');
                 
                 localStorage.setItem('lightning_deals_login_attempts', '0');
@@ -528,9 +574,50 @@ function setupLoginGate() {
         });
     });
 
+    // Step 3: Submit 6-digit TOTP 2FA Code
+    loginForm2FA.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (checkLockState()) return;
+
+        const code = otpInput2fa.value.trim();
+        const tempToken = sessionStorage.getItem('lightning_deals_temp_token');
+
+        if (!tempToken) {
+            alert('Your session has expired. Please start over.');
+            window.location.reload();
+            return;
+        }
+
+        fetch('/api/admin-login-2fa', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tempToken: tempToken, code: code })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.success) {
+                if (errorText2FA) errorText2FA.style.display = 'none';
+                sessionStorage.removeItem('lightning_deals_temp_token');
+                sessionStorage.setItem('lightning_deals_logged_in', 'true');
+                
+                localStorage.setItem('lightning_deals_login_attempts', '0');
+                localStorage.removeItem('lightning_deals_login_lock_time');
+                
+                unlockDashboard();
+                initSessionTimeout();
+            } else {
+                handleFailedAttempt(errorText2FA, data.error || 'Incorrect 2FA code.');
+            }
+        })
+        .catch(err => {
+            console.error('2FA login verify error:', err);
+            handleFailedAttempt(errorText2FA, '2FA Connection failure.');
+        });
+    });
+
     // Back to password screen
-    if (btnBack) {
-        btnBack.addEventListener('click', () => {
+    if (btnBackToPwd) {
+        btnBackToPwd.addEventListener('click', () => {
             sessionStorage.removeItem('lightning_deals_temp_token');
             if (errorTextPin) errorTextPin.style.display = 'none';
             if (pinInput2fa) pinInput2fa.value = '';
@@ -544,6 +631,27 @@ function setupLoginGate() {
                     setTimeout(() => {
                         panePwd.style.opacity = '1';
                         if (pwdInput) pwdInput.focus();
+                    }, 50);
+                }, 200);
+            }
+        });
+    }
+
+    // Back to pin screen from 2FA
+    if (btnBackToPin) {
+        btnBackToPin.addEventListener('click', () => {
+            if (errorText2FA) errorText2FA.style.display = 'none';
+            if (otpInput2fa) otpInput2fa.value = '';
+            
+            if (panePin && pane2fa) {
+                pane2fa.style.opacity = '0';
+                setTimeout(() => {
+                    pane2fa.style.display = 'none';
+                    panePin.style.display = 'block';
+                    panePin.style.opacity = '0';
+                    setTimeout(() => {
+                        panePin.style.opacity = '1';
+                        if (pinInput2fa) pinInput2fa.focus();
                     }, 50);
                 }, 200);
             }
@@ -2811,6 +2919,130 @@ function setupStoreSettings() {
 
     // Run initial load
     loadStoreSettings();
+
+    // Two-Factor Authentication (2FA) Client logic
+    const btnToggle2FA = document.getElementById('btn-toggle-2fa');
+    const area2FASetup = document.getElementById('admin-2fa-setup-area');
+    const img2FAQr = document.getElementById('admin-2fa-qr-img');
+    const code2FASecret = document.getElementById('admin-2fa-secret-key');
+    const input2FAVerify = document.getElementById('admin-2fa-verify-code');
+    const btnActivate2FA = document.getElementById('btn-activate-2fa');
+    const badge2FA = document.getElementById('admin-2fa-badge');
+    const error2FA = document.getElementById('admin-2fa-setup-error');
+
+    let totpActiveState = false;
+
+    function refresh2FAStatus() {
+        if (!database) {
+            if (badge2FA) {
+                badge2FA.textContent = "Offline Mode";
+                badge2FA.className = "stock-tag-product stock-tag-limited";
+            }
+            return;
+        }
+
+        database.ref('admin_profile/totp_active').once('value').then(snap => {
+            totpActiveState = snap.val() === true;
+            if (badge2FA) {
+                if (totpActiveState) {
+                    badge2FA.textContent = "Active & Securing";
+                    badge2FA.className = "stock-tag-product stock-tag-instock";
+                    badge2FA.style.background = "rgba(57, 218, 138, 0.15)";
+                    badge2FA.style.color = "var(--clr-green)";
+                    if (btnToggle2FA) btnToggle2FA.textContent = "Deactivate 2FA";
+                } else {
+                    badge2FA.textContent = "Not Active";
+                    badge2FA.className = "stock-tag-product stock-tag-limited";
+                    badge2FA.style.background = "rgba(255, 91, 92, 0.15)";
+                    badge2FA.style.color = "var(--clr-red)";
+                    if (btnToggle2FA) btnToggle2FA.textContent = "Setup 2FA";
+                }
+            }
+        });
+    }
+
+    if (btnToggle2FA) {
+        btnToggle2FA.addEventListener('click', () => {
+            if (totpActiveState) {
+                if (confirm("Are you sure you want to deactivate two-factor authentication? This will reduce your portal security.")) {
+                    database.ref('admin_profile/totp_active').set(false)
+                        .then(() => {
+                            database.ref('admin_profile/totp_secret').set(null);
+                            refresh2FAStatus();
+                            if (area2FASetup) area2FASetup.style.display = 'none';
+                            alert("2FA deactivated successfully.");
+                        });
+                }
+                return;
+            }
+
+            if (area2FASetup && area2FASetup.style.display === 'block') {
+                area2FASetup.style.display = 'none';
+                return;
+            }
+
+            // Fetch setup QR code and key
+            fetch('/api/admin-setup-2fa', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.success) {
+                        if (img2FAQr) img2FAQr.src = data.qrCode;
+                        if (code2FASecret) code2FASecret.textContent = data.secret;
+                        if (area2FASetup) area2FASetup.style.display = 'block';
+                        if (error2FA) error2FA.style.display = 'none';
+                    } else {
+                        alert("Failed to initialize 2FA setup: " + (data.error || "Unknown error"));
+                    }
+                })
+                .catch(err => {
+                    console.error("2FA setup error:", err);
+                    alert("Error initiating 2FA setup.");
+                });
+        });
+    }
+
+    if (btnActivate2FA) {
+        btnActivate2FA.addEventListener('click', () => {
+            const code = input2FAVerify.value.trim();
+            if (!code || code.length !== 6) {
+                if (error2FA) {
+                    error2FA.textContent = "Please enter a valid 6-digit code.";
+                    error2FA.style.display = 'block';
+                }
+                return;
+            }
+
+            fetch('/api/admin-verify-2fa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.success) {
+                        alert("Congratulations! 2FA security has been successfully activated on your administrator account.");
+                        if (area2FASetup) area2FASetup.style.display = 'none';
+                        if (input2FAVerify) input2FAVerify.value = '';
+                        refresh2FAStatus();
+                    } else {
+                        if (error2FA) {
+                            error2FA.textContent = data.error || "Incorrect code. Please check your authenticator app.";
+                            error2FA.style.display = 'block';
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error("2FA verify error:", err);
+                    if (error2FA) {
+                        error2FA.textContent = "Connection failed. Please check network.";
+                        error2FA.style.display = 'block';
+                    }
+                });
+        });
+    }
+
+    // Call initial refresh
+    setTimeout(refresh2FAStatus, 1500);
 
 // ==========================================================================
 // PREMIUM DISCORD WEBHOOK ENGINE & CRM UTILITIES & BROADCAST CAMPAIGNS

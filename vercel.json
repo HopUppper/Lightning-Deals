@@ -81,6 +81,22 @@
       "destination": "/api/verify-admin"
     },
     {
+      "source": "/api/admin-setup-2fa",
+      "destination": "/api/admin-setup-2fa"
+    },
+    {
+      "source": "/api/admin-verify-2fa",
+      "destination": "/api/admin-verify-2fa"
+    },
+    {
+      "source": "/api/admin-login-2fa",
+      "destination": "/api/admin-login-2fa"
+    },
+    {
+      "source": "/api/admin-logout",
+      "destination": "/api/admin-logout"
+    },
+    {
       "source": "/api/auth-signup",
       "destination": "/api/auth-signup"
     },

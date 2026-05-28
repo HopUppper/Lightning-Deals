@@ -6,6 +6,19 @@ const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'lightning_deals_super_secret
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'love9002';
 const ADMIN_PIN = process.env.ADMIN_PIN || '9002';
 
+// Cookie parser helper
+function getCookie(cookieHeader, name) {
+  if (!cookieHeader) return null;
+  const cookies = cookieHeader.split(';');
+  for (let c of cookies) {
+    c = c.trim();
+    if (c.startsWith(name + '=')) {
+      return c.substring(name.length + 1);
+    }
+  }
+  return null;
+}
+
 // Helper to make HTTPS requests to Firebase
 function httpsRequest(options, postData = null) {
   return new Promise((resolve, reject) => {
@@ -215,22 +228,59 @@ exports.handler = async (event, context) => {
       );
 
       if (isPinValid) {
-        // Generate a 2-hour final session token authorizing full access
+        // Check if TOTP 2FA is active
+        let totpActive = false;
+        try {
+          const totpActiveRes = await httpsRequest({
+            hostname: 'lightning-deals-d0adc-default-rtdb.asia-southeast1.firebasedatabase.app',
+            port: 443,
+            path: '/admin_profile/totp_active.json',
+            method: 'GET'
+          });
+          totpActive = JSON.parse(totpActiveRes.body) === true;
+        } catch (e) {
+          console.error("Failed to check TOTP activation status:", e);
+        }
+
+        if (totpActive) {
+          // Generate a 5-minute temporary token authorizing Step 3 (TOTP 2FA)
+          const tempToken2Payload = {
+            step2_passed: true,
+            exp: Date.now() + 5 * 60 * 1000 // 5 minutes validity
+          };
+          const tempToken2 = generateToken(tempToken2Payload);
+
+          return {
+            statusCode: 200,
+            headers,
+            body: JSON.stringify({
+              success: true,
+              status: '2fa_required',
+              tempToken: tempToken2
+            })
+          };
+        }
+
+        // Complete authentication and set secure cookie
         const finalTokenPayload = {
           admin_verified: true,
-          exp: Date.now() + 2 * 60 * 60 * 1000 // 2 hours session validity
+          exp: Date.now() + 24 * 60 * 60 * 1000 // 24 hours session validity
         };
         const sessionToken = generateToken(finalTokenPayload);
 
         await logAuthEvent('auth', 'Staff authenticated fully via secure 2-step verification.');
 
+        const cookieValue = `ld_admin_session=${sessionToken}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400`;
+
         return {
           statusCode: 200,
-          headers,
+          headers: {
+            ...headers,
+            'Set-Cookie': cookieValue
+          },
           body: JSON.stringify({
             success: true,
-            message: 'Dashboard unlocked successfully.',
-            sessionToken: sessionToken
+            message: 'Dashboard unlocked successfully.'
           })
         };
       } else {
@@ -250,10 +300,12 @@ exports.handler = async (event, context) => {
     // ACTION C: VERIFY LIVE SESSION
     // ==========================================
     if (action === 'verify_session') {
-      const { sessionToken } = body;
+      const cookieHeader = event.headers.cookie || event.headers.Cookie;
+      const sessionToken = getCookie(cookieHeader, 'ld_admin_session');
+      
       if (!sessionToken) {
         return {
-          statusCode: 400,
+          statusCode: 401,
           headers,
           body: JSON.stringify({ error: 'Session token is required.' })
         };

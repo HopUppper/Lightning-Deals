@@ -6,3 +6,6 @@ recovered_data_dump.txt
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# Local Netlify folder
+.netlify
