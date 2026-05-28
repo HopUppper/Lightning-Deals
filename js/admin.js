@@ -298,6 +298,19 @@ function safeGetLocalStorage(key, defaultValue) {
     }
 }
 
+// --- DOMPurify Secure HTML Helper ---
+function setSecureHTML(element, rawHTML) {
+    if (!element) return;
+    if (window.DOMPurify) {
+        element.innerHTML = window.DOMPurify.sanitize(rawHTML, {
+            ADD_ATTR: ['target', 'data-order-id', 'data-status', 'data-copy-text', 'data-lucide', 'style', 'maxlength', 'placeholder', 'data-index', 'data-id', 'class', 'onclick', 'id', 'value', 'type', 'checked', 'selected', 'disabled', 'rows', 'min', 'max', 'step', 'name', 'for'],
+            ADD_TAGS: ['use', 'svg', 'path', 'circle', 'line', 'i', 'h5', 'p', 'input', 'button', 'span', 'div', 'tr', 'td', 'th', 'thead', 'tbody', 'table', 'strong', 'em', 'br', 'small', 'img', 'option', 'select', 'textarea', 'label', 'h4', 'h3', 'h2', 'ul', 'li']
+        });
+    } else {
+        element.innerHTML = rawHTML;
+    }
+}
+
 // --- State Variables ---
 let productsList = [];
 let ordersList = [];
@@ -1149,7 +1162,7 @@ function renderProductsTable() {
         if (index === editingIndex) {
             row.classList.add('editing-row');
         }
-        row.innerHTML = `
+        setSecureHTML(row, `
             <td class="checkbox-cell">
                 <input type="checkbox" class="bulk-select-row" data-index="${index}">
             </td>
@@ -1184,7 +1197,7 @@ function renderProductsTable() {
                     </button>
                 </div>
             </td>
-        `;
+        `);
 
         tbody.appendChild(row);
     });
@@ -2032,7 +2045,7 @@ function renderOrdersTable() {
             row.className = rowHighlightClass;
         }
         row.style.cursor = 'pointer';
-        row.innerHTML = `
+        setSecureHTML(row, `
             <td>
                 <div class="admin-table-order-id">${escapeHTML(order.id || '')}</div>
                 ${itemsListHTML}
@@ -2069,7 +2082,7 @@ function renderOrdersTable() {
                     </button>
                 </div>
             </td>
-        `;
+        `);
 
         row.addEventListener('click', (e) => {
             if (e.target.closest('.table-actions') || e.target.closest('.table-actions-cell') || e.target.closest('button') || e.target.closest('a')) {
@@ -2340,7 +2353,7 @@ function renderCouponsTable() {
         const statusLabel = coupon.active ? 'Active' : 'Inactive';
 
         const row = document.createElement('tr');
-        row.innerHTML = `
+        setSecureHTML(row, `
             <td>
                 <span class="text-cyan" style="font-weight: 700; font-family: monospace; font-size: 0.95rem; text-transform: uppercase;">${escapeHTML(coupon.code || '')}</span>
             </td>
@@ -2363,7 +2376,7 @@ function renderCouponsTable() {
                     </button>
                 </div>
             </td>
-        `;
+        `);
 
         tbody.appendChild(row);
     });
@@ -5284,11 +5297,11 @@ function filterCommandPaletteResults(query) {
             row.className = 'palette-result-item';
             row.setAttribute('data-index', currentItemIdx);
             
-            row.innerHTML = `
+            setSecureHTML(row, `
                 <i data-lucide="${item.icon}"></i>
                 <span class="palette-result-item-text">${escapeHTML(item.label)}</span>
                 ${item.subtext ? `<span class="palette-result-item-subtext">${escapeHTML(item.subtext)}</span>` : ''}
-            `;
+            `);
 
             row.addEventListener('click', () => {
                 closeCommandPalette();

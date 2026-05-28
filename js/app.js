@@ -13,6 +13,26 @@ function escapeHTML(str) {
         .replace(/'/g, '&#039;');
 }
 
+// Timing-safe secure HTML sanitizer (prevents DOM XSS injection)
+function setSecureHTML(element, rawHTML) {
+    if (!element) return;
+    if (window.DOMPurify) {
+        element.innerHTML = window.DOMPurify.sanitize(rawHTML, {
+            ADD_ATTR: [
+                'data-action', 'data-prod-name', 'data-id', 'data-index', 
+                'data-target', 'data-code', 'data-item-idx', 'data-product-id', 
+                'data-category', 'data-persona', 'data-price', 'data-receipt', 
+                'data-plan', 'onclick', 'style', 'class', 'href', 'src', 'alt', 
+                'loading', 'target', 'viewbox', 'fill', 'xmlns', 'stroke', 
+                'stroke-width', 'stroke-linecap', 'stroke-linejoin', 'd', 'data-idx', 'data-order-id'
+            ],
+            ADD_TAGS: ['svg', 'path', 'defs', 'linearGradient', 'stop']
+        });
+    } else {
+        element.innerHTML = rawHTML;
+    }
+}
+
 // --- Default Catalog Seeding (Prices in Indian Rupees ₹) ---
 const DEFAULT_PRODUCTS = [
     {
@@ -1050,7 +1070,7 @@ function applyStoreFilters() {
             }
         }
 
-        card.innerHTML = `
+        setSecureHTML(card, `
             <div class="prod-header">
                 <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
                 ${badgeHTML}
@@ -1107,7 +1127,7 @@ function applyStoreFilters() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 12px; height: 12px; opacity: 0.6; display: inline-block; vertical-align: middle; margin-right: 4px;"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 <span>${trustData.views} people got this today</span>
             </div>
-        `;
+        `);
 
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
@@ -1612,12 +1632,12 @@ function setupPurchaseModal() {
             const itemRow = document.createElement('div');
             itemRow.className = 'cart-item-row';
 
-            itemRow.innerHTML = `
+            setSecureHTML(itemRow, `
                 <div class="cart-item-info">
                     <div class="cart-item-logo ${item.iconColor || 'grad-blue'}">${item.icon || 'P'}</div>
                     <div class="cart-item-details">
-                        <span class="cart-item-title">${item.name}</span>
-                        <span class="cart-item-plan">${item.planLabel}</span>
+                        <span class="cart-item-title">${escapeHTML(item.name)}</span>
+                        <span class="cart-item-plan">${escapeHTML(item.planLabel)}</span>
                     </div>
                 </div>
                 <div class="cart-item-actions">
@@ -1631,7 +1651,7 @@ function setupPurchaseModal() {
                         <i data-lucide="trash-2" style="width: 14px; height: 14px;"></i>
                     </button>
                 </div>
-            `;
+            `);
 
             cartItemsList.appendChild(itemRow);
         });
@@ -3308,11 +3328,11 @@ function initSearchSuggestions() {
         );
 
         if (matches.length === 0) {
-            suggestionsDropdown.innerHTML = `
+            setSecureHTML(suggestionsDropdown, `
                 <div style="padding: 0.8rem 1.2rem; color: var(--text-muted); font-size: 0.85rem; text-align: center;">
                     No matching deals found
                 </div>
-            `;
+            `);
             suggestionsDropdown.classList.add('show');
             return;
         }
@@ -3321,13 +3341,14 @@ function initSearchSuggestions() {
         matches.slice(0, 5).forEach(prod => {
             const item = document.createElement('div');
             item.className = 'suggestion-item';
-            item.innerHTML = `
-                <div class="suggestion-icon-circle ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
+            const itemHTML = `
+                <div class="suggestion-icon-circle ${prod.iconColor || 'grad-blue'}">${escapeHTML(prod.icon || 'P')}</div>
                 <div class="suggestion-details">
-                    <span class="suggestion-name">${prod.name}</span>
-                    <span class="suggestion-category">${getCategoryDisplayName(prod.category)}</span>
+                    <span class="suggestion-name">${escapeHTML(prod.name)}</span>
+                    <span class="suggestion-category">${escapeHTML(getCategoryDisplayName(prod.category))}</span>
                 </div>
             `;
+            setSecureHTML(item, itemHTML);
             item.addEventListener('click', () => {
                 searchInput.value = prod.name;
                 searchQuery = prod.name;
@@ -3697,17 +3718,15 @@ function renderRecentlyViewed() {
             badgeHTML = `<span class="prod-badge-tag ${badgeClass}">${prod.tag}</span>`;
         }
 
-        const wishlist = safeGetLocalStorage('lightning_deals_wishlist', []);
-        const isWishlisted = wishlist.includes(prod.id);
-        
         const card = document.createElement('div');
         card.className = 'glass-card product-card';
-        card.innerHTML = `
+        
+        const cardHTML = `
             <div class="prod-header">
                 <div class="prod-badge-logo ${prod.iconColor || 'grad-blue'}">${prod.icon || 'P'}</div>
                 ${badgeHTML}
             </div>
-            <h3 class="prod-title">${prod.name}</h3>
+            <h3 class="prod-title">${escapeHTML(prod.name)}</h3>
             ${valuePropHTML}
             
             <div class="product-card-rating">
@@ -3715,10 +3734,10 @@ function renderRecentlyViewed() {
                 <span class="rating-val">${trustData.rating}</span>
                 <span class="rating-count">(${trustData.count} activations)</span>
             </div>
-            <p class="prod-desc" style="-webkit-line-clamp: 2;">${prod.description}</p>
+            <p class="prod-desc" style="-webkit-line-clamp: 2;">${escapeHTML(prod.description)}</p>
             
             <div class="prod-price-area" style="margin-top: auto; padding-top: 0.5rem;">
-                <span class="prod-retail">${planLabelText}</span>
+                <span class="prod-retail">${escapeHTML(planLabelText)}</span>
                 <div class="price-comp-row">
                     <span class="prod-price-new">₹${priceVal.toLocaleString('en-IN')}</span>
                     <span class="retail-crossed">₹${retailVal.toLocaleString('en-IN')}</span>
@@ -3739,6 +3758,7 @@ function renderRecentlyViewed() {
                 Independent reseller · Not affiliated with the brand
             </div>
         `;
+        setSecureHTML(card, cardHTML);
         
         card.querySelector('.cta-purchase-trigger').addEventListener('click', () => {
             if (typeof openPurchaseModal === 'function') openPurchaseModal(prod.id);
@@ -5726,7 +5746,7 @@ function setupCustomerPortal() {
 
         // Render Cards
         if (filtered.length === 0) {
-            cardsContainer.innerHTML = `
+            setSecureHTML(cardsContainer, `
                 <div style="text-align: center; padding: 3rem 1.5rem; background: rgba(255,255,255,0.015); border: 1px dashed rgba(255,255,255,0.05); border-radius: 12px;">
                     <i data-lucide="folder-open" style="width: 40px; height: 40px; color: var(--text-muted); margin: 0 auto 12px; display: block;"></i>
                     <h5 style="color: #fff; font-size: 0.95rem; font-weight: 600; margin-bottom: 4px;">No Orders Found</h5>
@@ -5734,12 +5754,12 @@ function setupCustomerPortal() {
                         ${totalCount === 0 ? "You haven't placed any orders with this account yet." : "No orders matching your filters in this account."}
                     </p>
                 </div>
-            `;
+            `);
             if (window.lucide) window.lucide.createIcons();
             return;
         }
 
-        cardsContainer.innerHTML = filtered.map(o => renderOrderCardHTML(o)).join('');
+        setSecureHTML(cardsContainer, filtered.map(o => renderOrderCardHTML(o)).join(''));
         
         // Bind Actions
         bindOrderCardActions();
@@ -5848,14 +5868,14 @@ function setupCustomerPortal() {
                             // Swap unlock prompt to OTP input
                             const maskPrompt = document.getElementById(`mask-prompt-${orderId}`);
                             if (maskPrompt) {
-                                maskPrompt.innerHTML = `
+                                setSecureHTML(maskPrompt, `
                                     <h5 style="font-size: 0.82rem; font-weight: 600; color: #fff; margin-bottom: 2px;">Enter 6-Digit WhatsApp Code</h5>
                                     <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 10px;">Sent to: +${matchedOrder.phone.substring(0, 4)}••••${matchedOrder.phone.slice(-3)}</p>
                                     <div style="display: flex; gap: 6px; justify-content: center; max-width: 260px; width: 100%;">
                                         <input type="text" id="otp-input-${orderId}" maxlength="6" placeholder="••••••" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px; color: #fff; text-align: center; font-size: 0.85rem; font-family: monospace; letter-spacing: 0.25em; width: 100px; outline: none;">
                                         <button class="btn btn-primary btn-xs btn-verify-otp-submit" data-order-id="${orderId}" style="padding: 6px 12px; font-size: 0.72rem;">Verify</button>
                                     </div>
-                                `;
+                                `);
                                 
                                 maskPrompt.querySelector('.btn-verify-otp-submit').addEventListener('click', () => {
                                     const otpInput = document.getElementById(`otp-input-${orderId}`);
@@ -6320,7 +6340,7 @@ function setupCustomerPortal() {
         }
 
         if (localWish.length === 0) {
-            wishlistItemsGrid.innerHTML = `
+            setSecureHTML(wishlistItemsGrid, `
                 <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem; background: rgba(255,255,255,0.015); border: 1px dashed rgba(255,255,255,0.05); border-radius: 12px;">
                     <i data-lucide="heart" style="width: 40px; height: 40px; color: var(--text-muted); margin: 0 auto 12px; display: block;"></i>
                     <h5 style="color: #fff; font-size: 0.95rem; font-weight: 600; margin-bottom: 4px;">Your Wishlist is Empty</h5>
@@ -6328,12 +6348,12 @@ function setupCustomerPortal() {
                         Save premium deal licenses from our main display cards.
                     </p>
                 </div>
-            `;
+            `);
             if (window.lucide) window.lucide.createIcons();
             return;
         }
 
-        wishlistItemsGrid.innerHTML = localWish.map(id => {
+        const wishlistHTML = localWish.map(id => {
             const prod = activeProducts.find(p => p.id === id);
             if (!prod) return '';
             
@@ -6364,6 +6384,7 @@ function setupCustomerPortal() {
                 </div>
             `;
         }).join('');
+        setSecureHTML(wishlistItemsGrid, wishlistHTML);
 
         // Bind Wishlist Actions
         document.querySelectorAll('.portal-wishlist-delete-btn').forEach(btn => {
@@ -6409,12 +6430,12 @@ function setupCustomerPortal() {
         }
 
         if (cart.length === 0) {
-            cartItemsList.innerHTML = `
+            setSecureHTML(cartItemsList, `
                 <div style="text-align: center; padding: 2rem 0; opacity: 0.7;">
                     <i data-lucide="shopping-cart" style="width: 32px; height: 32px; color: var(--text-muted); margin: 0 auto 8px; display: block;"></i>
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Your shopping cart is currently empty.</p>
                 </div>
-            `;
+            `);
             cartTotalPrice.innerText = "₹0";
             if (btnCheckoutCart) btnCheckoutCart.style.display = 'none';
             if (window.lucide) window.lucide.createIcons();
@@ -6423,7 +6444,7 @@ function setupCustomerPortal() {
 
         if (btnCheckoutCart) btnCheckoutCart.style.display = 'block';
 
-        cartItemsList.innerHTML = cart.map((item, idx) => {
+        const htmlContent = cart.map((item, idx) => {
             let logoBg = "linear-gradient(135deg, #00F2FE 0%, #4FACFE 100%)";
             let logoText = "P";
             const nameLower = item.name.toLowerCase();
@@ -6448,6 +6469,8 @@ function setupCustomerPortal() {
                 </div>
             `;
         }).join('');
+
+        setSecureHTML(cartItemsList, htmlContent);
 
         // Compute Grand Total
         const total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
