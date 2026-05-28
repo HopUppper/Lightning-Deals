@@ -1,0 +1,13 @@
+{
+  "name": "lightning-deals-backend",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@upstash/ratelimit": "^1.0.0",
+    "@upstash/redis": "^1.28.0",
+    "bcryptjs": "^2.4.3",
+    "qrcode": "^1.5.3",
+    "speakeasy": "^2.0.0",
+    "zod": "^3.22.4"
+  }
+}

@@ -1,5 +1,6 @@
 // Vercel Serverless Wrapper for LightningDeals /api/auth-session.js
 const netlifyHandler = require('../functions/auth-session.js').handler;
+const { applyRateLimit } = require('./_rate-limit.js');
 
 module.exports = async (req, res) => {
     // Enable CORS
@@ -10,6 +11,10 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
+
+    // Apply Rate Limiting
+    const rateLimitPassed = await applyRateLimit('general', req, res);
+    if (!rateLimitPassed) return;
 
     // Convert Vercel req parameters into Netlify event interface
     const event = {
