@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /my-orders
+Disallow: /success
+Disallow: /success.html
